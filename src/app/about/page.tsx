@@ -1,248 +1,184 @@
 "use client";
-import React from "react";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import {
+  ArrowLeft,
   Search,
   History,
-  LayoutTemplate,
+  ShieldCheck,
   UserCircle2,
   ExternalLink,
 } from "lucide-react";
 import { APP_COLORS } from "@/lib/colors";
 import { Logo } from "@/components/common/Logo";
 
+const PORTFOLIO_URL = "https://your-portfolio-link-here.com";
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 18 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+};
+
 export default function AboutPage() {
+  const router = useRouter();
+
   return (
     <main
-      className="min-h-screen px-4 py-16 sm:px-8 flex flex-col items-center"
+      className="min-h-screen px-4 py-10 sm:px-8"
       style={{
         backgroundColor: APP_COLORS.background,
         color: APP_COLORS.textPrimary,
       }}
     >
-      <div className="w-full max-w-4xl space-y-16">
-        {/* SECTION 1: Hero */}
-        <section className="text-center space-y-6 flex flex-col items-center">
-          <Logo size="large" showText={false} className="mb-4" />
-          <h1
-            className="text-5xl md:text-7xl font-black tracking-tight whitespace-nowrap"
-            style={{ color: APP_COLORS.primary }}
-          >
-            VigilanceX
-          </h1>
-          <h2
-            className="text-xl md:text-3xl font-medium tracking-wide"
-            style={{ color: APP_COLORS.textSecondary }}
-          >
-            Cyber Threat Intelligence Platform
-          </h2>
-          <p
-            className="text-lg max-w-2xl mx-auto leading-relaxed"
-            style={{ color: APP_COLORS.textMuted }}
-          >
-            VigilanceX equips security analysts with a centralized suite for
-            investigating Indicators of Compromise (IOCs), delivering
-            lightning-fast correlations, file analysis, and actionable insights.
-          </p>
-        </section>
-
-        {/* SECTION 2: Platform Overview */}
-        <section
-          className="rounded-2xl p-8 md:p-12 text-center shadow-sm border"
-          style={{
-            backgroundColor: APP_COLORS.surface,
-            borderColor: APP_COLORS.border,
-          }}
+      <div className="mx-auto w-full max-w-5xl">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+          className="space-y-10"
         >
-          <h3
-            className="text-2xl font-bold mb-4"
-            style={{ color: APP_COLORS.textPrimary }}
-          >
-            Platform Overview
-          </h3>
-          <p
-            className="text-base leading-7"
-            style={{ color: APP_COLORS.textSecondary }}
-          >
-            The platform is designed to streamline day-to-day security
-            operations. By aggregating intelligence from multiple premium feeds
-            into a single pane of glass, VigilanceX eliminates context
-            switching. It seamlessly handles IP, Domain, URL, and File Hash
-            analysis while archiving past investigations to build internal
-            threat intelligence.
-          </p>
-        </section>
-
-        {/* SECTION 3: Features */}
-        <section className="space-y-8">
-          <h3
-            className="text-2xl font-bold text-center"
-            style={{ color: APP_COLORS.textPrimary }}
-          >
-            Core Features
-          </h3>
-          <div className="grid md:grid-cols-3 gap-6">
-            <div
-              className="p-6 rounded-xl border flex flex-col items-center text-center transition-transform duration-300 hover:-translate-y-1"
+          <motion.div variants={itemVariants} className="flex items-center justify-start">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold transition-colors"
               style={{
+                borderColor: APP_COLORS.border,
                 backgroundColor: APP_COLORS.surface,
-                borderColor: APP_COLORS.borderSoft,
+                color: APP_COLORS.textPrimary,
               }}
             >
-              <div
-                className="p-4 rounded-full mb-4"
-                style={{ backgroundColor: APP_COLORS.surfaceSoft }}
-              >
-                <Search
-                  className="w-6 h-6"
-                  style={{ color: APP_COLORS.primary }}
-                />
-              </div>
-              <h4
-                className="font-semibold text-lg mb-2"
-                style={{ color: APP_COLORS.textPrimary }}
-              >
-                Fast IOC Lookup
-              </h4>
-              <p
-                className="text-sm"
-                style={{ color: APP_COLORS.textSecondary }}
-              >
-                Instant intelligence enrichment across unified threat data
-                points.
-              </p>
-            </div>
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </button>
+          </motion.div>
 
-            <div
-              className="p-6 rounded-xl border flex flex-col items-center text-center transition-transform duration-300 hover:-translate-y-1"
-              style={{
-                backgroundColor: APP_COLORS.surface,
-                borderColor: APP_COLORS.borderSoft,
-              }}
-            >
-              <div
-                className="p-4 rounded-full mb-4"
-                style={{ backgroundColor: APP_COLORS.surfaceSoft }}
-              >
-                <History
-                  className="w-6 h-6"
-                  style={{ color: APP_COLORS.primary }}
-                />
-              </div>
-              <h4
-                className="font-semibold text-lg mb-2"
-                style={{ color: APP_COLORS.textPrimary }}
-              >
-                History Tracking
-              </h4>
-              <p
-                className="text-sm"
-                style={{ color: APP_COLORS.textSecondary }}
-              >
-                Automatic correlation and archival of security investigations.
-              </p>
-            </div>
-
-            <div
-              className="p-6 rounded-xl border flex flex-col items-center text-center transition-transform duration-300 hover:-translate-y-1"
-              style={{
-                backgroundColor: APP_COLORS.surface,
-                borderColor: APP_COLORS.borderSoft,
-              }}
-            >
-              <div
-                className="p-4 rounded-full mb-4"
-                style={{ backgroundColor: APP_COLORS.surfaceSoft }}
-              >
-                <LayoutTemplate
-                  className="w-6 h-6"
-                  style={{ color: APP_COLORS.primary }}
-                />
-              </div>
-              <h4
-                className="font-semibold text-lg mb-2"
-                style={{ color: APP_COLORS.textPrimary }}
-              >
-                Clean UI
-              </h4>
-              <p
-                className="text-sm"
-                style={{ color: APP_COLORS.textSecondary }}
-              >
-                Modern, responsive interface built specifically for SOC
-                operational fidelity.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* SECTION 4: Developer Section & CTA */}
-        <section
-          className="rounded-2xl p-8 md:p-12 border flex flex-col items-center text-center space-y-6"
-          style={{
-            backgroundColor: APP_COLORS.surface,
-            borderColor: APP_COLORS.border,
-          }}
-        >
-          <div className="flex items-center justify-center space-x-3">
-            <UserCircle2
-              className="w-8 h-8"
-              style={{ color: APP_COLORS.primary }}
-            />
-            <h3
-              className="text-2xl font-bold"
-              style={{ color: APP_COLORS.textPrimary }}
-            >
-              Developer
-            </h3>
-          </div>
-
-          <div>
-            <h4
-              className="text-xl font-bold"
-              style={{ color: APP_COLORS.textPrimary }}
-            >
-              Dhruv Prajapati
-            </h4>
-            <p
-              className="font-medium mt-1"
-              style={{ color: APP_COLORS.primary }}
-            >
-              Full Stack Developer
-            </p>
-          </div>
-
-          <p
-            className="max-w-xl text-base leading-7"
-            style={{ color: APP_COLORS.textSecondary }}
-          >
-            I specialize in engineering robust web applications, bridging the
-            gap between scalable backends and intuitive frontend experiences.
-            VigilanceX represents my dedication to crafting practical,
-            performance-driven tools for complex operational environments.
-          </p>
-
-          <Link
-            href="https://dhruv-portfolio-23.vercel.app/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center space-x-2 px-8 py-4 rounded-full font-bold transition-all duration-300 hover:scale-105 active:scale-95 shadow-md hover:shadow-lg"
+          <motion.section
+            variants={itemVariants}
+            className="rounded-2xl border p-8 text-center sm:p-12"
             style={{
-              backgroundColor: APP_COLORS.primary,
-              color: "#ffffff",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor =
-                APP_COLORS.surfaceTint || "#0056b3"; // Switch slightly tint
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = APP_COLORS.primary;
+              backgroundColor: APP_COLORS.surface,
+              borderColor: APP_COLORS.border,
             }}
           >
-            <span>View My Portfolio</span>
-            <ExternalLink className="w-5 h-5" />
-          </Link>
-        </section>
+            <div className="mx-auto mb-5 flex w-fit justify-center">
+              <Logo showTagline className="justify-center" />
+            </div>
+            <h1
+              className="text-4xl font-black tracking-tight sm:text-6xl"
+              style={{ color: APP_COLORS.primary }}
+            >
+              About VigilanceX
+            </h1>
+            <p
+              className="mx-auto mt-4 max-w-3xl text-base leading-7 sm:text-lg"
+              style={{ color: APP_COLORS.textSecondary }}
+            >
+              VigilanceX is built to help SOC teams investigate Indicators of Compromise with speed,
+              context, and confidence. It unifies domain, IP, URL, hash, and file analysis into one
+              focused intelligence workflow.
+            </p>
+          </motion.section>
+
+          <motion.section variants={itemVariants} className="grid gap-4 md:grid-cols-3">
+            {[
+              {
+                icon: Search,
+                title: "Fast IOC Lookup",
+                description: "Run high-signal checks for IPs, domains, URLs, and hashes in one place.",
+              },
+              {
+                icon: History,
+                title: "Investigation History",
+                description: "Preserve and revisit prior investigations to speed up repeat triage.",
+              },
+              {
+                icon: ShieldCheck,
+                title: "Actionable Verdicts",
+                description: "Surface risk, detections, and source context for operational decisions.",
+              },
+            ].map((feature) => (
+              <motion.div
+                key={feature.title}
+                whileHover={{ y: -4 }}
+                className="rounded-xl border p-6"
+                style={{
+                  backgroundColor: APP_COLORS.surface,
+                  borderColor: APP_COLORS.border,
+                }}
+              >
+                <div
+                  className="mb-4 inline-flex rounded-lg p-3"
+                  style={{ backgroundColor: APP_COLORS.surfaceSoft }}
+                >
+                  <feature.icon className="h-5 w-5" style={{ color: APP_COLORS.primary }} />
+                </div>
+                <h2 className="text-lg font-bold" style={{ color: APP_COLORS.textPrimary }}>
+                  {feature.title}
+                </h2>
+                <p className="mt-2 text-sm leading-6" style={{ color: APP_COLORS.textSecondary }}>
+                  {feature.description}
+                </p>
+              </motion.div>
+            ))}
+          </motion.section>
+
+          <motion.section
+            variants={itemVariants}
+            className="rounded-2xl border p-8 sm:p-10"
+            style={{
+              backgroundColor: APP_COLORS.surface,
+              borderColor: APP_COLORS.border,
+            }}
+          >
+            <div className="flex items-center gap-3">
+              <UserCircle2 className="h-7 w-7" style={{ color: APP_COLORS.primary }} />
+              <h2 className="text-2xl font-black" style={{ color: APP_COLORS.textPrimary }}>
+                Developer
+              </h2>
+            </div>
+
+            <p className="mt-4 text-base" style={{ color: APP_COLORS.textSecondary }}>
+              Dhruv Prajapati · Full Stack Developer
+            </p>
+
+            <p className="mt-3 max-w-3xl text-sm leading-7" style={{ color: APP_COLORS.textMuted }}>
+              This page is now motion-enabled and structured for production use. Update the portfolio
+              URL constant in this file when you want to publish your real link.
+            </p>
+
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <Link
+                href={PORTFOLIO_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-bold"
+                style={{
+                  backgroundColor: APP_COLORS.primary,
+                  color: APP_COLORS.textOffWhite,
+                }}
+              >
+                View Portfolio
+                <ExternalLink className="h-4 w-4" />
+              </Link>
+              <span className="text-xs" style={{ color: APP_COLORS.textMuted }}>
+                Set your real URL in PORTFOLIO_URL.
+              </span>
+            </div>
+          </motion.section>
+        </motion.div>
       </div>
     </main>
   );

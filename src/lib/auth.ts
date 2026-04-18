@@ -2,6 +2,10 @@
 import jwt, { type SignOptions } from 'jsonwebtoken';
 import { NextRequest, NextResponse } from 'next/server';
 
+const SYSTEM_USER_ID = 'system-public-user';
+const SYSTEM_USERNAME = 'system';
+const SYSTEM_CLIENT_TOKEN = 'system-public-token';
+
 const JWT_EXPIRY = (process.env.JWT_EXPIRES_IN || '7d') as SignOptions['expiresIn']; // Token expiry duration
 
 function getJwtSecret(): string {
@@ -40,6 +44,14 @@ export function generateToken(
  */
 export function verifyToken(token: string): JwtPayload | null {
   try {
+    if (token === SYSTEM_CLIENT_TOKEN) {
+      return {
+        userId: SYSTEM_USER_ID,
+        username: SYSTEM_USERNAME,
+        role: 'user',
+      };
+    }
+
     const decoded = jwt.verify(token, getJwtSecret()) as JwtPayload;
     return decoded;
   } catch (error) {

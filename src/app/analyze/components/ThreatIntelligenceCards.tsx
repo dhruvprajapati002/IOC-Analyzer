@@ -22,6 +22,7 @@ import {
   INTEL_CARD_COLORS,
 } from '@/lib/colors';
 import { TYPOGRAPHY } from '@/lib/typography';
+import { ScrollArea } from '@/components/ui/ScrollArea';
 
 interface ThreatIntelligenceCardsProps {
   vtData: {
@@ -305,12 +306,8 @@ export function ThreatIntelligenceCards({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div
-                className="max-h-[350px] overflow-y-auto pr-2 space-y-2 scrollbar-thin"
-                style={{
-                  scrollbarColor: `${APP_COLORS.surface}`,
-                }}
-              >
+              <ScrollArea className="max-h-[350px] pr-2" variant="thin">
+                <div className="space-y-2">
                 {maliciousDetections.map((detection, idx) => (
                     <div
                       key={`${detection.engine}-${idx}`}
@@ -368,7 +365,8 @@ export function ThreatIntelligenceCards({
                       </div>
                     </div>
                   ))}
-              </div>
+                </div>
+              </ScrollArea>
 
               <div
                 className="mt-3 pt-3 border-t"
@@ -425,12 +423,8 @@ export function ThreatIntelligenceCards({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div
-                className="max-h-[350px] overflow-y-auto pr-2 space-y-2 scrollbar-thin"
-                style={{
-                  scrollbarColor: ` ${APP_COLORS.surface}`,
-                }}
-              >
+              <ScrollArea className="max-h-[350px] pr-2" variant="thin">
+                <div className="space-y-2">
                 {vtData.threat_categories?.map((category, idx) => (
                   <div
                     key={idx}
@@ -476,7 +470,8 @@ export function ThreatIntelligenceCards({
                     </div>
                   </div>
                 ))}
-              </div>
+                </div>
+              </ScrollArea>
 
               <div
                 className="mt-3 pt-3 border-t"

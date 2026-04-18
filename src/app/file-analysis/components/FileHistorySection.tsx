@@ -6,6 +6,7 @@ import { FileText, ChevronDown, ChevronUp, File } from 'lucide-react';
 import { APP_COLORS, CARD_STYLES } from '@/lib/colors';
 import { TYPOGRAPHY } from '@/lib/typography';
 import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/ScrollArea';
 
 interface FileHistorySectionProps {
   meaningfulName?: string;
@@ -111,13 +112,8 @@ export function FileHistorySection({ meaningfulName, names, size }: FileHistoryS
               >
                 Historical Filenames ({names.length})
               </div>
-              <div 
-                className="space-y-2 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-t-textMuted scrollbar-track-t-surfaceMuted"
-                style={{
-                  scrollbarWidth: 'thin',
-                  scrollbarColor: `${APP_COLORS.textMuted} ${APP_COLORS.backgroundSoft}`,
-                }}
-              >
+              <ScrollArea className="max-h-[400px] pr-2" variant="thin">
+                <div className="space-y-2">
                 {names?.map((name, idx) => (
                   <div
                     key={idx}
@@ -142,7 +138,8 @@ export function FileHistorySection({ meaningfulName, names, size }: FileHistoryS
                     </div>
                   </div>
                 ))}
-              </div>
+                </div>
+              </ScrollArea>
             </div>
           )}
         </div>

@@ -2,11 +2,12 @@
 
 import { apiFetch } from '@/lib/apiFetch';
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { getSystemToken, SYSTEM_USER, SYSTEM_USER_ID } from '@/lib/system-user';
 
 export interface User {
   id: string;
   username: string;
-  role: 'user' | 'admin'; // NEW: Role support
+  role: 'user' | 'admin';
 }
 
 interface AuthContextType {
@@ -14,7 +15,7 @@ interface AuthContextType {
   token: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  isAdmin: boolean; // NEW: Quick admin check
+  isAdmin: boolean;
   login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -49,6 +50,53 @@ type DecodedJwtPayload = {
   exp?: number;
 };
 
+const AUTH_TOKEN_KEY = 'auth_token';
+const AUTH_USER_KEY = 'auth_user';
+const SYSTEM_USER_KEY = 'system';
+
+const getSystemSession = () => {
+  return {
+    token: getSystemToken(),
+    user: { ...SYSTEM_USER },
+  };
+};
+
+const persistSession = (session: { token: string; user: User }) => {
+  localStorage.setItem(AUTH_TOKEN_KEY, session.token);
+  localStorage.setItem(AUTH_USER_KEY, JSON.stringify(session.user));
+  localStorage.setItem(SYSTEM_USER_KEY, JSON.stringify(SYSTEM_USER));
+};
+
+const normalizeStoredUser = (raw: unknown): User | null => {
+  if (!raw || typeof raw !== 'object') return null;
+
+  const parsed = raw as { id?: unknown; username?: unknown; role?: unknown };
+  if (typeof parsed.id !== 'string' || typeof parsed.username !== 'string') {
+    return null;
+  }
+
+  return {
+    id: parsed.id,
+    username: parsed.username,
+    role: parsed.role === 'admin' ? 'admin' : 'user',
+  };
+};
+
+const readStoredSession = (): { token: string; user: User } | null => {
+  const storedToken = localStorage.getItem(AUTH_TOKEN_KEY);
+  const storedUser = localStorage.getItem(AUTH_USER_KEY);
+
+  if (!storedToken || !storedUser) return null;
+
+  try {
+    const parsedUser = normalizeStoredUser(JSON.parse(storedUser));
+    if (!parsedUser) return null;
+    return { token: storedToken, user: parsedUser };
+  } catch {
+    return null;
+  }
+};
+
 const decodeJwtPayload = (token: string): DecodedJwtPayload | null => {
   try {
     const payload = token.split('.')[1];
@@ -72,9 +120,6 @@ const normalizeAuthResponse = (raw: ApiAuthResponse) => {
   const source = raw.data ?? raw;
   const newToken = source.token;
   const newUser = source.user;
-
-  // Required debug trace before reading .id
-  console.log('DEBUG VALUE:', newUser);
 
   if (!newUser || (!newUser.id && !newUser._id)) {
     throw new Error('Invalid user data');
@@ -111,27 +156,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isBootstrapped, setIsBootstrapped] = useState(false);
 
-  // Load user from localStorage on mount
-  useEffect(() => {
-    const storedToken = localStorage.getItem('auth_token');
-    const storedUser = localStorage.getItem('auth_user');
+  const resetToSystemSession = () => {
+    const systemSession = getSystemSession();
+    setToken(systemSession.token);
+    setUser(systemSession.user);
+    persistSession(systemSession);
+  };
 
-    if (storedToken && storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser) as User;
-        setToken(storedToken);
-        setUser(parsedUser);
-      } catch (error) {
-        // Clear invalid data
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('auth_user');
-      }
+  useEffect(() => {
+    const stored = readStoredSession();
+    const fallback = getSystemSession();
+    const session = stored ?? fallback;
+
+    if (session.user.id === SYSTEM_USER_ID) {
+      session.token = getSystemSession().token;
+      session.user = { ...SYSTEM_USER };
     }
+
+    setToken(session.token);
+    setUser(session.user);
+    persistSession(session);
     setIsBootstrapped(true);
   }, []);
 
   useEffect(() => {
-    if (!token) return;
+    if (!token || !user) return;
+    if (user.id === SYSTEM_USER_ID) return;
 
     const verifyCurrentSession = async () => {
       try {
@@ -149,28 +199,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         };
         const verifiedUser = payload?.data?.user ?? payload?.user;
 
-        if (!verifiedUser || !verifiedUser.id || !verifiedUser.username) {
+        if (!verifiedUser || (!verifiedUser.id && !verifiedUser._id) || !verifiedUser.username) {
           throw new Error('Invalid user data');
         }
 
         const nextUser: User = {
-          id: verifiedUser.id,
+          id: String(verifiedUser.id ?? verifiedUser._id),
           username: verifiedUser.username,
           role: verifiedUser.role === 'admin' ? 'admin' : 'user',
         };
 
         setUser(nextUser);
-        localStorage.setItem('auth_user', JSON.stringify(nextUser));
+        localStorage.setItem(AUTH_USER_KEY, JSON.stringify(nextUser));
       } catch {
-        setToken(null);
-        setUser(null);
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('auth_user');
+        resetToSystemSession();
       }
     };
 
     void verifyCurrentSession();
-  }, [token]);
+  }, [token, user]);
 
   const login = async (username: string, password: string) => {
     try {
@@ -191,8 +238,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       setToken(newToken);
       setUser(userWithRole);
-      localStorage.setItem('auth_token', newToken);
-      localStorage.setItem('auth_user', JSON.stringify(userWithRole));
+      persistSession({ token: newToken, user: userWithRole });
     } finally {
       setIsLoading(false);
     }
@@ -201,7 +247,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     try {
       setIsLoading(true);
-      if (token) {
+      if (token && user?.id !== SYSTEM_USER_ID) {
         await apiFetch('/api/auth/logout', {
           method: 'POST',
           headers: {
@@ -210,20 +256,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
       }
     } finally {
-      setToken(null);
-      setUser(null);
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('auth_user');
+      resetToSystemSession();
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
     const handleLogout = () => {
-      setToken(null);
-      setUser(null);
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('auth_user');
+      resetToSystemSession();
     };
 
     window.addEventListener('auth:logout', handleLogout);
@@ -236,7 +276,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     token,
     isLoading: !isBootstrapped || isLoading,
     isAuthenticated: Boolean(user && token),
-    isAdmin: user?.role === 'admin', // NEW: Quick admin check
+    isAdmin: user?.role === 'admin',
     login,
     logout
   };

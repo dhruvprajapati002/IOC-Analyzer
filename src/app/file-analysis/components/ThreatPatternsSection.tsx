@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Zap } from 'lucide-react';
 import { APP_COLORS, CARD_STYLES } from '@/lib/colors';
 import { TYPOGRAPHY } from '@/lib/typography';
+import { ScrollArea } from '@/components/ui/ScrollArea';
 
 interface ThreatPatternsSectionProps {
   patterns: any[];
@@ -46,7 +47,8 @@ export function ThreatPatternsSection({ patterns }: ThreatPatternsSectionProps) 
           </div>
         </div>
 
-        <div className="space-y-2 max-h-[300px] overflow-y-auto">
+        <ScrollArea className="max-h-[300px]" variant="thin">
+          <div className="space-y-2">
           {patterns.map((pattern: any, index: number) => (
             <div 
               key={index}
@@ -81,7 +83,8 @@ export function ThreatPatternsSection({ patterns }: ThreatPatternsSectionProps) 
               )}
             </div>
           ))}
-        </div>
+          </div>
+        </ScrollArea>
       </CardContent>
     </Card>
   );

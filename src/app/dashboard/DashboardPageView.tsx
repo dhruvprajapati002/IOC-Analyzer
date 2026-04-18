@@ -1,263 +1,285 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect, useRef } from "react";
-import { useAuth } from "@/contexts/AuthContext";
-import { AlertTriangle, RefreshCw } from "lucide-react";
-import { APP_COLORS } from "@/lib/colors";
-import { TYPOGRAPHY } from "@/lib/typography";
-import { ProtectedPage } from "@/components/ProtectedPage";
-import { TimeRange } from "./components/TimeFilterDropdown";
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { AlertTriangle } from 'lucide-react';
+import { ProtectedPage } from '@/components/ProtectedPage';
+import { APP_COLORS, CARD_STYLES, LOADING_STYLES } from '@/lib/colors';
+import { TYPOGRAPHY } from '@/lib/typography';
+import { useAuth } from '@/contexts/AuthContext';
+import { apiFetch } from '@/lib/apiFetch';
+import { getSystemToken } from '@/lib/system-user';
 
-// Import dashboard components
-import { DashboardHeader } from "@/app/dashboard/components/DashboardHeader";
-import { ThreatTrendChart } from "@/app/dashboard/components/ThreatTrendChart";
-import { TopThreatsGraph } from "@/app/dashboard/components/TopThreatsGraph";
-import { IOCTypeDistributionChart } from "@/app/dashboard/components/IOCTypeDistributionChartNew";
-import { GeographicDistributionChart } from "@/app/dashboard/components/GeographicDistributionChartNew";
-import { FileAnalysisGraph } from "@/app/dashboard/components/FileAnalysisGraphCompact";
-import { MalwareFamiliesChart } from "@/app/dashboard/components/MalwareFamiliesChartNew";
-import { ThreatSeverityChart } from "@/app/dashboard/components/ThreatSeverityChart";
-// import { DetectionEnginePerformanceChart } from '@/app/dashboard/components/DetectionEnginePerformanceChartNew';
-import { ThreatTypePieChart } from "@/app/dashboard/components/ThreatTypePieChartModern";
-import { apiFetch } from "@/lib/apiFetch";
+import { DashboardHeader } from './components/DashboardHeader';
+import { ThreatTrendChart } from './components/ThreatTrendChart';
+import { ThreatSeverityChart } from './components/ThreatSeverityChart';
+import { IOCTypeDistributionChart } from './components/IOCTypeDistributionChartNew';
+import { ThreatTypePieChart } from './components/ThreatTypePieChartModern';
+import { GeographicDistributionChart } from './components/GeographicDistributionChartNew';
+import { MalwareFamiliesChart } from './components/MalwareFamiliesChartNew';
+import { TopThreatsGraph } from './components/TopThreatsGraph';
+import { FileAnalysisGraph } from './components/FileAnalysisGraphCompact';
+import { DetectionEnginePerformanceChart } from './components/DetectionEnginePerformanceChartNew';
+import { RiskScoreTrend } from './components/RiskScoreTrend';
+import { RealTimeThreatFeed } from './components/RealTimeThreatFeed';
 
-// Type definitions for header stats only
-interface HeaderStats {
-  totalIOCs: number;
-  maliciousIOCs: number;
-  cleanIOCs: number;
-  suspiciousIOCs: number;
-  pendingIOCs: number;
-  detectionRate: number;
-  trends: {
-    totalIOCs: number;
-    threatsDetected: number;
-  };
-}
+import type {
+  DashboardPayload,
+  DashboardStats,
+  DailyTrendPoint,
+  DetectionEngineItem,
+  FileAnalysisSummary,
+  GeoDistributionItem,
+  IocTypeDistributionItem,
+  MalwareFamilyItem,
+  ThreatFeedItem,
+  ThreatIntelligenceSummary,
+  ThreatTypeItem,
+  ThreatVectorItem,
+  TimeRange,
+} from './components/dashboard.types';
 
-export default function DashboardPage() {
+const POLL_INTERVAL_MS = 2 * 60 * 1000;
+const MAX_RETRIES = 3;
+
+const EMPTY_PAYLOAD: DashboardPayload = {
+  stats: {
+    totalIOCs: 0,
+    maliciousIOCs: 0,
+    cleanIOCs: 0,
+    suspiciousIOCs: 0,
+    pendingIOCs: 0,
+    detectionRate: 0,
+    trends: {
+      totalIOCs: 0,
+      threatsDetected: 0,
+    },
+  },
+  dailyTrends: [],
+  threatTypes: [],
+  iocTypeDistribution: [],
+  threatIntelligence: {
+    bySeverity: [],
+    totalCritical: 0,
+    totalHigh: 0,
+    totalMedium: 0,
+    totalLow: 0,
+  },
+  geoDistribution: [],
+  threatVectors: [],
+  fileAnalysis: {
+    totalFiles: 0,
+    avgFileSize: 0,
+    maliciousFiles: 0,
+    cleanFiles: 0,
+    detectionRate: 0,
+    topFileTypes: [],
+  },
+  malwareFamilies: [],
+  detectionEngines: [],
+  threatFeed: [],
+  timeRange: 'weekly',
+  daysIncluded: 0,
+  startDate: '',
+  endDate: '',
+  cachedAt: '',
+  dataVersion: '2.1-mongo',
+  privacyMode: 'history-only',
+};
+
+function DashboardSkeleton() {
   return (
-    <ProtectedPage>
-      <DashboardContent />
-    </ProtectedPage>
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+        {Array.from({ length: 3 }).map((_, idx) => (
+          <div key={idx} className={`${CARD_STYLES.base} rounded-2xl border p-4`}>
+            <div className={`${LOADING_STYLES.skeleton} h-4 w-48 rounded`} />
+            <div className={`${LOADING_STYLES.skeleton} mt-3 h-40 rounded-xl`} />
+            <div className={`${LOADING_STYLES.skeleton} mt-3 h-10 rounded`} />
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+        {Array.from({ length: 4 }).map((_, idx) => (
+          <div key={idx} className={`${CARD_STYLES.base} rounded-2xl border p-4`}>
+            <div className={`${LOADING_STYLES.skeleton} h-4 w-48 rounded`} />
+            <div className={`${LOADING_STYLES.skeleton} mt-3 h-56 rounded-xl`} />
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
-function DashboardContent() {
-  const { token } = useAuth();
-  const [headerStats, setHeaderStats] = useState<HeaderStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const timeRange: TimeRange = "weekly";
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  // ========================================================================
-  // HEADER STATS FETCHING ONLY - Cards fetch their own data
-  // ========================================================================
-  useEffect(() => {
-    let isMounted = true;
-
-    const fetchHeaderStats = async () => {
-      if (!isMounted || !token) return;
-
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-        const response = await apiFetch(`/api/dashboard-v2?range=${timeRange}`, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-            },
-          signal: controller.signal,
-        });
-
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-          throw new Error(`API error: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        if (isMounted) {
-          setHeaderStats(data.stats);
-          setError(null);
-        }
-      } catch (err) {
-        console.error("❌ Header stats fetch error:", err);
-        if (isMounted && err instanceof Error && err.name !== "AbortError") {
-          setError(err.message);
-        }
-      }
-    };
-
-    const setupDashboard = async () => {
-      setLoading(true);
-      setError(null);
-
-      await fetchHeaderStats();
-      setLoading(false);
-
-      // Clear existing interval
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-
-      // Refresh header stats every 30 seconds
-      intervalRef.current = setInterval(fetchHeaderStats, 30000);
-    };
-
-    if (token) {
-      setupDashboard();
-    }
-
-    return () => {
-      isMounted = false;
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, [token, timeRange]);
-
-  // ========================================================================
-  // LOADING STATE
-  // ========================================================================
-  if (loading) {
-    return (
-      <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ backgroundColor: APP_COLORS.background }}
-      >
-        <div className="text-center">
-          <div
-            className="animate-spin rounded-full h-12 w-12 border-4 border-t-transparent mx-auto mb-4"
-            style={{
-              borderColor: `${APP_COLORS.primary} transparent transparent transparent`,
-            }}
-          />
-          <p
-            className={TYPOGRAPHY.body.md}
-            style={{ color: APP_COLORS.textSecondary }}
-          >
-            Loading SentinelIQ dashboard...
+function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <div className="rounded-2xl border border-red-200 bg-red-50 p-5">
+      <div className="flex items-start gap-3">
+        <AlertTriangle className="h-5 w-5" style={{ color: APP_COLORS.danger }} />
+        <div className="space-y-2">
+          <p className={`${TYPOGRAPHY.body.sm} ${TYPOGRAPHY.fontWeight.bold} text-red-600`}>
+            Failed to load dashboard data
           </p>
-          <p
-            className={`${TYPOGRAPHY.caption.sm} mt-2`}
-            style={{ color: APP_COLORS.textSecondary }}
-          >
-            Loading dashboard data...
+          <p className={`${TYPOGRAPHY.caption.sm} text-slate-600`}>
+            {message}
           </p>
-        </div>
-      </div>
-    );
-  }
-
-  // ========================================================================
-  // ERROR STATE
-  // ========================================================================
-  if (error || !headerStats) {
-    return (
-      <div
-        className="min-h-screen flex items-center justify-center p-4"
-        style={{ backgroundColor: APP_COLORS.background }}
-      >
-        <div
-          className="text-center max-w-md mx-auto p-8 rounded-2xl border-2"
-          style={{
-            backgroundColor: APP_COLORS.backgroundSoft,
-            borderColor: APP_COLORS.border,
-          }}
-        >
-          <div
-            className="inline-flex p-4 rounded-full mb-6"
-            style={{
-              backgroundColor: `${APP_COLORS.danger}20`,
-              border: `2px solid ${APP_COLORS.danger}40`,
-            }}
-          >
-            <AlertTriangle
-              className="h-12 w-12"
-              style={{ color: APP_COLORS.danger }}
-            />
-          </div>
-
-          <h2
-            className={TYPOGRAPHY.heading.h2}
-            style={{ color: APP_COLORS.textPrimary }}
-          >
-            Dashboard Data Unavailable
-          </h2>
-
-          <p
-            className={`${TYPOGRAPHY.body.md} mb-6`}
-            style={{ color: APP_COLORS.textSecondary }}
-          >
-            {error || "Failed to fetch dashboard statistics"}
-          </p>
-
-          <button
-            onClick={() => undefined}
-            className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl transition-all hover:shadow-lg ${TYPOGRAPHY.body.md} ${TYPOGRAPHY.fontWeight.bold}`}
-            style={{
-              backgroundColor: APP_COLORS.primary,
-              color: APP_COLORS.textPrimary,
-            }}
-          >
-            <RefreshCw className="h-4 w-4" />
+          <button type="button" onClick={onRetry} className="rounded-md border border-red-400 bg-white px-3 py-2 text-xs font-semibold text-red-600">
             Retry
           </button>
         </div>
       </div>
-    );
-  }
+    </div>
+  );
+}
 
-  // ========================================================================
-  // MAIN DASHBOARD CONTENT
-  // ========================================================================
+export default function DashboardPageView() {
+  const { token } = useAuth();
+  const [globalTimeRange, setGlobalTimeRange] = useState<TimeRange>('weekly');
+  const [payload, setPayload] = useState<DashboardPayload | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+
+  const fetchDashboardData = useCallback(async (foreground = false) => {
+    const activeToken = token || getSystemToken();
+
+    if (foreground || !payload) {
+      setLoading(true);
+    } else {
+      setRefreshing(true);
+    }
+
+    try {
+      const response = await apiFetch(`/api/dashboard-v2?range=${globalTimeRange}`, {
+        headers: {
+          Authorization: `Bearer ${activeToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        let errorMessage = `Request failed with status ${response.status}`;
+        try {
+          const errorJson = (await response.json()) as { error?: string; message?: string };
+          errorMessage = errorJson?.message || errorJson?.error || errorMessage;
+        } catch {
+          const text = await response.text();
+          if (text) errorMessage = text;
+        }
+        throw new Error(errorMessage);
+      }
+
+      const result = (await response.json()) as DashboardPayload;
+      setPayload(result);
+      setLastUpdated(new Date());
+      setError(null);
+      setRetryCount(0);
+    } catch (err: any) {
+      setError(err?.message ?? 'Unknown error');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, [globalTimeRange, payload, token]);
+
+  useEffect(() => {
+    void fetchDashboardData(true);
+  }, [fetchDashboardData]);
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      void fetchDashboardData(false);
+    }, POLL_INTERVAL_MS);
+
+    return () => window.clearInterval(interval);
+  }, [fetchDashboardData]);
+
+  useEffect(() => {
+    if (!error || retryCount >= MAX_RETRIES) return;
+
+    const delay = 2000 * Math.pow(2, retryCount);
+    const timeout = window.setTimeout(() => {
+      setRetryCount((prev) => prev + 1);
+      void fetchDashboardData(false);
+    }, delay);
+
+    return () => window.clearTimeout(timeout);
+  }, [error, retryCount, fetchDashboardData]);
+
+  const safePayload = useMemo(() => payload ?? EMPTY_PAYLOAD, [payload]);
+
+  const stats: DashboardStats | null = safePayload.stats;
+  const dailyTrends: DailyTrendPoint[] = safePayload.dailyTrends;
+  const threatTypes: ThreatTypeItem[] = safePayload.threatTypes;
+  const iocTypeDistribution: IocTypeDistributionItem[] = safePayload.iocTypeDistribution;
+  const threatIntelligence: ThreatIntelligenceSummary | null = safePayload.threatIntelligence;
+  const geoDistribution: GeoDistributionItem[] = safePayload.geoDistribution;
+  const threatVectors: ThreatVectorItem[] = safePayload.threatVectors;
+  const fileAnalysis: FileAnalysisSummary | null = safePayload.fileAnalysis;
+  const malwareFamilies: MalwareFamilyItem[] = safePayload.malwareFamilies;
+  const detectionEngines: DetectionEngineItem[] = safePayload.detectionEngines;
+  const threatFeed: ThreatFeedItem[] = safePayload.threatFeed;
+
+  const hasData = useMemo(() => Boolean(payload), [payload]);
+
+  const handleRetry = () => {
+    setRetryCount(0);
+    void fetchDashboardData(true);
+  };
+
   return (
-    <div
-      className="min-h-screen"
-      style={{ backgroundColor: APP_COLORS.background }}
-    >
-      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 max-w-[1900px]">
-        {/* Header with integrated stats and global time filter */}
-        <DashboardHeader error={error} />
+    <ProtectedPage>
+      <div className="min-h-screen w-full bg-[#faf9f5]">
+        <div className="mx-auto max-w-screen-2xl bg-[#faf9f5] px-3 py-4 sm:px-4 lg:px-6">
+          <DashboardHeader
+            timeRange={globalTimeRange}
+            onTimeRangeChange={setGlobalTimeRange}
+            stats={stats}
+            loading={loading || refreshing}
+            error={error}
+            onRetry={handleRetry}
+            lastUpdated={lastUpdated}
+            refreshing={refreshing}
+          />
 
-        {/* Row 1: Trend Chart, Severity, IOC Types */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 mb-3">
-          {/* ✅ No props - fetches its own data */}
-          <ThreatTrendChart />
+          {loading && !hasData ? <DashboardSkeleton /> : null}
 
-          {/* ✅ No props - fetches its own data */}
-          <ThreatSeverityChart />
+          {!hasData && error ? <ErrorState message={error} onRetry={handleRetry} /> : null}
 
-          {/* ✅ No props - fetches its own data */}
-          <IOCTypeDistributionChart />
-        </div>
+          {hasData ? (
+            <div className="space-y-6">
+              {error ? <ErrorState message={error} onRetry={handleRetry} /> : null}
 
-        {/* Row 2: File Analysis, Top Threats, Geographic */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 mb-3">
-          {/* ✅ No props - fetches its own data */}
-          <FileAnalysisGraph />
+              <ThreatTrendChart data={dailyTrends} loading={refreshing} />
 
-          {/* ✅ No props - fetches its own data */}
-          <ThreatTypePieChart />
+              <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+                <ThreatTypePieChart data={threatTypes} loading={refreshing} />
+                <IOCTypeDistributionChart data={iocTypeDistribution} loading={refreshing} />
+                <ThreatSeverityChart data={threatIntelligence} loading={refreshing} />
+              </div>
 
-          {/* ✅ No props - fetches its own data */}
-          <GeographicDistributionChart />
-        </div>
+              <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+                <GeographicDistributionChart data={geoDistribution} loading={refreshing} />
+                <MalwareFamiliesChart data={malwareFamilies} loading={refreshing} />
+              </div>
 
-        {/* Row 3: Malware Families & Detection Engine Performance */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 mb-3">
-          {/* ✅ No props - fetches its own data */}
-          <MalwareFamiliesChart />
-          <TopThreatsGraph />
+              <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+                <TopThreatsGraph data={threatVectors} loading={refreshing} />
+                <FileAnalysisGraph data={fileAnalysis} loading={refreshing} />
+              </div>
 
-          {/* ✅ No props - fetches its own data */}
-          {/* <DetectionEnginePerformanceChart /> */}
+              <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+                <RiskScoreTrend data={dailyTrends} loading={refreshing} />
+                <RealTimeThreatFeed items={threatFeed} loading={refreshing} />
+              </div>
+
+              <DetectionEnginePerformanceChart data={detectionEngines} loading={refreshing} />
+            </div>
+          ) : null}
         </div>
       </div>
-    </div>
+    </ProtectedPage>
   );
 }

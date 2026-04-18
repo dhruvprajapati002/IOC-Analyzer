@@ -1,26 +1,29 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect } from 'react';
 
 interface ProtectedPageProps {
   children: React.ReactNode;
+  requireAdmin?: boolean;
 }
 
-export function ProtectedPage({ children }: ProtectedPageProps) {
+export function ProtectedPage({ children, requireAdmin = false }: ProtectedPageProps) {
   const router = useRouter();
-  const pathname = usePathname();
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAdmin, isLoading } = useAuth();
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated && pathname !== '/login') {
-      router.replace('/login');
+    if (!isLoading && requireAdmin && !isAdmin) {
+      router.replace('/dashboard');
     }
-  }, [isLoading, isAuthenticated, pathname, router]);
+  }, [isAdmin, isLoading, requireAdmin, router]);
 
-  if (isLoading || !isAuthenticated) {
+  if (isLoading) {
+    return null;
+  }
+
+  if (requireAdmin && !isAdmin) {
     return null;
   }
 

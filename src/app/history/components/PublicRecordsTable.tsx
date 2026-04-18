@@ -375,7 +375,7 @@
 
 //         <CardContent className="p-0">
 //           {/* Scrollable Table Container with Sticky Header */}
-//           <div className="overflow-x-auto max-h-[600px] overflow-y-auto relative">
+//           <div className="legacy-scroll-container max-h-[600px] relative">
 //             <Table>
 //               <TableHeader className="bg-t-bg/90 sticky top-0 z-10 backdrop-blur-sm">
 //                 <TableRow className="hover:bg-t-bg/90 border-t-border">

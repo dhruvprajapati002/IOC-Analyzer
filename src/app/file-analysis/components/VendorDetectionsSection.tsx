@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { APP_COLORS, CARD_STYLES } from '@/lib/colors';
 import { TYPOGRAPHY } from '@/lib/typography';
 import { Detection } from './types';
+import { ScrollArea } from '@/components/ui/ScrollArea';
 
 interface VendorDetectionsSectionProps {
   detections: Detection[];
@@ -112,7 +113,8 @@ export function VendorDetectionsSection({ detections, vendorConfidence }: Vendor
         </div>
 
         {/* Detection List with Custom Scrollbar */}
-        <div className="space-y-2.5 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+        <ScrollArea className="max-h-[400px] pr-2" variant="thin">
+          <div className="space-y-2.5">
           {validDetections.map((detection, index) => (
             <DetectionRow
               key={`${detection.engine}-${index}`}
@@ -126,30 +128,9 @@ export function VendorDetectionsSection({ detections, vendorConfidence }: Vendor
               )}
             />
           ))}
-        </div>
+          </div>
+        </ScrollArea>
       </CardContent>
-
-      {/* Custom Scrollbar Styles */}
-      <style jsx>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: ${APP_COLORS.surfaceSoft};
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: ${APP_COLORS.danger}60;
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: ${APP_COLORS.danger};
-        }
-        .custom-scrollbar {
-          scrollbar-width: thin;
-          scrollbar-color: ${APP_COLORS.danger}60 ${APP_COLORS.surfaceSoft};
-        }
-      `}</style>
     </Card>
   );
 }

@@ -6,6 +6,7 @@ import { Shield, AlertTriangle, Copy } from 'lucide-react';
 import { toast } from 'sonner';
 import { APP_COLORS, CARD_STYLES } from '@/lib/colors';
 import { TYPOGRAPHY } from '@/lib/typography';
+import { ScrollArea } from '@/components/ui/ScrollArea';
 
 interface Detection {
   engine: string;
@@ -109,7 +110,8 @@ export function DetectionNamesCard({ detections }: DetectionNamesCardProps) {
                 borderColor: `${APP_COLORS.danger}30`,
               }}
             >
-              <div className="space-y-1.5 max-h-96 overflow-y-auto">
+              <ScrollArea className="max-h-96" variant="thin">
+                <div className="space-y-1.5">
                 {maliciousDetections.map((detection, idx) => (
                   <div
                     key={idx}
@@ -156,7 +158,8 @@ export function DetectionNamesCard({ detections }: DetectionNamesCardProps) {
                     />
                   </div>
                 ))}
-              </div>
+                </div>
+              </ScrollArea>
               <div 
                 className={`${TYPOGRAPHY.caption.xs} mt-2 pt-2 border-t`}
                 style={{ color: APP_COLORS.textSecondary, borderColor: `${APP_COLORS.danger}30` }}
@@ -186,7 +189,8 @@ export function DetectionNamesCard({ detections }: DetectionNamesCardProps) {
                 borderColor: `${APP_COLORS.warning}30`,
               }}
             >
-              <div className="space-y-1.5 max-h-64 overflow-y-auto">
+              <ScrollArea className="max-h-64" variant="thin">
+                <div className="space-y-1.5">
                 {suspiciousDetections.map((detection, idx) => (
                   <div
                     key={idx}
@@ -233,7 +237,8 @@ export function DetectionNamesCard({ detections }: DetectionNamesCardProps) {
                     />
                   </div>
                 ))}
-              </div>
+                </div>
+              </ScrollArea>
                       <div 
                         className={`${TYPOGRAPHY.caption.xs} mt-2 pt-2 border-t`}
                         style={{ color: APP_COLORS.textSecondary, borderColor: `${APP_COLORS.warning}30` }}

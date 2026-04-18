@@ -194,11 +194,11 @@ export function MultiSourceDataCard({
         }
         
         if (d?.recent_abuse) {
-          items.push({ label: 'Recent Abuse', value: '⚠ Yes' });
+          items.push({ label: 'Recent Abuse', value: 'Yes' });
         }
         
         if (d?.is_crawler) {
-          items.push({ label: 'Crawler', value: '🤖 Yes' });
+          items.push({ label: 'Crawler', value: 'Yes' });
         }
         
         return items;

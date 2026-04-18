@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Target, Activity, FileText, ExternalLink } from 'lucide-react';
 import { APP_COLORS, CARD_STYLES } from '@/lib/colors';
 import { TYPOGRAPHY } from '@/lib/typography';
+import { ScrollArea } from '@/components/ui/ScrollArea';
 
 interface MitreTactic {
   id: string;
@@ -316,13 +317,8 @@ export function MitreAttackSection({ mitreData }: MitreAttackSectionProps) {
               </span>
             </div>
             {/* ✅ Scrollable container */}
-            <div 
-              className="space-y-2 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin"
-              style={{
-                scrollbarWidth: 'thin',
-                scrollbarColor: `${APP_COLORS.accentBlue}40 ${APP_COLORS.surface}`,
-              }}
-            >
+            <ScrollArea className="max-h-[400px] pr-2" variant="thin">
+              <div className="space-y-2">
               {normalizedTactics.map((tactic, idx) => (
                 <MitreItem
                   key={`tactic-${tactic.id || idx}`}
@@ -333,7 +329,8 @@ export function MitreAttackSection({ mitreData }: MitreAttackSectionProps) {
                   color={APP_COLORS.accentBlue}
                 />
               ))}
-            </div>
+              </div>
+            </ScrollArea>
           </div>
         )}
 
@@ -356,13 +353,8 @@ export function MitreAttackSection({ mitreData }: MitreAttackSectionProps) {
               </span>
             </div>
             {/* ✅ Scrollable container */}
-            <div 
-              className="space-y-2 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin"
-              style={{
-                scrollbarWidth: 'thin',
-                scrollbarColor: `${APP_COLORS.accentBlue}40 ${APP_COLORS.surface}`,
-              }}
-            >
+            <ScrollArea className="max-h-[400px] pr-2" variant="thin">
+              <div className="space-y-2">
               {normalizedTechniques.map((technique, idx) => (
                 <MitreItem
                   key={`technique-${technique.id || idx}`}
@@ -373,7 +365,8 @@ export function MitreAttackSection({ mitreData }: MitreAttackSectionProps) {
                   color={APP_COLORS.accentBlue}
                 />
               ))}
-            </div>
+              </div>
+            </ScrollArea>
           </div>
         )}
       </CardContent>

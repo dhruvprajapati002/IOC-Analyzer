@@ -7,10 +7,10 @@ import {
   Search, 
   FileText, 
   History, 
-  Info,
-  LogOut
+  Info
 } from 'lucide-react';
 import { APP_COLORS } from '@/lib/colors';
+import { ScrollArea } from '@/components/ui/ScrollArea';
 
 const navigationItems = [
   { href: '/dashboard',     label: 'Dashboard',        icon: LayoutDashboard },
@@ -20,7 +20,7 @@ const navigationItems = [
   { href: '/about',         label: 'About',            icon: Info },
 ];
 
-export function Sidebar({ onLogout }: { onLogout?: () => void }) {
+export function Sidebar() {
   const pathname = usePathname();
 
   return (
@@ -52,58 +52,36 @@ export function Sidebar({ onLogout }: { onLogout?: () => void }) {
         </div>
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-2">
-        {navigationItems.map((item) => {
-          const isActive = pathname === item.href;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="group flex items-center rounded-lg transition-colors overflow-hidden"
-              style={{
-                padding: '0.75rem 0',
-                justifyContent: 'center',
-                backgroundColor: isActive ? APP_COLORS.surfaceAlt : 'transparent',
-                color: isActive ? APP_COLORS.primary : APP_COLORS.textSecondary,
-              }}
-              onMouseEnter={(e) => {
-                if (!isActive) e.currentTarget.style.backgroundColor = APP_COLORS.surfaceAlt;
-              }}
-              onMouseLeave={(e) => {
-                if (!isActive) e.currentTarget.style.backgroundColor = 'transparent';
-              }}
-              title={item.label}
-            >
-              <item.icon className="shrink-0 h-6 w-6" />
-            </Link>
-          );
-        })}
-      </nav>
+      <ScrollArea asChild className="flex-1 px-3 py-4" variant="thin">
+        <nav className="space-y-2">
+          {navigationItems.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="group flex items-center rounded-lg transition-colors overflow-hidden"
+                style={{
+                  padding: '0.75rem 0',
+                  justifyContent: 'center',
+                  backgroundColor: isActive ? APP_COLORS.surfaceAlt : 'transparent',
+                  color: isActive ? APP_COLORS.primary : APP_COLORS.textSecondary,
+                }}
+                onMouseEnter={(e) => {
+                  if (!isActive) e.currentTarget.style.backgroundColor = APP_COLORS.surfaceAlt;
+                }}
+                onMouseLeave={(e) => {
+                  if (!isActive) e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+                title={item.label}
+              >
+                <item.icon className="shrink-0 h-6 w-6" />
+              </Link>
+            );
+          })}
+        </nav>
+      </ScrollArea>
 
-      {onLogout && (
-        <div className="flex shrink-0 p-4 border-t" style={{ borderColor: APP_COLORS.border, justifyContent: 'center' }}>
-          <button
-            onClick={onLogout}
-            className="group flex items-center rounded-lg transition-colors w-full focus:outline-none"
-            style={{
-              padding: '0.5rem 0',
-              justifyContent: 'center',
-              color: APP_COLORS.textSecondary
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = APP_COLORS.surfaceAlt;
-              e.currentTarget.style.color = APP_COLORS.primary;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent';
-              e.currentTarget.style.color = APP_COLORS.textSecondary;
-            }}
-            title="Logout"
-          >
-            <LogOut className="shrink-0 h-6 w-6" />
-          </button>
-        </div>
-      )}
     </aside>
   );
 }

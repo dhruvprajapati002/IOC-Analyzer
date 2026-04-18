@@ -1,4 +1,4 @@
-export const PUBLIC_ROUTES = ['/login', '/register', '/about'];
+export const ADMIN_ROUTE_PREFIX = '/admin';
 
 export function normalizeRoute(path: string): string {
   const base = (path || '/').split('?')[0].split('#')[0] || '/';
@@ -9,5 +9,10 @@ export function normalizeRoute(path: string): string {
 }
 
 export function isPublicRoute(path: string): boolean {
-  return PUBLIC_ROUTES.includes(normalizeRoute(path));
+  const normalized = normalizeRoute(path);
+  return !normalized.startsWith(ADMIN_ROUTE_PREFIX);
+}
+
+export function isAdminRoute(path: string): boolean {
+  return normalizeRoute(path).startsWith(ADMIN_ROUTE_PREFIX);
 }

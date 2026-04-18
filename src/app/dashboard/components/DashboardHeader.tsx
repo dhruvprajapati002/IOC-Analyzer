@@ -1,111 +1,140 @@
 'use client';
 
-import { Database, AlertTriangle } from 'lucide-react';
-import { APP_COLORS } from '@/lib/colors';
+import { AlertTriangle, Database, RefreshCw } from 'lucide-react';
 import { TYPOGRAPHY } from '@/lib/typography';
-import { useState, useEffect } from 'react';
-import { TimeFilterDropdown, TimeRange } from './TimeFilterDropdown';
-import { useAuth } from '@/contexts/AuthContext';
-import { apiFetch } from "@/lib/apiFetch";
+import { TimeFilterDropdown } from './TimeFilterDropdown';
+import type { DashboardStats, TimeRange } from './dashboard.types';
 
 interface DashboardHeaderProps {
+  timeRange: TimeRange;
+  onTimeRangeChange: (range: TimeRange) => void;
+  stats: DashboardStats | null;
+  loading: boolean;
+  refreshing?: boolean;
   error?: string | null;
+  onRetry: () => void;
+  lastUpdated: Date | null;
 }
 
-export function DashboardHeader({ error }: DashboardHeaderProps) {
-  const { token } = useAuth();
-  const [timeRange, setTimeRange] = useState<TimeRange>('weekly');
-  const [stats, setStats] = useState<{
-    totalIOCs: number;
-    maliciousIOCs: number;
-    cleanIOCs: number;
-    pendingIOCs: number;
-    detectionRate: number;
-    trends: {
-      totalIOCs: number;
-      threatsDetected: number;
-    };
-  } | null>(null);
-  const [loading, setLoading] = useState(false);
+function formatDelta(delta: number): string {
+  const prefix = delta > 0 ? '+' : '';
+  return `${prefix}${delta.toFixed(1)}%`;
+}
 
-  // Fetch header stats when timeRange changes
-  useEffect(() => {
-    const fetchHeaderStats = async () => {
-      if (!token) return;
+function metricColorClass(label: string): string {
+  if (label === 'Malicious') return 'text-t-danger';
+  if (label === 'Suspicious') return 'text-t-warning';
+  if (label === 'Clean') return 'text-t-success';
+  if (label === 'Detection Rate') return 'text-t-primary';
+  return 'text-t-textPrimary';
+}
 
-      setLoading(true);
-      try {
-        const response = await apiFetch(`/api/dashboard-v2?range=${timeRange}`, {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          setStats(data.stats);
-        }
-      } catch (err) {
-        console.error('Error fetching header stats:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+export function DashboardHeader({
+  timeRange,
+  onTimeRangeChange,
+  stats,
+  loading,
+  refreshing = false,
+  error,
+  onRetry,
+  lastUpdated,
+}: DashboardHeaderProps) {
+  const detectionRate = Number(stats?.detectionRate ?? 0);
+  const safeRate = Math.max(0, Math.min(100, detectionRate));
+  const ringRadius = 16;
+  const ringCircumference = 2 * Math.PI * ringRadius;
+  const ringOffset = ringCircumference - (safeRate / 100) * ringCircumference;
 
-    fetchHeaderStats();
-  }, [token, timeRange]);
-
-  const handleTimeRangeChange = (newRange: TimeRange) => {
-    setTimeRange(newRange);
-    // Stats will automatically update via useEffect
-  };
+  const metricCards = [
+    { label: 'Total IOCs', value: (stats?.totalIOCs ?? 0).toLocaleString() },
+    { label: 'Malicious', value: (stats?.maliciousIOCs ?? 0).toLocaleString() },
+    { label: 'Suspicious', value: (stats?.suspiciousIOCs ?? 0).toLocaleString() },
+    { label: 'Clean', value: (stats?.cleanIOCs ?? 0).toLocaleString() },
+    { label: 'Pending', value: (stats?.pendingIOCs ?? 0).toLocaleString() },
+    { label: 'Detection Rate', value: `${safeRate.toFixed(1)}%` },
+  ];
 
   return (
-    <div className="flex items-center justify-between gap-4 flex-wrap mb-4">
-      {/* Left: subtitle */}
-      <p className={`${TYPOGRAPHY.body.sm} ${TYPOGRAPHY.fontWeight.medium}`} style={{ color: APP_COLORS.textSecondary }}>
-        {error ? "Cyber Threat Intelligence Platform (API issue)" : "Cyber Threat Intelligence Platform"}
-      </p>
+    <div className="mb-6 border-b border-[#dad9d4] bg-[#faf9f5] pt-6 pb-5">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="space-y-2">
+          <h1 className={`${TYPOGRAPHY.heading.h3} text-2xl font-extrabold text-t-textPrimary`}>
+            Threat Intelligence Dashboard
+          </h1>
+          <p className="text-sm text-t-textMuted">
+            Real-time security monitoring built from MongoDB IOC history and cache intelligence.
+          </p>
+          <p className={`${TYPOGRAPHY.caption.sm} text-t-textMuted`}>
+            {lastUpdated ? `Last updated: ${lastUpdated.toLocaleTimeString()}` : 'Waiting for data...'}
+          </p>
+        </div>
 
-      {/* Right: actions */}
-      <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-        {/* Time Range Filter */}
-        <TimeFilterDropdown
-          value={timeRange}
-          onChange={handleTimeRangeChange}
-        />
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center gap-1 rounded-full border border-[#dad9d4] bg-white px-2 py-1 text-xs font-semibold text-t-primary">
+            <span className="h-2 w-2 animate-pulse rounded-full bg-t-primary" />
+            {refreshing ? 'Refreshing' : 'Live'}
+          </span>
+          <TimeFilterDropdown value={timeRange} onChange={onTimeRangeChange} />
+          <button
+            type="button"
+            onClick={onRetry}
+            className="inline-flex items-center gap-2 rounded-md border border-[#dad9d4] bg-white px-3 py-2 text-xs font-semibold text-t-textSecondary"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            Retry
+          </button>
+        </div>
+      </div>
 
-        {/* Stats */}
-        {stats && (
-          <>
-            <div className="h-6 w-px hidden sm:block" style={{ backgroundColor: APP_COLORS.borderSoft }} />
+      {error ? (
+        <div className="mt-4 rounded-lg border border-t-danger bg-t-danger/10 px-3 py-2 text-t-danger">
+          <p className={`${TYPOGRAPHY.caption.sm} ${TYPOGRAPHY.fontWeight.semibold}`}>Error: {error}</p>
+        </div>
+      ) : null}
 
-            <div className="flex items-center gap-2">
-              <Database className="h-4 w-4" style={{ color: APP_COLORS.primary }} />
-              <div className="flex items-baseline gap-1">
-                <span className={`${TYPOGRAPHY.label.lg} hidden sm:inline`} style={{ color: APP_COLORS.textSecondary }}>IOCs:</span>
-                <span className={`${TYPOGRAPHY.data.xs} ${loading ? 'opacity-50' : ''}`} style={{ color: APP_COLORS.primary }}>
-                  {stats.totalIOCs.toLocaleString()}
-                </span>
-              </div>
-            </div>
+      <div className="mt-4 grid grid-cols-2 gap-3 bg-[#faf9f5] md:grid-cols-3 xl:grid-cols-7">
+        {metricCards.map((metric) => (
+          <div key={metric.label} className="rounded-2xl border border-[#dad9d4] bg-white p-4">
+            <p className={`${TYPOGRAPHY.caption.xs} text-t-textMuted`}>{metric.label}</p>
+            <p className={`${TYPOGRAPHY.data.sm} ${TYPOGRAPHY.fontWeight.bold} ${metricColorClass(metric.label)}`}>
+              {metric.value}
+            </p>
+          </div>
+        ))}
 
-            <div className="h-6 w-px" style={{ backgroundColor: APP_COLORS.borderSoft }} />
+        <div className="rounded-2xl border border-[#dad9d4] bg-white p-4">
+          <p className={`${TYPOGRAPHY.caption.xs} text-t-textMuted`}>Health Ring</p>
+          <div className="mt-2 flex items-center gap-3">
+            <svg className="h-10 w-10 -rotate-90" viewBox="0 0 40 40" role="img" aria-label="Detection rate ring">
+              <circle cx="20" cy="20" r={ringRadius} className="stroke-[#dad9d4]" strokeWidth="4" fill="none" />
+              <circle
+                cx="20"
+                cy="20"
+                r={ringRadius}
+                className="stroke-t-primary"
+                strokeWidth="4"
+                strokeLinecap="round"
+                fill="none"
+                strokeDasharray={ringCircumference}
+                strokeDashoffset={ringOffset}
+              />
+            </svg>
+            <span className={`${TYPOGRAPHY.caption.sm} ${TYPOGRAPHY.fontWeight.semibold} text-t-textPrimary`}>
+              {safeRate.toFixed(1)}%
+            </span>
+          </div>
+        </div>
+      </div>
 
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4" style={{ color: APP_COLORS.danger }} />
-              <div className="flex items-baseline gap-1">
-                <span className={`${TYPOGRAPHY.label.lg} hidden sm:inline`} style={{ color: APP_COLORS.textSecondary }}>Threats:</span>
-                <span className={`${TYPOGRAPHY.data.xs} ${loading ? 'opacity-50' : ''}`} style={{ color: APP_COLORS.danger }}>
-                  {stats.maliciousIOCs.toLocaleString()}
-                </span>
-              </div>
-            </div>
-
-            <div className="h-6 w-px hidden md:block" style={{ backgroundColor: APP_COLORS.borderSoft }} />
-          </>
-        )}
+      <div className="mt-3 flex flex-wrap gap-2">
+        <span className="inline-flex items-center gap-1 rounded-full border border-[#dad9d4] px-2 py-1 text-xs text-t-textSecondary">
+          <Database className="h-3.5 w-3.5" />
+          IOC trend: {formatDelta(stats?.trends.totalIOCs ?? 0)}
+        </span>
+        <span className="inline-flex items-center gap-1 rounded-full border border-[#dad9d4] px-2 py-1 text-xs text-t-textSecondary">
+          <AlertTriangle className="h-3.5 w-3.5" />
+          Threat trend: {formatDelta(stats?.trends.threatsDetected ?? 0)}
+        </span>
       </div>
     </div>
   );

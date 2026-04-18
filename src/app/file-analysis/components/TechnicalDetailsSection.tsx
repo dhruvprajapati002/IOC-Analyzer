@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Cpu, Code, FileCode } from 'lucide-react';
 import { APP_COLORS, CARD_STYLES } from '@/lib/colors';
 import { TYPOGRAPHY } from '@/lib/typography';
+import { ScrollAreaHorizontal } from '@/components/ui/ScrollArea';
 
 interface TechnicalDetailsSectionProps {
   detectiteasy?: any;
@@ -34,8 +35,9 @@ export function TechnicalDetailsSection({ detectiteasy, elfInfo, trid }: Technic
         >
           {title}
         </div>
-        <div
-          className="rounded-lg p-4 overflow-x-auto"
+        <ScrollAreaHorizontal
+          className="rounded-lg p-4"
+          variant="thin"
           style={{
             backgroundColor: APP_COLORS.backgroundSoft,
             border: `1px solid ${APP_COLORS.border}`,
@@ -49,7 +51,7 @@ export function TechnicalDetailsSection({ detectiteasy, elfInfo, trid }: Technic
               ? JSON.stringify(data, null, 2) 
               : renderValue(data)}
           </pre>
-        </div>
+        </ScrollAreaHorizontal>
       </div>
     );
   };

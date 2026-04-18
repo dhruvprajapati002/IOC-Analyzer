@@ -1,30 +1,21 @@
 'use client';
 
 import React, { ReactNode } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { isPublicRoute, normalizeRoute } from '@/lib/routes';
-import { APP_COLORS } from '@/lib/colors';
+import { isAdminRoute, normalizeRoute } from '@/lib/routes';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
+import { ScrollArea } from '@/components/ui/ScrollArea';
 
 function LoadingScreen() {
   return (
-    <div
-      className="min-h-screen flex items-center justify-center"
-      style={{ backgroundColor: APP_COLORS.background }}
-    >
+    <div className="flex min-h-screen items-center justify-center bg-[#faf9f5]">
       <div className="text-center space-y-4">
         <div className="relative w-16 h-16 mx-auto">
-          <div
-            className="absolute inset-0 border-4 rounded-full animate-spin"     
-            style={{
-              borderColor: `${APP_COLORS.primary}30`,
-              borderTopColor: APP_COLORS.primary,
-            }}
-          />
+          <div className="absolute inset-0 animate-spin rounded-full border-4 border-[#c964424d] border-t-[#c96442]" />
         </div>
-        <div className="font-semibold text-lg" style={{ color: APP_COLORS.textPrimary }}>
+        <div className="text-lg font-semibold text-t-textPrimary">
           Loading...
         </div>
       </div>
@@ -33,41 +24,34 @@ function LoadingScreen() {
 }
 
 export function MainLayout({ children }: { children: ReactNode }) {
-  const { isAuthenticated, isLoading, logout } = useAuth();
-  const router = useRouter();
+  const { isAdmin, isLoading } = useAuth();
   const pathname = normalizeRoute(usePathname() || '/');
-
-  const routeIsPublic = isPublicRoute(pathname);
+  const isAuthPage = pathname === '/login' || pathname === '/register';
+  const adminRoute = isAdminRoute(pathname);
 
   if (isLoading) return <LoadingScreen />;
 
-  if (!isAuthenticated || routeIsPublic) {
-    return (
-      <div
-        className="min-h-screen"
-        style={{ backgroundColor: APP_COLORS.background, color: APP_COLORS.textPrimary }}
-      >
-        {children}
-      </div>
-    );
+  if (isAuthPage || (adminRoute && !isAdmin)) {
+    return <div className="min-h-screen bg-[#faf9f5] text-t-textPrimary">{children}</div>;
   }
 
-  const handleLogout = async () => {
-    await logout();
-    router.push('/login');
-  };
-
   return (
-    <div className="flex h-screen overflow-hidden" style={{ backgroundColor: APP_COLORS.background, color: APP_COLORS.textPrimary }}>
-      <Sidebar onLogout={handleLogout} />
+    <div className="flex h-screen overflow-hidden bg-[#faf9f5] text-t-textPrimary">
+      <Sidebar />
       
       {/* Main Content Area - Push right by sidebar width */}
-      <div className="flex w-full flex-col ">
+      <div className="flex w-full flex-col bg-[#faf9f5]">
         <Header />
         
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 relative w-full h-full">
+        <ScrollArea
+          asChild
+          className="relative h-full w-full flex-1 bg-[#faf9f5] p-4 sm:p-6 md:p-8"
+          variant="thin"
+        >
+          <main>
             {children}
-        </main>
+          </main>
+        </ScrollArea>
       </div>
     </div>
   );

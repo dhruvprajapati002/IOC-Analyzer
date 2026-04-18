@@ -24,7 +24,7 @@ export function Logo({ compact = false, showTagline = false, className = '' }: L
       {!compact && (
         <div className="leading-tight">
           <p className="text-lg font-black tracking-tight" style={{ color: APP_COLORS.textPrimary }}>
-            SentinelIQ
+            VigilanceX
           </p>
           {showTagline && (
             <p className="text-[10px] uppercase tracking-[0.18em] font-semibold" style={{ color: APP_COLORS.textSecondary }}>

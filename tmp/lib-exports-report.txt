@@ -1,0 +1,303 @@
+=== EXPORT INVENTORY ===
+
+## src\lib\apiFetch.ts
+export async function apiFetch(input: RequestInfo, init: RequestInit  = {}) {
+
+## src\lib\auth.ts
+export interface JwtPayload {
+export function generateToken(
+export function verifyToken(token: string): JwtPayload | null {
+export function getTokenFromRequest(req: NextRequest): string | null {
+export async function verifyAuth(req: NextRequest): Promise<JwtPayload | null> {
+export function isAdmin(payload: JwtPayload | null): boolean {
+export function unauthorizedResponse() {
+export function forbiddenResponse(message?: string) {
+
+## src\lib\cache\cache-ttl.ts
+export type IOCType = 'hash' | 'ip' | 'domain' | 'url' | 'file';
+export interface CacheTTLConfig {
+export function getCacheTTL(iocType: IOCType, source?: string): number {
+export function getCacheTTLConfig(iocType: IOCType): CacheTTLConfig {
+export function isCacheExpired(
+export function formatCacheLog(
+export function formatTTLDuration(seconds: number): string {
+export function validateTTL(
+export function getTTLFromEnv(iocType: IOCType): number {
+export const TTL = {
+
+## src\lib\colors.ts
+export const DEFAULT_COLORS = {
+export const sidebarColors = {
+export const APP_COLORS = {
+export const CHART_COLORS = {
+export const THREAT_COLORS = {
+export const STATUS_BADGE = {
+export const BUTTON_STYLES = {
+export const INPUT_STYLES = {
+export const LOADING_STYLES = {
+export const LOADING_CONTAINER = {
+export const SHADOWS = {
+export const getAppColors = () => APP_COLORS;
+export const getChartColors = () => CHART_COLORS;
+export const getThreatColors = () => THREAT_COLORS;
+export const getButtonStyles = () => BUTTON_STYLES;
+export const INTEL_CARD_COLORS = {
+export const CARD_STYLES = {
+export const RISK_COLORS = { "critical": { "primary": "#ef4444", "bg": "rgba(239, 68, 68, 0.1)", "border": "rgba(239, 68, 68, 0.2)", "text": "#ffffff", "level": "Critical" }, "high": { "primary": "#f97316", "bg": "rgba(249, 115, 22, 0.1)", "border": "rgba(249, 115, 22, 0.2)", "text": "#ffffff", "level": "High" }, "medium": { "primary": "#eab308", "bg": "rgba(234, 179, 8, 0.1)", "border": "rgba(234, 179, 8, 0.2)", "text": "#ffffff", "level": "Medium" }, "low": { "primary": "#10b981", "bg": "rgba(16, 185, 129, 0.1)", "border": "rgba(16, 185, 129, 0.2)", "text": "#ffffff", "level": "Low" }, "info": { "primary": "#3b82f6", "bg": "rgba(59, 130, 246, 0.1)", "border": "rgba(59, 130, 246, 0.2)", "text": "#ffffff", "level": "Info" }, "unknown": { "primary": "#6b7280", "bg": "rgba(107, 114, 128, 0.1)", "border": "rgba(107, 114, 128, 0.2)", "text": "#ffffff", "level": "Unknown" }, "clean": { "primary": "#10b981", "bg": "rgba(16, 185, 129, 0.1)", "border": "rgba(16, 185, 129, 0.2)", "text": "#ffffff", "level": "Clean" } };
+
+## src\lib\crypto-polyfill.ts
+export {};
+
+## src\lib\db.ts
+export async function getDatabase() {
+
+## src\lib\detect.ts
+export function extractBaseDomain(ioc: string): string {
+export function domainsMatch(inputDomain: string, whitelistDomain: string): boolean {
+export function normalizeIOC(ioc: string, type?: IOCType): string {
+export function detectIOCType(ioc: string): IOCType {
+export function getHashType(hash: string): 'md5' | 'sha1' | 'sha256' | null {
+export function validateIOCList(iocs: string[]): {
+
+## src\lib\fallback-analysis.ts
+export interface FallbackAnalysisResult {
+export function performFallbackAnalysis(ioc: string, type: string): FallbackAnalysisResult {
+export function createFallbackVTResult(ioc: string, type: string): any {
+
+## src\lib\features.ts
+export const FEATURES = {
+
+## src\lib\ioc-cache.ts
+export interface SaveIOCAnalysisInput {
+export async function getIOCFromCache(ioc: string, type: string) {
+export async function saveIOCAnalysis(input: SaveIOCAnalysisInput) {
+export async function recordUserHistory(params: {
+export async function getUserHistory(filters: UserHistoryFilters) {
+export async function getLatestHistoryRecord(
+
+## src\lib\loaders.ts
+export const LOADING_STYLES = {
+export const LOADING_CONTAINER = {
+
+## src\lib\models\IocCache.ts
+export type IocType = 'ip' | 'domain' | 'url' | 'hash';
+export interface IThreatIntelBasic {
+export interface IIocCache extends Document {
+export const IocCache =
+
+## src\lib\models\IocUserHistory.ts
+export interface IocHistoryMetadata {
+export interface IIocUserHistory extends Document {
+export const IocUserHistory =
+
+## src\lib\models\User.ts
+export interface IUser extends Document {
+export const User =
+
+## src\lib\network-diagnostic.ts
+NO DIRECT EXPORT MATCH
+
+## src\lib\normalize.ts
+export function normalizeVTResponse(vtData: VTRawData): VTNormalized {
+export function extractThreatIntelligence(attrs: VTRawData['attributes']): {
+export function getVerdictColor(verdict: Verdict): string {
+export function getVerdictText(verdict: Verdict): string {
+export function getSeverityLevel(stats: {
+export function getThreatTypeColor(threatType: string): string {
+export function getThreatTypeIcon(threatType: string): string {
+
+## src\lib\risk.ts
+export type RiskLevel = 'critical' | 'high' | 'medium' | 'low';
+export type Verdict =
+export interface VTReduced {
+export interface AbuseReduced {
+export interface UnifiedRisk {
+export function computeUnifiedRisk(
+
+## src\lib\routes.ts
+export const PUBLIC_ROUTES = ['/login', '/register', '/about'];
+export function normalizeRoute(path: string): string {
+export function isPublicRoute(path: string): boolean {
+
+## src\lib\threat-intel\clients\base.client.ts
+export interface ThreatIntelClient {
+
+## src\lib\threat-intel\clients\greynoise.client.ts
+export class GreyNoiseClient extends BaseThreatIntelClient {
+
+## src\lib\threat-intel\clients\ipqs.client.ts
+export class IPQSClient extends BaseThreatIntelClient {
+
+## src\lib\threat-intel\clients\malwarebazaar.client.ts
+export class MalwareBazaarClient extends BaseThreatIntelClient {
+
+## src\lib\threat-intel\clients\threatfox.client.ts
+export class ThreatFoxClient extends BaseThreatIntelClient {
+
+## src\lib\threat-intel\clients\urlhaus.client.ts
+export class URLhausClient extends BaseThreatIntelClient {
+
+## src\lib\threat-intel\clients\vt.client.ts
+export class VirusTotalClient extends BaseThreatIntelClient {
+
+## src\lib\threat-intel\config\sources.config.ts
+export const SOURCES: Record<string, SourceConfig> = {
+export function getSourcesForIOCType(iocType: string): SourceConfig[] {
+export function getRequiredSources(): SourceConfig[] {
+export function getEnabledSources(): SourceConfig[] {
+export function hasMinimumSources(iocType: string): boolean {
+
+## src\lib\threat-intel\index.ts
+export { analyzeIOC, analyzeIOCBatch } from './services/ioc-analyzer.service';
+export { VirusTotalClient } from './clients/vt.client';
+export { GreyNoiseClient } from './clients/greynoise.client';
+export { IPQSClient } from './clients/ipqs.client';
+export { ThreatFoxClient } from './clients/threatfox.client';
+export { MalwareBazaarClient } from './clients/malwarebazaar.client';
+export { URLhausClient } from './clients/urlhaus.client';
+export { VTNormalizer } from './normalizers/vt.normalizer';
+export { GreyNoiseNormalizer } from './normalizers/greynoise.normalizer';
+export { IPQSNormalizer } from './normalizers/ipqs.normalizer';
+export { ThreatFoxNormalizer } from './normalizers/threatfox.normalizer';
+export { MalwareBazaarNormalizer } from './normalizers/malwarebazaar.normalizer';
+export { URLhausNormalizer } from './normalizers/urlhaus.normalizer';
+
+## src\lib\threat-intel\normalizers\base.normalizer.ts
+export interface ThreatDataNormalizer {
+
+## src\lib\threat-intel\normalizers\greynoise.normalizer.ts
+export class GreyNoiseNormalizer extends BaseNormalizer {
+
+## src\lib\threat-intel\normalizers\ipqs.normalizer.ts
+export class IPQSNormalizer extends BaseNormalizer {
+
+## src\lib\threat-intel\normalizers\malwarebazaar.normalizer.ts
+export class MalwareBazaarNormalizer extends BaseNormalizer {
+
+## src\lib\threat-intel\normalizers\threatfox.normalizer.ts
+export class ThreatFoxNormalizer extends BaseNormalizer {
+
+## src\lib\threat-intel\normalizers\urlhaus.normalizer.ts
+export class URLhausNormalizer extends BaseNormalizer {
+
+## src\lib\threat-intel\normalizers\vt.normalizer.ts
+export class VTNormalizer extends BaseNormalizer {
+
+## src\lib\threat-intel\orchestrator\extractors.ts
+export class VTDataExtractor {
+
+## src\lib\threat-intel\orchestrator\multi-source.orchestrator.ts
+export class MultiSourceOrchestrator {
+export function formatIOCResponse(
+export function createErrorResult(ioc: string, iocType: string, error: any): any {
+
+## src\lib\threat-intel\orchestrator\threat-intel.orchestrator.ts
+export class ThreatIntelOrchestrator {
+
+## src\lib\threat-intel\services\ioc-analyzer.service.ts
+export async function analyzeIOC(
+export async function analyzeIOCBatch(
+
+## src\lib\threat-intel\services\ip-reputation.service.ts
+export async function getGeolocationData(ip: string): Promise<GeolocationData | null> {
+export async function checkAbuseIPDB(ip: string): Promise<AbuseIPDBData | null> {
+
+## src\lib\threat-intel\services\risk-scoring.service.ts
+export interface RiskScoreResult {
+export interface RiskDetails {
+export function calculateIPRiskScore(
+export function calculateVTScore(stats: any): number {
+export function calculateNonIPSeverity(
+export function getRiskLevelDetails(level: string, score: number): RiskDetails {
+
+## src\lib\threat-intel\services\vt-extractor.service.ts
+export function extractFileInfo(vtResult: any, hash: string): FileInfo | null {
+export function extractDetections(vtResult: any): Detection[] {
+export function extractFamilyLabels(vtResult: any): string[] {
+export function determinePopularThreat(
+export function parseMitreAttack(mitreData: any): MitreAttackData | null {
+export function generateSandboxData(maliciousCount: number): any {
+
+## src\lib\threat-intel\types\storage.types.ts
+export interface IOCStorageDocument {
+
+## src\lib\threat-intel\types\threat-intel.types.ts
+export type IOCType = 'ip' | 'domain' | 'url' | 'hash';
+export type Verdict = 'malicious' | 'suspicious' | 'clean' | 'unknown' | 'whitelisted';
+export type Severity = 'critical' | 'high' | 'medium' | 'low' | 'clean' | 'unknown';
+export type RiskLevel = 'critical' | 'high' | 'medium' | 'low';
+export interface ClientResult {
+export interface UnifiedThreatData {
+export interface EnrichedIOC {
+export interface SourceConfig {
+export interface GeolocationData {
+export interface AbuseIPDBData {
+export interface RiskDetails {
+export interface ThreatInfo {
+export interface NetworkAnalysis {
+export interface ThreatIntelligence {
+export interface Detection {
+export interface MitreTactic {
+export interface MitreTechnique {
+export interface MitreAttackData {
+export interface FileInfo {
+export interface SandboxAnalysis {
+export interface IOCAnalysisResult {
+export interface ThreatIntelResult {
+
+## src\lib\threat-intel\utils\api-key-manager.ts
+export type ServiceName = 'virustotal' | 'ipqs' | 'greynoise' | 'abuseipdb';
+export interface ApiKeyInfo {
+export interface KeyRotationStats {
+export const apiKeyManager = new ApiKeyManager();
+
+## src\lib\typography.ts
+export const TYPOGRAPHY = {
+
+## src\lib\utils.ts
+export function cn(...inputs: ClassValue[]) {
+
+## src\lib\validators.ts
+export type IOCType = 'ip' | 'domain' | 'url' | 'hash';
+export type Verdict = 'malicious' | 'suspicious' | 'harmless' | 'undetected' | 'unknown' | 'pending';
+export const SubmitIOCRequestSchema = z.object({
+export type SubmitIOCRequest = z.infer<typeof SubmitIOCRequestSchema>;
+export const DetectionSchema = z.object({
+export type Detection = z.infer<typeof DetectionSchema>;
+export const VTNormalizedSchema = z.object({
+export type VTNormalized = z.infer<typeof VTNormalizedSchema>;
+export const ThreatIntelSchema = z.object({
+export type ThreatIntel = z.infer<typeof ThreatIntelSchema>;
+export const IOCRecordSchema = z.object({
+export type IOCRecord = z.infer<typeof IOCRecordSchema>;
+export const SubmitIOCResponseSchema = z.object({
+export type SubmitIOCResponse = z.infer<typeof SubmitIOCResponseSchema>;
+export const IOCQuerySchema = z.object({
+export type IOCQuery = z.infer<typeof IOCQuerySchema>;
+export function detectIOCType(ioc: string): IOCType {
+export function validateIOC(ioc: string, type?: IOCType): { valid: boolean; error?: string } {
+export function getVerdictScore(verdict: Verdict): number {
+export function getSeverityScore(severity?: string): number {
+
+## src\lib\virustotal\vt.ts
+export { EnhancedVirusTotalClient };
+export const vtClient = new EnhancedVirusTotalClient();
+export function isVirusTotalConfigured(): boolean {
+
+## src\lib\virustotal\vt-client.ts
+export interface VTAnalysisStats {
+export interface VTAnalysisResult {
+export class ClientVirusTotalService {
+export const vtService = new ClientVirusTotalService();
+
+## src\lib\virustotal\vt-orchestrator.ts
+export type IndicatorType = "hash" | "url" | "ip" | "domain";
+export type KeyStatus = "ok" | "cooldown" | "invalid";
+export interface ApiKey {
+export interface RateLimitInfo {
+export interface LookupResult {
+export interface LookupOptions {
+export interface GraphNode {
+export interface GraphRelationship {
+export interface GraphData {
+export class VirusTotalClient {

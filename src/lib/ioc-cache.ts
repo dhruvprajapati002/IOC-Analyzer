@@ -1,6 +1,7 @@
 import connectDB from '@/lib/db';
 import { IocCache, IocType } from '@/lib/models/IocCache';
 import { IocUserHistory } from '@/lib/models/IocUserHistory';
+import { SYSTEM_USER_ID } from '@/lib/system-user';
 import type { IocHistoryMetadata } from '@/lib/models/IocUserHistory';
 import type { IOCAnalysisResult } from '@/lib/threat-intel/types/threat-intel.types';
 
@@ -26,6 +27,7 @@ export interface SaveIOCAnalysisInput {
 
 interface UserHistoryFilters {
   userId: string;
+  includeAllUsers?: boolean;
   page?: number;
   limit?: number;
   type?: string;
@@ -152,7 +154,7 @@ export async function saveIOCAnalysis(input: SaveIOCAnalysisInput) {
 
   if (input.userId) {
     await IocUserHistory.create({
-      userId: input.userId,
+      userId: SYSTEM_USER_ID,
       value: input.ioc,
       type: input.type as IocType,
       searched_at: input.fetchedAt || new Date(),
@@ -188,7 +190,7 @@ export async function recordUserHistory(params: {
 }) {
   await connectDB();
   await IocUserHistory.create({
-    userId: params.userId,
+    userId: SYSTEM_USER_ID,
     value: params.value,
     type: params.type as IocType,
     searched_at: params.searchedAt || new Date(),
@@ -206,9 +208,11 @@ export async function getUserHistory(filters: UserHistoryFilters) {
   const limit = Math.min(Math.max(filters.limit || 10, 1), 100);
   const skip = (page - 1) * limit;
 
-  const query: Record<string, any> = {
-    userId: filters.userId,
-  };
+  const query: Record<string, any> = {};
+
+  if (!filters.includeAllUsers) {
+    query.userId = filters.userId;
+  }
 
   if (filters.type) {
     query.type = filters.type;

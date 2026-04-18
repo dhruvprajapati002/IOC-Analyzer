@@ -5,6 +5,7 @@ import { getIOCFromCache, saveIOCAnalysis } from '@/lib/ioc-cache';
 import { getCacheTTL } from '@/lib/cache/cache-ttl';
 import { MultiSourceOrchestrator } from '@/lib/threat-intel/orchestrator/multi-source.orchestrator';
 import type { IOCAnalysisResult } from '@/lib/threat-intel/types/threat-intel.types';
+import { SYSTEM_USER, SYSTEM_USER_ID } from '@/lib/system-user';
 
 // Initialize orchestrator for hash analysis
 const orchestrator = new MultiSourceOrchestrator();
@@ -734,19 +735,7 @@ console.log(
   const allDetections = hashAnalysisResult.threatIntel.detections || [];
   console.log(`[Analysis] 📊 Total detections from orchestrator: ${allDetections.length}`);
 
-  // ✅ STEP 9: Get username
-  let username = 'Anonymous';
-  if (userId) {
-    try {
-      const User = (await import('@/lib/models/User')).User;
-      const user = await User.findById(userId).select('username email');
-      if (user) {
-        username = user.username || user.email?.split('@')[0] || 'Anonymous';
-      }
-    } catch (error) {
-      console.warn('[Analysis] Could not fetch username:', error);
-    }
-  }
+  const username = SYSTEM_USER.username;
 
   // ✅ STEP 10: Enhance orchestrator result with file-specific data
   const now = new Date();
@@ -855,7 +844,7 @@ const enrichedForStorage = {
 await saveIOCAnalysis({
   ioc: sha256,
   type: 'hash',
-  userId,
+  userId: SYSTEM_USER_ID,
   username,
   label: label || 'File Analysis',
   source: 'file_analysis',

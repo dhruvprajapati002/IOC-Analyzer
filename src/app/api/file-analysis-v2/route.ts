@@ -1,26 +1,15 @@
 // app/api/file-analysis-v2/route.ts
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getTokenFromRequest, verifyToken } from '@/lib/auth';
 import { performFileAnalysis } from './services/analysis-engine-v2';
 import { checkRateLimit } from './services/rate-limit';
+import { SYSTEM_USER_ID } from '@/lib/system-user';
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const startTime = Date.now();
 
   try {
-    // ✅ Authentication
-    const token = getTokenFromRequest(request);
-    if (!token) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const payload = verifyToken(token);
-    if (!payload) {
-      return NextResponse.json({ success: false, error: 'Invalid token' }, { status: 401 });
-    }
-
-    const userId = payload.userId;
+    const userId = SYSTEM_USER_ID;
 
     // ✅ Rate limiting
     const rateLimit = checkRateLimit(userId);

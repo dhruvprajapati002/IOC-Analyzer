@@ -6,21 +6,37 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import {
+  Activity,
+  AlertTriangle,
+  Clock3,
+  DatabaseZap,
+  Radar,
+  ScanSearch,
+  ShieldCheck,
+} from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { DashboardSkeleton } from "@/components/ui/dashboard-skeleton";
 import { ProtectedPage } from "@/components/ProtectedPage";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Logo } from "@/components/common/Logo";
 
 import { ThreatSearchForm } from "@/app/analyze/components/ThreatSearchForm";
-import { ThreatOverviewCard } from "@/app/analyze/components/ThreatOverviewCard";
-import { IPReputationCard } from "@/app/analyze/components/IPReputationCard";
-import { ThreatIntelligenceCards } from "@/app/analyze/components/ThreatIntelligenceCards";
-import { FileInformationCard } from "@/app/analyze/components/FileInformationCard";
-import { SandboxAnalysisCard } from "@/app/analyze/components/SandboxAnalysisCard";
-import { PopularThreatLabel } from "@/app/analyze/components/PopularThreatLabel";
-import { MultiSourceDataCard } from "@/app/analyze/components/MultiSourceDataCard";
-import { DynamicVTData } from "@/app/analyze/components/DynamicVTData";
+import { ThreatOverviewCard } from "@/app/analyze/components/cards/ThreatOverviewCard";
+import { IPReputationCard } from "@/app/analyze/components/cards/IPReputationCard";
+import { ThreatIntelligenceCards } from "@/app/analyze/components/cards/ThreatIntelligenceCards";
+import { FileInformationCard } from "@/app/analyze/components/cards/FileInformationCard";
+import { SandboxAnalysisCard } from "@/app/analyze/components/cards/SandboxAnalysisCard";
+import { PopularThreatLabel } from "@/app/analyze/components/cards/PopularThreatLabel";
+import { MultiSourceDataCard } from "@/app/analyze/components/cards/MultiSourceDataCard";
+import { DynamicVTData } from "@/app/analyze/components/cards/DynamicVTData";
+import { DetectionNamesCard } from "@/app/analyze/components/cards/DetectionNamesCard";
 import { NoDataAvailable } from "@/app/analyze/components/NoDataAvailable";
-import { FEATURES } from "@/lib/features";
+import { RateLimitIndicator } from "@/app/analyze/components/RateLimitIndicator";
+import { RecentSearchChips } from "@/app/analyze/components/RecentSearchChips";
+import { DomainSidePanel } from "@/app/analyze/components/domain/DomainSidePanel";
+import { useDomainPanel } from "@/app/analyze/hooks/useDomainPanel";
 import { APP_COLORS, CHART_COLORS } from "@/lib/colors";
 import { apiFetch } from "@/lib/apiFetch";
 
@@ -79,6 +95,15 @@ const validateIOCs = (iocs: string, searchType: string) => {
     validCount: iocList.length - invalidIOCs.length,
     totalCount: iocList.length,
   };
+};
+
+const detectIOCTypeLocal = (value: string): string => {
+  const candidate = value.trim();
+  if (!candidate) return "unknown";
+  if (validateIP(candidate)) return "ip";
+  if (validateDomain(candidate)) return "domain";
+  if (validateHash(candidate)) return "hash";
+  return "auto";
 };
 
 interface DashboardData {
@@ -169,6 +194,16 @@ interface LastResultMeta {
   reputation?: any;
 }
 
+const getCountdownSeconds = (
+  resetAt: string | null,
+  referenceMs: number = Date.now()
+): number => {
+  if (!resetAt) return 0;
+  const targetMs = new Date(resetAt).getTime();
+  if (Number.isNaN(targetMs)) return 0;
+  return Math.max(0, Math.ceil((targetMs - referenceMs) / 1000));
+};
+
 function AnalyzePageContent() {
   const { token } = useAuth();
   const searchParams = useSearchParams();
@@ -185,6 +220,7 @@ function AnalyzePageContent() {
   const [sourcesAvailable, setSourcesAvailable] = useState<string[]>([]);
   const [sourcesFailed, setSourcesFailed] = useState<string[]>([]);
   const [currentIOC, setCurrentIOC] = useState<string>("");
+  const [nowMs, setNowMs] = useState(() => Date.now());
 
   const [rateLimit, setRateLimit] = useState<RateLimitState>({
     remaining: 100,
@@ -194,15 +230,30 @@ function AnalyzePageContent() {
 
   const [lastResultMeta, setLastResultMeta] =
     useState<LastResultMeta | null>(null);
+  const {
+    isOpen: isDomainPanelOpen,
+    loading: isDomainPanelLoading,
+    data: domainPanelData,
+    error: domainPanelError,
+    domain: domainPanelDomain,
+    openPanel: openDomainPanel,
+    closePanel: closeDomainPanel,
+  } = useDomainPanel();
 
   const urlQuery = searchParams?.get('q') ?? null;
 
   const updateRateLimitFromHeaders = (headers: Headers) => {
-    const remaining = headers.get("X-RateLimit-Remaining");
-    const limit = headers.get("X-RateLimit-Limit");
-    const resetAt = headers.get("X-RateLimit-Reset");
+    const minuteRemainingHeader = headers.get("X-RateLimit-Remaining-Minute");
+    const minuteLimitHeader = headers.get("X-RateLimit-Limit-Minute");
+    const minuteResetHeader = headers.get("X-RateLimit-Reset-Minute");
 
-    if (remaining && limit) {
+    const remaining = minuteRemainingHeader ?? headers.get("X-RateLimit-Remaining");
+    const limit = minuteLimitHeader ?? headers.get("X-RateLimit-Limit");
+    const resetAt = minuteResetHeader
+      ? new Date(parseInt(minuteResetHeader, 10) * 1000).toISOString()
+      : headers.get("X-RateLimit-Reset");
+
+    if (remaining && limit && resetAt) {
       const newRateLimit = {
         remaining: parseInt(remaining),
         limit: parseInt(limit),
@@ -214,7 +265,7 @@ function AnalyzePageContent() {
       const percentage =
         (parseInt(remaining) / parseInt(limit)) * 100;
 
-      if (parseInt(remaining) === 0) {
+      if (parseInt(remaining, 10) === 0) {
         toast.error("🚫 Rate limit exceeded! Please wait for reset.", {
           duration: 8000,
         });
@@ -273,19 +324,15 @@ function AnalyzePageContent() {
 
       if (response.status === 429) {
         const errorData = await response.json();
-        const resetDate = errorData.resetAt
-          ? new Date(errorData.resetAt)
-          : null;
-        const minutesUntilReset = resetDate
-          ? Math.ceil(
-              (resetDate.getTime() - Date.now()) / 60000
-            )
-          : 0;
+        const retryAfterSeconds = Number(errorData.retryAfter || 0);
+        const limitType = errorData.type === "day" ? "day" : "minute";
+        const waitText =
+          retryAfterSeconds > 0
+            ? `${Math.ceil(retryAfterSeconds / 60)} minutes`
+            : "a short time";
 
         toast.error(
-          `🚫 Rate limit exceeded!\n\nPlease wait ${minutesUntilReset} minutes before trying again.\n\nLimit: ${
-            errorData.maxRequests || 100
-          } requests/hour`,
+          `🚫 Rate limit exceeded!\n\nPlease wait ${waitText} before trying again.\n\nActive limit: ${limitType}`,
           {
             duration: 10000,
             position: "top-center",
@@ -864,6 +911,38 @@ function AnalyzePageContent() {
     }
   };
 
+  const handleAnalyze = async (value: string) => {
+    await onSubmit({ iocs: value });
+  };
+
+  const rateLimitIndicatorState = {
+    minuteRemaining: Math.max(0, Math.min(4, rateLimit.remaining)),
+    minuteReset: rateLimit.resetAt
+      ? new Date(rateLimit.resetAt).getTime()
+      : Date.now() + 60_000,
+    dayRemaining: Math.max(0, rateLimit.remaining),
+    dayReset: rateLimit.resetAt
+      ? new Date(rateLimit.resetAt).getTime()
+      : Date.now() + 86_400_000,
+    isLimited: rateLimit.remaining === 0,
+    limitType: (rateLimit.remaining === 0 ? "minute" : null) as
+      | "minute"
+      | "day"
+      | null,
+    retryAfterSeconds: getCountdownSeconds(rateLimit.resetAt, nowMs),
+    countdown: getCountdownSeconds(rateLimit.resetAt, nowMs),
+  };
+
+  useEffect(() => {
+    if (!rateLimitIndicatorState.isLimited) return;
+
+    const timer = window.setInterval(() => {
+      setNowMs(Date.now());
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  }, [rateLimitIndicatorState.isLimited]);
+
   useEffect(() => {
     if (urlQuery && urlQuery.trim()) {
       onSubmit({ iocs: urlQuery.trim() });
@@ -889,61 +968,363 @@ function AnalyzePageContent() {
       (d) => d.category === "suspicious"
     ) || [];
 
-  return (
-    <div
-      className="min-h-screen w-full px-4 sm:px-6 lg:px-8 py-6 max-w-[1920px] mx-auto"
-      style={{
-        color: APP_COLORS.textPrimary,
-      }}
-    >
-      <div className="space-y-6">
-        <ThreatSearchForm
-          onSubmit={onSubmit}
-          isSubmitting={isSubmitting || rateLimit.remaining === 0}
-          validateIOCs={validateIOCs}
-          currentIOC={currentIOC}
-          showShareButton={
-            FEATURES.SHARE_IOC_PUBLIC &&
-            !!threatOverview &&
-            !!currentIOC
-          }
-          onMenuClick={undefined}
-        />
+  const maliciousDetectionCount =
+    threatOverview?.threatBreakdown?.find(
+      (item) => item.type === "Malicious Detections"
+    )?.count || threatOverview?.maliciousDetections || maliciousDetections.length;
+  const suspiciousDetectionCount =
+    threatOverview?.threatBreakdown?.find(
+      (item) => item.type === "Suspicious Detections"
+    )?.count || threatOverview?.suspiciousDetections || suspiciousDetections.length;
+  const cleanDetectionCount =
+    threatOverview?.threatBreakdown?.find(
+      (item) => item.type === "Clean Detections"
+    )?.count || 0;
+  const undetectedDetectionCount =
+    threatOverview?.threatBreakdown?.find(
+      (item) => item.type === "Undetected"
+    )?.count || 0;
 
-        <AnimatePresence mode="wait">
-          {!threatOverview && !isSubmitting && (
-            <motion.div
-              key="empty"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
+  const familyLabels = Array.isArray(vtIntelligence?.family_labels)
+    ? vtIntelligence.family_labels
+    : [];
+  const popularThreatLabel =
+    vtIntelligence?.popular_threat_label ||
+    vtIntelligence?.popular_threat_classification?.suggested_threat_label ||
+    null;
+  const suggestedThreatLabel =
+    vtIntelligence?.suggested_threat_label ||
+    vtIntelligence?.popular_threat_classification?.suggested_threat_label ||
+    null;
+
+  const totalDetectionSignals =
+    (threatOverview?.maliciousDetections || 0) +
+    (threatOverview?.suspiciousDetections || 0);
+
+  const normalizedRiskLevel = (() => {
+    if (threatOverview?.riskLevel) return threatOverview.riskLevel;
+    if (!threatOverview || threatOverview.totalAnalyzed === 0) {
+      return "low" as const;
+    }
+    const percent =
+      ((threatOverview.malicious + threatOverview.suspicious) /
+        threatOverview.totalAnalyzed) *
+      100;
+    if (percent >= 70) return "critical" as const;
+    if (percent >= 40) return "high" as const;
+    if (percent >= 20) return "medium" as const;
+    return "low" as const;
+  })();
+
+  const riskToneByLevel = {
+    critical: APP_COLORS.danger,
+    high: APP_COLORS.warning,
+    medium: APP_COLORS.accentOrange,
+    low: APP_COLORS.success,
+  };
+
+  const hasAnalysisResults =
+    !!threatOverview && threatOverview.verdict !== "error";
+  const isCurrentDomain = validateDomain(currentIOC || "");
+
+  return (
+    <div className="relative min-h-screen">
+      <div
+        className="pointer-events-none absolute inset-0 -z-10"
+        style={{
+          background: `radial-gradient(circle at 12% 14%, ${APP_COLORS.primary}20, transparent 42%), radial-gradient(circle at 88% 8%, ${APP_COLORS.accentCyan}1A, transparent 34%), linear-gradient(180deg, ${APP_COLORS.background}, ${APP_COLORS.backgroundSoft})`,
+        }}
+      />
+
+      <div
+        className="w-full px-4 sm:px-6 lg:px-8 py-6 max-w-480 mx-auto"
+        style={{ color: APP_COLORS.textPrimary }}
+      >
+        <div className="space-y-6">
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35 }}
+            className="grid grid-cols-1 xl:grid-cols-[1.65fr_1fr] gap-4"
+          >
+            <Card
+              className="rounded-2xl border"
+              style={{
+                background: `linear-gradient(132deg, ${APP_COLORS.surface} 0%, ${APP_COLORS.backgroundSoft} 100%)`,
+                borderColor: `${APP_COLORS.primary}45`,
+              }}
             >
-              {/* Empty state */}
+              <CardContent className="p-5 sm:p-6">
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <Logo showTagline className="shrink-0" />
+                      <Badge
+                        className="border uppercase tracking-[0.16em] text-[10px] px-3 py-1"
+                        style={{
+                          color: APP_COLORS.primary,
+                          borderColor: `${APP_COLORS.primary}4D`,
+                          backgroundColor: `${APP_COLORS.primary}14`,
+                        }}
+                      >
+                        Analysis Studio
+                      </Badge>
+                    </div>
+
+                    <div>
+                      <h1
+                        className="text-2xl sm:text-3xl font-black leading-tight tracking-tight"
+                        style={{ color: APP_COLORS.textPrimary }}
+                      >
+                        VigilanceX IOC Intelligence Console
+                      </h1>
+                      <p
+                        className="text-sm sm:text-base mt-2 max-w-3xl"
+                        style={{ color: APP_COLORS.textSecondary }}
+                      >
+                        Run hash, domain, URL, and IP investigations with
+                        unified threat verdicts, vendor detections, and
+                        multi-source enrichment in one response workflow.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 sm:gap-3 min-w-67.5">
+                    <div
+                      className="rounded-xl border p-3"
+                      style={{
+                        borderColor: `${APP_COLORS.border}`,
+                        backgroundColor: `${APP_COLORS.surface}`,
+                      }}
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <ScanSearch
+                          className="h-3.5 w-3.5"
+                          style={{ color: APP_COLORS.primary }}
+                        />
+                        <span
+                          className="text-[10px] uppercase tracking-[0.12em] font-semibold"
+                          style={{ color: APP_COLORS.textSecondary }}
+                        >
+                          IOCs Analyzed
+                        </span>
+                      </div>
+                      <p
+                        className="text-xl font-black mt-1"
+                        style={{ color: APP_COLORS.textPrimary }}
+                      >
+                        {threatOverview?.totalAnalyzed ?? 0}
+                      </p>
+                    </div>
+
+                    <div
+                      className="rounded-xl border p-3"
+                      style={{
+                        borderColor: `${APP_COLORS.border}`,
+                        backgroundColor: `${APP_COLORS.surface}`,
+                      }}
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <Radar
+                          className="h-3.5 w-3.5"
+                          style={{ color: APP_COLORS.warning }}
+                        />
+                        <span
+                          className="text-[10px] uppercase tracking-[0.12em] font-semibold"
+                          style={{ color: APP_COLORS.textSecondary }}
+                        >
+                          Detection Signals
+                        </span>
+                      </div>
+                      <p
+                        className="text-xl font-black mt-1"
+                        style={{ color: APP_COLORS.textPrimary }}
+                      >
+                        {totalDetectionSignals}
+                      </p>
+                    </div>
+
+                    <div
+                      className="rounded-xl border p-3"
+                      style={{
+                        borderColor: `${APP_COLORS.border}`,
+                        backgroundColor: `${APP_COLORS.surface}`,
+                      }}
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <ShieldCheck
+                          className="h-3.5 w-3.5"
+                          style={{
+                            color: riskToneByLevel[normalizedRiskLevel],
+                          }}
+                        />
+                        <span
+                          className="text-[10px] uppercase tracking-[0.12em] font-semibold"
+                          style={{ color: APP_COLORS.textSecondary }}
+                        >
+                          Risk Level
+                        </span>
+                      </div>
+                      <p
+                        className="text-sm font-black mt-2 uppercase tracking-wide"
+                        style={{
+                          color: riskToneByLevel[normalizedRiskLevel],
+                        }}
+                      >
+                        {normalizedRiskLevel}
+                      </p>
+                    </div>
+
+                    <div
+                      className="rounded-xl border p-3"
+                      style={{
+                        borderColor: `${APP_COLORS.border}`,
+                        backgroundColor: `${APP_COLORS.surface}`,
+                      }}
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <DatabaseZap
+                          className="h-3.5 w-3.5"
+                          style={{ color: APP_COLORS.accentBlue }}
+                        />
+                        <span
+                          className="text-[10px] uppercase tracking-[0.12em] font-semibold"
+                          style={{ color: APP_COLORS.textSecondary }}
+                        >
+                          Sources Online
+                        </span>
+                      </div>
+                      <p
+                        className="text-xl font-black mt-1"
+                        style={{ color: APP_COLORS.textPrimary }}
+                      >
+                        {sourcesAvailable.length}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <RateLimitIndicator
+              state={rateLimitIndicatorState}
+            />
+          </motion.div>
+
+          <ThreatSearchForm
+            onAnalyze={handleAnalyze}
+            isLoading={isSubmitting}
+            disabled={rateLimitIndicatorState.isLimited}
+            currentIOC={currentIOC}
+          />
+
+          <RecentSearchChips
+            latestSearch={currentIOC}
+            latestType={detectIOCTypeLocal(currentIOC)}
+            onSelect={handleAnalyze}
+          />
+
+          {isCurrentDomain && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2 }}
+              className="rounded-xl border px-4 py-3 flex flex-wrap items-center justify-between gap-3"
+              style={{
+                backgroundColor: `${APP_COLORS.primary}0F`,
+                borderColor: `${APP_COLORS.primary}3A`,
+              }}
+            >
+              <p className="text-sm" style={{ color: APP_COLORS.textSecondary }}>
+                Domain lookup is available for
+                <span className="font-semibold ml-1" style={{ color: APP_COLORS.textPrimary }}>
+                  {currentIOC}
+                </span>
+                .
+              </p>
+              <button
+                type="button"
+                onClick={() => openDomainPanel(currentIOC)}
+                className="rounded-lg border px-3 py-1.5 text-xs font-semibold"
+                style={{
+                  borderColor: `${APP_COLORS.primary}66`,
+                  backgroundColor: APP_COLORS.primary,
+                  color: APP_COLORS.textOffWhite,
+                }}
+              >
+                Click here to check domain lookup
+              </button>
             </motion.div>
           )}
 
-          {threatOverview &&
-            threatOverview.verdict === "error" &&
-            lastResultMeta && (
-              <NoDataAvailable
-                ioc={currentIOC}
-                type={lastResultMeta.type || "unknown"}
-                error={lastResultMeta.error}
-                geolocation={
-                  lastResultMeta.type === "ip" &&
-                  lastResultMeta.reputation?.geolocation
-                    ? lastResultMeta.reputation.geolocation
-                    : undefined
-                }
-                onRetry={() =>
-                  onSubmit({ iocs: currentIOC || "" })
-                }
-              />
+          <AnimatePresence mode="wait">
+            {!threatOverview && !isSubmitting && (
+              <motion.div
+                key="empty"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Card
+                  className="rounded-2xl border"
+                  style={{
+                    backgroundColor: APP_COLORS.surface,
+                    borderColor: `${APP_COLORS.border}`,
+                  }}
+                >
+                  <CardContent className="p-7 sm:p-10 text-center space-y-4">
+                    <div
+                      className="mx-auto h-14 w-14 rounded-2xl border flex items-center justify-center"
+                      style={{
+                        borderColor: `${APP_COLORS.primary}40`,
+                        backgroundColor: `${APP_COLORS.primary}12`,
+                      }}
+                    >
+                      <Activity
+                        className="h-7 w-7"
+                        style={{ color: APP_COLORS.primary }}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <h2
+                        className="text-xl sm:text-2xl font-black"
+                        style={{ color: APP_COLORS.textPrimary }}
+                      >
+                        Start an IOC Investigation
+                      </h2>
+                      <p
+                        className="text-sm max-w-xl mx-auto"
+                        style={{ color: APP_COLORS.textSecondary }}
+                      >
+                        Paste one or multiple indicators above to generate
+                        your VigilanceX threat intelligence report with
+                        actionable verdicts and source confidence.
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
             )}
 
-          {threatOverview &&
-            threatOverview.verdict !== "error" && (
+            {threatOverview &&
+              threatOverview.verdict === "error" &&
+              lastResultMeta && (
+                <NoDataAvailable
+                  ioc={currentIOC}
+                  type={lastResultMeta.type || "unknown"}
+                  error={lastResultMeta.error}
+                  geolocation={
+                    lastResultMeta.type === "ip" &&
+                    lastResultMeta.reputation?.geolocation
+                      ? lastResultMeta.reputation.geolocation
+                      : undefined
+                  }
+                  onRetry={() => onSubmit({ iocs: currentIOC || "" })}
+                />
+              )}
+
+            {hasAnalysisResults && (
               <motion.div
                 key="results"
                 initial={{ opacity: 0 }}
@@ -952,89 +1333,232 @@ function AnalyzePageContent() {
                 transition={{ duration: 0.5 }}
                 className="space-y-6"
               >
-                {threatOverview.ipReputation && (
-                  <IPReputationCard
-                    ipReputation={threatOverview.ipReputation}
-                  />
+                <Card
+                  className="rounded-2xl border"
+                  style={{
+                    backgroundColor: APP_COLORS.surface,
+                    borderColor: `${APP_COLORS.border}`,
+                  }}
+                >
+                  <CardContent className="p-4 sm:p-5 flex flex-wrap items-center gap-2 sm:gap-3">
+                    <Badge
+                      className="border uppercase tracking-widest"
+                      style={{
+                        borderColor: `${APP_COLORS.info}50`,
+                        backgroundColor: `${APP_COLORS.info}16`,
+                        color: APP_COLORS.info,
+                      }}
+                    >
+                      Active Investigation
+                    </Badge>
+                    <Badge
+                      className="border"
+                      style={{
+                        borderColor: `${riskToneByLevel[normalizedRiskLevel]}55`,
+                        backgroundColor: `${riskToneByLevel[normalizedRiskLevel]}17`,
+                        color: riskToneByLevel[normalizedRiskLevel],
+                      }}
+                    >
+                      {normalizedRiskLevel.toUpperCase()} RISK
+                    </Badge>
+                    <span
+                      className="text-xs sm:text-sm"
+                      style={{ color: APP_COLORS.textSecondary }}
+                    >
+                      Query:
+                      <span
+                        className="font-semibold ml-1"
+                        style={{ color: APP_COLORS.textPrimary }}
+                      >
+                        {currentIOC || threatOverview?.query}
+                      </span>
+                    </span>
+                    <span
+                      className="inline-flex items-center gap-1 text-xs sm:text-sm"
+                      style={{ color: APP_COLORS.textSecondary }}
+                    >
+                      <Clock3 className="h-3.5 w-3.5" />
+                      {new Date(
+                        threatOverview?.timestamp || Date.now()
+                      ).toLocaleString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                    {sourcesFailed.length > 0 && (
+                      <span
+                        className="inline-flex items-center gap-1 text-xs sm:text-sm"
+                        style={{ color: APP_COLORS.warning }}
+                      >
+                        <AlertTriangle className="h-3.5 w-3.5" />
+                        {sourcesFailed.length} source
+                        {sourcesFailed.length > 1 ? "s" : ""} unavailable
+                      </span>
+                    )}
+                    {isCurrentDomain && (
+                      <button
+                        type="button"
+                        onClick={() => openDomainPanel(currentIOC)}
+                        className="rounded-lg border px-2.5 py-1 text-xs font-semibold"
+                        style={{
+                          borderColor: `${APP_COLORS.primary}55`,
+                          color: APP_COLORS.primary,
+                          backgroundColor: `${APP_COLORS.primary}12`,
+                        }}
+                      >
+                        Domain Intelligence
+                      </button>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {threatOverview?.ipReputation && (
+                  <section className="space-y-3">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <h2
+                        className="text-sm sm:text-base font-black uppercase tracking-[0.14em]"
+                        style={{ color: APP_COLORS.textSecondary }}
+                      >
+                        Reputation & Geolocation
+                      </h2>
+                    </div>
+                    <IPReputationCard
+                      data={threatOverview.ipReputation}
+                    />
+                  </section>
                 )}
 
                 {(pieChartData.length > 0 ||
-                  vtIntelligence?.popular_threat_label) && (
-                  <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                    {pieChartData.length > 0 && (
-                      <div
-                        className={
-                          vtIntelligence?.popular_threat_label
-                            ? "xl:col-span-2"
-                            : "xl:col-span-3"
-                        }
+                  popularThreatLabel) && (
+                  <section className="space-y-3">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <h2
+                        className="text-sm sm:text-base font-black uppercase tracking-[0.14em]"
+                        style={{ color: APP_COLORS.textSecondary }}
                       >
-                        <ThreatOverviewCard
-                          threatOverview={threatOverview}
-                          overviewLoading={false}
-                          pieChartData={pieChartData}
-                        />
-                      </div>
-                    )}
+                        Executive Threat Snapshot
+                      </h2>
+                    </div>
+                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                      {pieChartData.length > 0 && (
+                        <div
+                          className={
+                            vtIntelligence?.popular_threat_label
+                              ? "xl:col-span-2"
+                              : "xl:col-span-3"
+                          }
+                        >
+                          <ThreatOverviewCard
+                            totalAnalyzed={threatOverview.totalAnalyzed}
+                            maliciousDetections={maliciousDetectionCount}
+                            suspiciousDetections={suspiciousDetectionCount}
+                            cleanDetections={cleanDetectionCount}
+                            undetectedDetections={undetectedDetectionCount}
+                            riskLevel={
+                              (threatOverview.riskLevel || normalizedRiskLevel) as
+                                | "critical"
+                                | "high"
+                                | "medium"
+                                | "low"
+                                | "unknown"
+                            }
+                            timestamp={new Date(
+                              threatOverview.timestamp
+                            ).toISOString()}
+                          />
+                        </div>
+                      )}
 
-                    {vtIntelligence?.popular_threat_label && (
-                      <div className="xl:col-span-1">
-                        <PopularThreatLabel
-                          label={vtIntelligence.popular_threat_label}
-                          suggestedLabel={
-                            vtIntelligence.suggested_threat_label
-                          }
-                          popularClassification={
-                            vtIntelligence.popular_threat_classification
-                          }
-                          threatStats={{
-                            totalDetections:
-                              maliciousDetections.length +
-                              suspiciousDetections.length,
-                            maliciousEngines:
-                              maliciousDetections.length,
-                            suspiciousEngines:
-                              suspiciousDetections.length,
-                          }}
-                          riskScore={threatOverview.riskScore}
-                          riskLevel={threatOverview.riskLevel}
-                          verdict={threatOverview.verdict}
-                        />
-                      </div>
-                    )}
-                  </div>
+                      {popularThreatLabel && (
+                        <div className="xl:col-span-1">
+                          <PopularThreatLabel
+                            label={popularThreatLabel}
+                            suggestedLabel={suggestedThreatLabel}
+                            maliciousCount={maliciousDetections.length}
+                            suspiciousCount={suspiciousDetections.length}
+                            verdict={
+                              threatOverview.verdict === "error"
+                                ? "unknown"
+                                : threatOverview.verdict
+                            }
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </section>
                 )}
 
-                <ThreatIntelligenceCards
-                  vtData={vtIntelligence}
-                  threatOverview={threatOverview}
-                  detections={threatOverview?.detections}
-                />
-
-                <DynamicVTData vtData={vtIntelligence} />
-
-                <div className="space-y-4">
-                  {fileInformation && (
-                    <FileInformationCard fileInfo={fileInformation} />
-                  )}
-                  {sandboxAnalysis && (
-                    <SandboxAnalysisCard
-                      sandboxAnalysis={sandboxAnalysis}
+                {(vtIntelligence || threatOverview?.detections?.length) && (
+                  <section className="space-y-3">
+                    <h2
+                      className="text-sm sm:text-base font-black uppercase tracking-[0.14em]"
+                      style={{ color: APP_COLORS.textSecondary }}
+                    >
+                      Threat Intelligence Detail
+                    </h2>
+                    <ThreatIntelligenceCards
+                      familyLabels={familyLabels}
                     />
-                  )}
-                </div>
+                    <DetectionNamesCard
+                      detections={threatOverview?.detections || []}
+                    />
+                    <DynamicVTData
+                      vtData={vtIntelligence}
+                      detections={threatOverview?.detections || []}
+                    />
+                  </section>
+                )}
+
+                {(fileInformation || sandboxAnalysis) && (
+                  <section className="space-y-3">
+                    <h2
+                      className="text-sm sm:text-base font-black uppercase tracking-[0.14em]"
+                      style={{ color: APP_COLORS.textSecondary }}
+                    >
+                      Artifact & Sandbox Insights
+                    </h2>
+                    <div className="space-y-4">
+                      {fileInformation && (
+                        <FileInformationCard fileInfo={fileInformation} />
+                      )}
+                      {sandboxAnalysis && (
+                        <SandboxAnalysisCard
+                          sandboxAnalysis={sandboxAnalysis}
+                        />
+                      )}
+                    </div>
+                  </section>
+                )}
 
                 {multiSourceData && (
-                  <MultiSourceDataCard
-                    multiSourceData={multiSourceData}
-                    sources_available={sourcesAvailable}
-                    sources_failed={sourcesFailed}
-                  />
+                  <section className="space-y-3">
+                    <h2
+                      className="text-sm sm:text-base font-black uppercase tracking-[0.14em]"
+                      style={{ color: APP_COLORS.textSecondary }}
+                    >
+                      Cross-Source Correlation
+                    </h2>
+                    <MultiSourceDataCard
+                      multiSourceData={multiSourceData}
+                    />
+                  </section>
                 )}
               </motion.div>
             )}
-        </AnimatePresence>
+          </AnimatePresence>
+        </div>
       </div>
+
+      <DomainSidePanel
+        isOpen={isDomainPanelOpen}
+        loading={isDomainPanelLoading}
+        error={domainPanelError}
+        domain={domainPanelDomain}
+        data={domainPanelData}
+        onClose={closeDomainPanel}
+      />
     </div>
   );
 }

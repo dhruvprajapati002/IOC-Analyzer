@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { AlertTriangle } from 'lucide-react';
 import { APP_COLORS, CARD_STYLES } from '@/lib/colors';
 import { TYPOGRAPHY } from '@/lib/typography';
+import { ScrollArea } from '@/components/ui/ScrollArea';
 
 interface ThreatIndicatorsSectionProps {
   indicators: string[];
@@ -45,7 +46,8 @@ export function ThreatIndicatorsSection({ indicators }: ThreatIndicatorsSectionP
           </div>
         </div>
 
-        <div className="space-y-2 max-h-[300px] overflow-y-auto">
+        <ScrollArea className="max-h-[300px]" variant="thin">
+          <div className="space-y-2">
           {indicators.map((indicator: string, index: number) => (
             <div 
               key={index}
@@ -61,7 +63,8 @@ export function ThreatIndicatorsSection({ indicators }: ThreatIndicatorsSectionP
               </span>
             </div>
           ))}
-        </div>
+          </div>
+        </ScrollArea>
       </CardContent>
     </Card>
   );

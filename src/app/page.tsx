@@ -1,5 +1,5 @@
-import RootPageView from './RootPageView';
+import { redirect } from 'next/navigation';
 
 export default function Page() {
-  return <RootPageView />;
+  redirect('/dashboard');
 }

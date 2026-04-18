@@ -1,419 +1,610 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getTokenFromRequest, verifyToken } from '@/lib/auth';
+import { verifyAuth } from '@/lib/auth';
 import connectDB from '@/lib/db';
 import { IocUserHistory } from '@/lib/models/IocUserHistory';
 import { IocCache } from '@/lib/models/IocCache';
-import { APP_COLORS } from '@/lib/colors';
-import type { IOCAnalysisResult } from '@/lib/threat-intel/types/threat-intel.types';
+import { SYSTEM_USER_ID } from '@/lib/system-user';
 
-const dashboardCache: Record<string, any> = {};
-const cacheTimestamp: Record<string, number> = {};
-const CACHE_DURATION = 30000;
+type TimeRange = 'daily' | 'weekly' | 'monthly';
 
-const RANGE_DAYS: Record<string, number> = {
+type DashboardCacheEntry = {
+  timestamp: number;
+  data: Record<string, unknown>;
+};
+
+const CACHE_TTL_MS = 30 * 1000;
+const dashboardCache = new Map<string, DashboardCacheEntry>();
+
+const RANGE_DAYS: Record<TimeRange, number> = {
   daily: 1,
   weekly: 7,
   monthly: 30,
 };
 
-function buildDayKey(date: Date) {
-  return date.toISOString().slice(0, 10);
+const THREAT_VECTOR_COLORS = {
+  high: '#dc2626',
+  low: '#3b82f6',
+};
+
+const THREAT_VECTOR_DESCRIPTIONS: Record<string, string> = {
+  ransomware: 'File encryption and extortion activity patterns.',
+  trojan: 'Malware delivery and credential theft activity.',
+  botnet: 'Distributed command-and-control infrastructure behavior.',
+  phishing: 'Credential harvesting and social engineering campaigns.',
+  c2: 'Command-and-control callback infrastructure.',
+  scanner: 'Reconnaissance and scanning source patterns.',
+  miner: 'Unauthorized cryptomining related indicators.',
+};
+
+const IOC_TYPE_LABELS: Record<string, string> = {
+  ip: 'IP Address',
+  domain: 'Domain',
+  url: 'URL',
+  hash: 'File Hash',
+};
+
+const VERDICT_LABEL_MAP: Record<string, string> = {
+  malicious: 'Malicious',
+  suspicious: 'Suspicious',
+  harmless: 'Harmless',
+  clean: 'Harmless',
+  undetected: 'Undetected',
+  unknown: 'Unknown',
+  pending: 'Unknown',
+  '': 'Unknown',
+};
+
+const VERDICT_COLOR_MAP: Record<string, string> = {
+  Malicious: '#dc2626',
+  Suspicious: '#d97706',
+  Harmless: '#16a34a',
+  Undetected: '#6b6653',
+  Unknown: '#9c87f5',
+};
+
+function toRange(value: string | null): TimeRange {
+  if (value === 'daily' || value === 'weekly' || value === 'monthly') {
+    return value;
+  }
+  return 'weekly';
 }
 
-function normalizeSeverity(severity?: string) {
-  if (!severity) return 'unknown';
-  const lower = severity.toLowerCase();
-  if (['critical', 'high', 'medium', 'low'].includes(lower)) {
-    return lower;
+function clampPercent(value: number): number {
+  if (!Number.isFinite(value)) return 0;
+  return Number(value.toFixed(1));
+}
+
+function percentDelta(firstHalfValue: number, secondHalfValue: number): number {
+  if (firstHalfValue === 0) {
+    return secondHalfValue === 0 ? 0 : 100;
   }
+  return clampPercent(((secondHalfValue - firstHalfValue) / firstHalfValue) * 100);
+}
+
+function normalizeVerdict(value?: string): 'malicious' | 'suspicious' | 'harmless' | 'undetected' | 'unknown' {
+  const v = (value ?? '').toLowerCase().trim();
+  if (v === 'malicious') return 'malicious';
+  if (v === 'suspicious') return 'suspicious';
+  if (v === 'harmless' || v === 'clean') return 'harmless';
+  if (v === 'undetected') return 'undetected';
   return 'unknown';
 }
 
-function severityToLabel(severity: string) {
-  if (!severity) return 'Low';
-  return severity.charAt(0).toUpperCase() + severity.slice(1);
-}
-
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  const startTime = Date.now();
-
   try {
-    const token = getTokenFromRequest(request);
-    if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    await verifyAuth(request);
 
-    const payload = verifyToken(token);
-    if (!payload?.userId) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-    }
-
-    const userId = payload.userId;
-    const { searchParams } = new URL(request.url);
-    const forceRefresh = searchParams.get('force') === 'true';
-    const timeRange = searchParams.get('range') || 'weekly';
-    const daysToFetch = RANGE_DAYS[timeRange] || 7;
-    const cacheKey = `dashboard_v2_${userId}_${timeRange}`;
-
-    const now = Date.now();
-    if (
-      !forceRefresh &&
-      dashboardCache[cacheKey] &&
-      cacheTimestamp[cacheKey] &&
-      now - cacheTimestamp[cacheKey] < CACHE_DURATION
-    ) {
-      const response = NextResponse.json(dashboardCache[cacheKey]);
-      response.headers.set('X-Cache', 'HIT');
-      response.headers.set('Cache-Control', 'public, max-age=30');
-      response.headers.set('X-Time-Range', timeRange);
-      return response;
-    }
-
-    const startDate = new Date(Date.now() - daysToFetch * 24 * 60 * 60 * 1000);
+    const userId = SYSTEM_USER_ID;
+    const searchParams = new URL(request.url).searchParams;
+    const range = toRange(searchParams.get('range'));
+    const days = RANGE_DAYS[range];
+    const startDate = new Date(Date.now() - days * 86400 * 1000);
     startDate.setHours(0, 0, 0, 0);
+    const nowDate = new Date();
+
+    const cacheKey = `dashboard_v2_system_${range}`;
+    const cached = dashboardCache.get(cacheKey);
+    const now = Date.now();
+    if (cached && now - cached.timestamp < CACHE_TTL_MS) {
+      return NextResponse.json(cached.data, {
+        headers: {
+          'X-Cache': 'HIT',
+          'X-Time-Range': range,
+          'Cache-Control': 'private, max-age=30',
+        },
+      });
+    }
 
     await connectDB();
 
-    const historyRecords = await IocUserHistory.find({
+    let historyDocs = await IocUserHistory.find({
       userId,
       searched_at: { $gte: startDate },
-    }).lean();
+    })
+      .sort({ searched_at: 1 })
+      .lean();
 
-    const cacheQueries = historyRecords.map((record) => ({
-      value: record.value,
-      type: record.type,
-    }));
-
-    let cacheMap = new Map<string, any>();
-    if (cacheQueries.length > 0) {
-      const cacheDocs = await IocCache.find({ $or: cacheQueries }).lean();
-      cacheDocs.forEach((doc: any) => {
-        cacheMap.set(`${doc.value}::${doc.type}`, doc);
-      });
+    let dataScope: 'system' | 'legacy-fallback' = 'system';
+    if (historyDocs.length === 0) {
+      historyDocs = await IocUserHistory.find({
+        searched_at: { $gte: startDate },
+      })
+        .sort({ searched_at: 1 })
+        .lean();
+      dataScope = 'legacy-fallback';
     }
 
-    const verdictCounts = {
-      malicious: 0,
-      suspicious: 0,
-      harmless: 0,
-      undetected: 0,
-      unknown: 0,
+    const pairMap = new Map<string, { value: string; type: string }>();
+    for (const doc of historyDocs) {
+      const key = `${doc.value}::${doc.type}`;
+      if (!pairMap.has(key)) {
+        pairMap.set(key, { value: doc.value, type: doc.type });
+      }
+    }
+
+    const iocPairs = Array.from(pairMap.values());
+    const cacheDocs = iocPairs.length
+      ? await IocCache.find({ $or: iocPairs }).lean()
+      : [];
+
+    const cacheMap = new Map<string, any>();
+    for (const cacheDoc of cacheDocs) {
+      cacheMap.set(`${cacheDoc.value}::${cacheDoc.type}`, cacheDoc);
+    }
+
+    const typeCountMap: Record<string, number> = { ip: 0, domain: 0, url: 0, hash: 0 };
+    for (const doc of historyDocs) {
+      const t = String(doc.type ?? '').toLowerCase().trim();
+      if (t in typeCountMap) {
+        typeCountMap[t]++;
+      } else if (t === 'file_hash' || t === 'filehash') {
+        typeCountMap.hash++;
+      } else if (t === 'ip_address' || t === 'ipaddress') {
+        typeCountMap.ip++;
+      }
+    }
+    const totalTypeCount = Object.values(typeCountMap).reduce((a, b) => a + b, 0);
+
+    const iocTypeDistribution = Object.entries(typeCountMap).map(([key, count]) => ({
+      type: IOC_TYPE_LABELS[key] ?? key,
+      rawType: key,
+      count,
+      percentage: totalTypeCount > 0 ? Math.round((count / totalTypeCount) * 100) : 0,
+      color:
+        key === 'ip'
+          ? '#3b82f6'
+          : key === 'domain'
+            ? '#c96442'
+            : key === 'url'
+              ? '#f59e0b'
+              : key === 'hash'
+                ? '#9c87f5'
+                : '#6b7280',
+      icon:
+        key === 'ip'
+          ? 'Globe'
+          : key === 'domain'
+            ? 'Link'
+            : key === 'url'
+              ? 'ExternalLink'
+              : key === 'hash'
+                ? 'FileDigit'
+                : 'Circle',
+    }));
+
+    const verdictCount: Record<string, number> = {
+      Malicious: 0,
+      Suspicious: 0,
+      Harmless: 0,
+      Undetected: 0,
+      Unknown: 0,
     };
 
-    const severityCounts: Record<string, number> = {
-      critical: 0,
-      high: 0,
-      medium: 0,
-      low: 0,
-      unknown: 0,
-    };
+    for (const doc of historyDocs) {
+      const raw = String(doc.verdict ?? doc.label ?? '').toLowerCase().trim();
+      const normalized = VERDICT_LABEL_MAP[raw] ?? 'Unknown';
+      verdictCount[normalized]++;
+    }
+    const totalVerdicts = historyDocs.length || 1;
+    const threatTypes = Object.entries(verdictCount)
+      .map(([type, count]) => ({
+        type,
+        count,
+        percentage: Math.round((count / totalVerdicts) * 100),
+        color: VERDICT_COLOR_MAP[type] ?? '#6b7280',
+      }))
+      .sort((a, b) => b.count - a.count);
 
-    const typeCounts: Record<string, number> = {
-      ip: 0,
-      domain: 0,
-      url: 0,
-      hash: 0,
-    };
+    const buckets: Map<string, { threats: number; suspicious: number; clean: number; total: number }> = new Map();
+    for (let d = new Date(startDate); d <= nowDate; d.setDate(d.getDate() + 1)) {
+      const key = d.toISOString().slice(0, 10);
+      buckets.set(key, { threats: 0, suspicious: 0, clean: 0, total: 0 });
+    }
 
-    const dailyBuckets: Record<string, { total: number; threats: number; clean: number }> = {};
-    const threatTypeCounts: Record<string, number> = {};
-    const malwareFamilyCounts: Record<string, { count: number; severity: string }> = {};
-    const geoBuckets: Record<string, any> = {};
-    const fileTypeCounts: Record<string, number> = {};
-    const detectionEngines: Record<string, { total: number; malicious: number }> = {};
-
-    let totalFiles = 0;
-    let maliciousFileCount = 0;
-    let cleanFileCount = 0;
-    let totalFileSize = 0;
-
-    historyRecords.forEach((record: any) => {
-      const cacheDoc = cacheMap.get(`${record.value}::${record.type}`);
-      const analysis = cacheDoc?.analysis as IOCAnalysisResult | undefined;
-      const verdict = (record.verdict || analysis?.verdict || 'unknown').toLowerCase();
-      const severity = normalizeSeverity(analysis?.severity || record.verdict || 'unknown');
-      const dateKey = buildDayKey(new Date(record.searched_at));
-
-      verdictCounts[verdict as keyof typeof verdictCounts] =
-        (verdictCounts[verdict as keyof typeof verdictCounts] || 0) + 1;
-      severityCounts[severity] = (severityCounts[severity] || 0) + 1;
-
-      typeCounts[record.type] = (typeCounts[record.type] || 0) + 1;
-
-      const bucket = dailyBuckets[dateKey] || { total: 0, threats: 0, clean: 0 };
-      bucket.total += 1;
-      if (['malicious', 'suspicious'].includes(verdict)) {
-        bucket.threats += 1;
+    for (const doc of historyDocs) {
+      const key = new Date(doc.searched_at).toISOString().slice(0, 10);
+      const bucket = buckets.get(key);
+      if (!bucket) continue;
+      bucket.total++;
+      const v = String(doc.verdict ?? doc.label ?? '').toLowerCase().trim();
+      if (v === 'malicious' || v === 'suspicious') {
+        bucket.threats++;
+        if (v === 'suspicious') bucket.suspicious++;
+      } else {
+        bucket.clean++;
       }
-      if (['harmless', 'undetected'].includes(verdict)) {
-        bucket.clean += 1;
-      }
-      dailyBuckets[dateKey] = bucket;
+    }
 
-      const threatTypes = analysis?.threatIntel?.threatTypes || [];
-      threatTypes.forEach((type) => {
-        threatTypeCounts[type] = (threatTypeCounts[type] || 0) + 1;
-      });
-
-      const vtFamilies = (analysis as any)?.vtData?.malware_families || [];
-      vtFamilies.forEach((family: string) => {
-        const entry = malwareFamilyCounts[family] || { count: 0, severity: severityToLabel(severity) };
-        entry.count += 1;
-        malwareFamilyCounts[family] = entry;
-      });
-
-      const detections = analysis?.threatIntel?.detections || [];
-      detections.forEach((det: any) => {
-        if (!det?.engine) return;
-        const engineKey = det.engine;
-        const entry = detectionEngines[engineKey] || { total: 0, malicious: 0 };
-        entry.total += 1;
-        if (det.category === 'malicious') {
-          entry.malicious += 1;
-        }
-        detectionEngines[engineKey] = entry;
-      });
-
-      if (record.type === 'ip') {
-        const geo = analysis?.reputation?.geolocation;
-        if (geo?.countryCode || geo?.countryName) {
-          const countryKey = geo.countryCode || geo.countryName || 'Unknown';
-          const entry = geoBuckets[countryKey] || {
-            country: geo.countryCode || countryKey,
-            countryName: geo.countryName || countryKey,
-            count: 0,
-            maliciousCount: 0,
-            suspiciousCount: 0,
-            harmlessCount: 0,
-            undetectedCount: 0,
-            threatCount: 0,
-          };
-
-          entry.count += 1;
-          if (verdict === 'malicious') entry.maliciousCount += 1;
-          if (verdict === 'suspicious') entry.suspiciousCount += 1;
-          if (verdict === 'harmless') entry.harmlessCount += 1;
-          if (verdict === 'undetected') entry.undetectedCount += 1;
-          if (['malicious', 'suspicious'].includes(verdict)) entry.threatCount += 1;
-
-          geoBuckets[countryKey] = entry;
-        }
-      }
-
-      const isFileAnalysis = record.source === 'file_analysis' || record.type === 'hash';
-      if (isFileAnalysis && record.metadata?.filename) {
-        totalFiles += 1;
-        totalFileSize += record.metadata.filesize || 0;
-        if (verdict === 'malicious') {
-          maliciousFileCount += 1;
-        } else if (verdict === 'harmless') {
-          cleanFileCount += 1;
-        }
-        if (record.metadata.filetype) {
-          const typeKey = record.metadata.filetype;
-          fileTypeCounts[typeKey] = (fileTypeCounts[typeKey] || 0) + 1;
-        }
-      }
+    const dailyTrends = Array.from(buckets.entries()).map(([dateLabel, b]) => {
+      const d = new Date(dateLabel);
+      return {
+        day: d.toLocaleDateString('en-US', { weekday: 'short' }),
+        dateLabel,
+        displayDate: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        threats: b.threats,
+        suspicious: b.suspicious,
+        clean: b.clean,
+        total: b.total,
+      };
     });
 
-    const totalIOCs = historyRecords.length;
-    const maliciousIOCs = verdictCounts.malicious || 0;
-    const suspiciousIOCs = verdictCounts.suspicious || 0;
-    const cleanIOCs = verdictCounts.harmless || 0;
-    const pendingIOCs = (verdictCounts.undetected || 0) + (verdictCounts.unknown || 0);
-    const detectionRate = totalIOCs > 0
-      ? Math.round(((maliciousIOCs + suspiciousIOCs) / totalIOCs) * 1000) / 10
-      : 0;
+    const geoMap = new Map<
+      string,
+      {
+        country: string;
+        countryName: string;
+        count: number;
+        maliciousCount: number;
+        suspiciousCount: number;
+        harmlessCount: number;
+        undetectedCount: number;
+      }
+    >();
 
-    const dailyTrends = [] as Array<{ day: string; dateLabel: string; displayDate: string; threats: number; clean: number; total: number }>;
-    for (let i = 0; i < daysToFetch; i += 1) {
-      const date = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000);
-      const key = buildDayKey(date);
-      const entry = dailyBuckets[key] || { total: 0, threats: 0, clean: 0 };
-      dailyTrends.push({
-        day: date.toLocaleDateString('en-US', { weekday: 'short' }),
-        dateLabel: key,
-        displayDate: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        threats: entry.threats,
-        clean: entry.clean,
-        total: entry.total,
+      const severityCount = { critical: 0, high: 0, medium: 0, low: 0, unknown: 0 };
+
+      for (const [key] of cacheMap) {
+        const cacheDoc = cacheMap.get(key);
+        if (!cacheDoc) continue;
+
+        const sev = String(
+          cacheDoc.severity ??
+            cacheDoc.analysis?.severity ??
+            cacheDoc.analysis?.riskLevel ??
+            cacheDoc.analysis?.threatIntel?.severity ??
+            ''
+        )
+          .toLowerCase()
+          .trim();
+
+        if (sev === 'critical') severityCount.critical++;
+        else if (sev === 'high') severityCount.high++;
+        else if (sev === 'medium' || sev === 'moderate') severityCount.medium++;
+        else if (sev === 'low' || sev === 'info') severityCount.low++;
+        else severityCount.unknown++;
+      }
+
+      for (const doc of historyDocs) {
+        const key = `${doc.value}::${doc.type}`;
+        const cacheDoc = cacheMap.get(key);
+        if (cacheDoc) continue;
+        const verdict = String(doc.verdict ?? '').toLowerCase().trim();
+        if (verdict === 'malicious') severityCount.high++;
+        else if (verdict === 'suspicious') severityCount.medium++;
+        else severityCount.low++;
+      }
+
+      const threatIntelligence = {
+        bySeverity: [
+          { severity: 'critical', count: severityCount.critical },
+          { severity: 'high', count: severityCount.high },
+          { severity: 'medium', count: severityCount.medium },
+          { severity: 'low', count: severityCount.low },
+        ],
+        totalCritical: severityCount.critical,
+        totalHigh: severityCount.high,
+        totalMedium: severityCount.medium,
+        totalLow: severityCount.low,
+      };
+
+      const engineMap: Map<string, { total: number; malicious: number }> = new Map();
+      for (const cacheDoc of cacheMap.values()) {
+        const detections: any[] =
+          cacheDoc.analysis?.threatIntel?.detections ??
+          cacheDoc.analysis?.detections ??
+          cacheDoc.threatIntel?.detections ??
+          [];
+
+        for (const det of detections) {
+          const engine = String(det?.engine ?? det?.source ?? det?.name ?? '').trim();
+          if (!engine) continue;
+          const current = engineMap.get(engine) ?? { total: 0, malicious: 0 };
+          current.total++;
+          const isMalicious =
+            det?.detected === true ||
+            String(det?.verdict ?? '').toLowerCase() === 'malicious' ||
+            Number(det?.confidence ?? 0) > 0.7;
+          if (isMalicious) current.malicious++;
+          engineMap.set(engine, current);
+        }
+
+        if (detections.length === 0) {
+          const src = String(cacheDoc.source ?? cacheDoc.analysis?.source ?? '').trim();
+          if (src) {
+            const current = engineMap.get(src) ?? { total: 0, malicious: 0 };
+            current.total++;
+            if (String(cacheDoc.verdict ?? '').toLowerCase() === 'malicious') current.malicious++;
+            engineMap.set(src, current);
+          }
+        }
+      }
+
+      if (engineMap.size === 0) {
+        for (const doc of historyDocs) {
+          const src = String(doc.source ?? '').trim();
+          if (!src) continue;
+          const current = engineMap.get(src) ?? { total: 0, malicious: 0 };
+          current.total++;
+          if (String(doc.verdict ?? '').toLowerCase() === 'malicious') current.malicious++;
+          engineMap.set(src, current);
+        }
+      }
+
+      const detectionEngines = Array.from(engineMap.entries())
+        .map(([engine, v]) => ({
+          engine,
+          totalDetections: v.total,
+          maliciousDetections: v.malicious,
+          detectionRate: v.total > 0 ? Math.round((v.malicious / v.total) * 100) : 0,
+        }))
+        .sort((a, b) => b.totalDetections - a.totalDetections)
+        .slice(0, 10);
+
+      const familyMap: Map<string, { count: number; severity: string }> = new Map();
+      for (const cacheDoc of cacheMap.values()) {
+        const families: any[] =
+          (cacheDoc.analysis as any)?.vtData?.malware_families ??
+          (cacheDoc.analysis as any)?.malwareFamilies ??
+          (cacheDoc.analysis as any)?.familyLabels?.map((n: string) => ({ name: n, count: 1 })) ??
+          [];
+
+        for (const fam of families) {
+          const name = fam?.name ?? fam?.family ?? fam;
+          if (typeof name !== 'string' || !name) continue;
+          const existing = familyMap.get(name) ?? { count: 0, severity: 'high' };
+          existing.count += Number(fam?.count ?? 1);
+          existing.severity = String(cacheDoc.severity ?? cacheDoc.analysis?.severity ?? 'high').toLowerCase();
+          familyMap.set(name, existing);
+        }
+
+        const threatTypes: string[] =
+          cacheDoc.analysis?.threatIntel?.threatTypes ?? cacheDoc.threatIntel?.threatTypes ?? [];
+        if (families.length === 0) {
+          for (const t of threatTypes) {
+            if (!t) continue;
+            const existing = familyMap.get(t) ?? { count: 0, severity: 'medium' };
+            existing.count++;
+            familyMap.set(t, existing);
+          }
+        }
+      }
+
+      const malwareFamilies = Array.from(familyMap.entries())
+        .map(([name, v]) => ({ name, count: v.count, severity: v.severity }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 12);
+
+      const threatVectorCounts = new Map<string, number>();
+      for (const cacheDoc of cacheMap.values()) {
+        const threatTypes: string[] =
+          cacheDoc.analysis?.threatIntel?.threatTypes ?? cacheDoc.threatIntel?.threatTypes ?? [];
+        for (const threatType of threatTypes) {
+          const normalized = String(threatType).toLowerCase().trim();
+          if (!normalized) continue;
+          threatVectorCounts.set(normalized, (threatVectorCounts.get(normalized) ?? 0) + 1);
+        }
+      }
+
+      if (threatVectorCounts.size === 0) {
+        for (const doc of historyDocs) {
+          const fallbackType = String(doc.source ?? doc.type ?? '').toLowerCase().trim();
+          if (!fallbackType) continue;
+          threatVectorCounts.set(fallbackType, (threatVectorCounts.get(fallbackType) ?? 0) + 1);
+        }
+      }
+
+      const totalThreatVectorMentions =
+        Array.from(threatVectorCounts.values()).reduce((sum, count) => sum + count, 0) || 1;
+      const threatVectors = Array.from(threatVectorCounts.entries())
+        .map(([name, count]) => {
+          const severity = count > 10 ? 'high' : 'low';
+          return {
+            name,
+            count,
+            severity,
+            detectionRate: historyDocs.length ? clampPercent((count / historyDocs.length) * 100) : 0,
+            riskLevel: severity,
+            color: THREAT_VECTOR_COLORS[severity as 'high' | 'low'],
+            description:
+              THREAT_VECTOR_DESCRIPTIONS[name] ??
+              `${name} related telemetry observed in analyzed indicators.`,
+            percentage: clampPercent((count / totalThreatVectorMentions) * 100),
+          };
+        })
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 8);
+
+      for (const doc of historyDocs) {
+        const key = `${doc.value}::${doc.type}`;
+        const cacheDoc = cacheMap.get(key);
+        const analysis = cacheDoc?.analysis ?? {};
+        const geo = analysis?.reputation?.geolocation ?? analysis?.geolocation;
+        if (String(doc.type ?? '').toLowerCase() !== 'ip' || !geo) continue;
+
+        const countryCode = String(geo.country ?? geo.countryCode ?? 'UN');
+        const countryName = String(geo.countryName ?? geo.country ?? countryCode);
+        const row = geoMap.get(countryCode) ?? {
+          country: countryCode,
+          countryName,
+          count: 0,
+          maliciousCount: 0,
+          suspiciousCount: 0,
+          harmlessCount: 0,
+          undetectedCount: 0,
+        };
+
+        row.count++;
+        const verdict = normalizeVerdict(String(doc.verdict ?? doc.label ?? ''));
+        if (verdict === 'malicious') row.maliciousCount++;
+        else if (verdict === 'suspicious') row.suspiciousCount++;
+        else if (verdict === 'harmless') row.harmlessCount++;
+        else if (verdict === 'undetected') row.undetectedCount++;
+        geoMap.set(countryCode, row);
+      }
+
+      const geoDistribution = Array.from(geoMap.values())
+        .map((row) => {
+          const threatCount = row.maliciousCount + row.suspiciousCount;
+          const threatPercentage = row.count > 0 ? Math.round((threatCount / row.count) * 100) : 0;
+          return {
+            ...row,
+            threatCount,
+            threatPercentage,
+            verdictBreakdown: {
+              malicious: row.maliciousCount,
+              suspicious: row.suspiciousCount,
+              harmless: row.harmlessCount,
+              undetected: row.undetectedCount,
+            },
+          };
+        })
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 10);
+
+      const fileDocs = historyDocs.filter((doc) => {
+        const t = String(doc.type ?? '').toLowerCase().trim();
+        return (
+          doc.source === 'file_analysis' ||
+          t === 'hash' ||
+          t === 'file_hash' ||
+          Boolean(doc.metadata?.filename)
+        );
       });
-    }
 
-    const halfPoint = Math.floor(dailyTrends.length / 2) || 1;
-    const firstHalfThreats = dailyTrends.slice(0, halfPoint).reduce((sum, d) => sum + d.threats, 0);
-    const secondHalfThreats = dailyTrends.slice(halfPoint).reduce((sum, d) => sum + d.threats, 0);
-    const threatsChange = firstHalfThreats > 0
-      ? ((secondHalfThreats - firstHalfThreats) / firstHalfThreats) * 100
-      : 0;
+      const totalFiles = fileDocs.length;
+      const maliciousFiles = fileDocs.filter((d) =>
+        ['malicious', 'suspicious'].includes(String(d.verdict ?? '').toLowerCase().trim())
+      ).length;
+      const cleanFiles = totalFiles - maliciousFiles;
+      const fileSizes = fileDocs
+        .map((d) => d.metadata?.filesize)
+        .filter((s): s is number => typeof s === 'number' && s > 0);
+      const avgFileSize =
+        fileSizes.length > 0
+          ? Math.round(fileSizes.reduce((a, b) => a + b, 0) / fileSizes.length)
+          : 0;
 
-    const firstHalfTotal = dailyTrends.slice(0, halfPoint).reduce((sum, d) => sum + d.total, 0);
-    const secondHalfTotal = dailyTrends.slice(halfPoint).reduce((sum, d) => sum + d.total, 0);
-    const totalChange = firstHalfTotal > 0
-      ? ((secondHalfTotal - firstHalfTotal) / firstHalfTotal) * 100
-      : 0;
+      const fileTypeMap: Map<string, number> = new Map();
+      for (const doc of fileDocs) {
+        const ft = String(doc.metadata?.filetype ?? 'Unknown');
+        fileTypeMap.set(ft, (fileTypeMap.get(ft) ?? 0) + 1);
+      }
+      const topFileTypes = Array.from(fileTypeMap.entries())
+        .map(([type, count]) => ({ type, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5);
 
-    const iocTypeDistribution = [
-      { type: 'IP Address', count: typeCounts.ip || 0, color: APP_COLORS.accentBlue, icon: 'globe' },
-      { type: 'Domain', count: typeCounts.domain || 0, color: APP_COLORS.accentViolet, icon: 'server' },
-      { type: 'URL', count: typeCounts.url || 0, color: APP_COLORS.accentPink, icon: 'link' },
-      { type: 'File Hash', count: typeCounts.hash || 0, color: APP_COLORS.warning, icon: 'file' },
-    ].filter((item) => item.count > 0);
-
-    const totalForPercentage = totalIOCs || 1;
-    const threatTypes = [
-      { type: 'Malicious', count: maliciousIOCs, percentage: Math.round((maliciousIOCs / totalForPercentage) * 100), color: APP_COLORS.dangerHover },
-      { type: 'Suspicious', count: suspiciousIOCs, percentage: Math.round((suspiciousIOCs / totalForPercentage) * 100), color: APP_COLORS.accentOrange },
-      { type: 'Harmless', count: cleanIOCs, percentage: Math.round((cleanIOCs / totalForPercentage) * 100), color: APP_COLORS.successGreen },
-      { type: 'Undetected', count: verdictCounts.undetected || 0, percentage: Math.round(((verdictCounts.undetected || 0) / totalForPercentage) * 100), color: APP_COLORS.textTertiary },
-      { type: 'Unknown', count: verdictCounts.unknown || 0, percentage: Math.round(((verdictCounts.unknown || 0) / totalForPercentage) * 100), color: APP_COLORS.accentPurple600 },
-    ].filter((item) => item.count > 0);
-
-    const threatVectors = Object.entries(threatTypeCounts).map(([name, count]) => ({
-      name,
-      count,
-      severity: 'medium',
-      detectionRate: totalIOCs > 0 ? (count / totalIOCs) * 100 : 0,
-      riskLevel: count > 10 ? 'high' : 'low',
-      color: APP_COLORS.accentPurple,
-      description: '',
-      percentage: totalIOCs > 0 ? (count / totalIOCs) * 100 : 0,
-    }));
-
-    const geoDistribution = Object.values(geoBuckets).map((entry: any) => ({
-      ...entry,
-      threatPercentage: entry.count > 0 ? (entry.threatCount / entry.count) * 100 : 0,
-      verdictBreakdown: {
-        malicious: entry.maliciousCount || 0,
-        suspicious: entry.suspiciousCount || 0,
-        harmless: entry.harmlessCount || 0,
-        undetected: entry.undetectedCount || 0,
-      },
-    }));
-
-    const topFileTypes = Object.entries(fileTypeCounts).map(([type, count]) => ({
-      type,
-      count,
-    }));
-
-    const threatIntelBySeverity = ['critical', 'high', 'medium', 'low'].map((sev) => ({
-      severity: sev,
-      count: severityCounts[sev] || 0,
-    }));
-
-    const malwareFamilies = Object.entries(malwareFamilyCounts)
-      .map(([name, entry]) => ({ name, count: entry.count, severity: entry.severity }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 12);
-
-    const detectionEnginePerformance = Object.entries(detectionEngines)
-      .map(([engine, entry]) => ({
-        engine,
-        totalDetections: entry.total,
-        maliciousDetections: entry.malicious,
-        detectionRate: entry.total > 0 ? (entry.malicious / entry.total) * 100 : 0,
-      }))
-      .sort((a, b) => b.totalDetections - a.totalDetections)
-      .slice(0, 10);
-
-    const dashboardData = {
-      stats: {
-        totalIOCs,
-        maliciousIOCs,
-        cleanIOCs,
-        suspiciousIOCs,
-        pendingIOCs,
-        detectionRate,
-        trends: {
-          totalIOCs: Math.round(totalChange * 10) / 10,
-          threatsDetected: Math.round(threatsChange * 10) / 10,
-        },
-      },
-      dailyTrends,
-      threatTypes,
-      threatVectors,
-      iocTypeDistribution,
-      geoDistribution,
-      fileAnalysis: {
+      const fileAnalysis = {
         totalFiles,
-        avgFileSize: totalFiles > 0 ? Math.round(totalFileSize / totalFiles) : 0,
-        maliciousFiles: maliciousFileCount,
-        cleanFiles: cleanFileCount,
-        detectionRate: totalFiles > 0
-          ? Math.round((maliciousFileCount / totalFiles) * 1000) / 10
-          : 0,
+        avgFileSize,
+        maliciousFiles,
+        cleanFiles,
+        detectionRate: totalFiles > 0 ? Math.round((maliciousFiles / totalFiles) * 100) : 0,
         topFileTypes,
+      };
+
+      const totalIOCs = historyDocs.length;
+      const maliciousIOCs = verdictCount.Malicious;
+      const suspiciousIOCs = verdictCount.Suspicious;
+      const cleanIOCs = verdictCount.Harmless;
+      const pendingIOCs = verdictCount.Unknown;
+      const detectionRate =
+        totalIOCs > 0 ? Math.round(((maliciousIOCs + suspiciousIOCs) / totalIOCs) * 100) : 0;
+
+      const half = Math.max(1, Math.floor(historyDocs.length / 2));
+      const firstHalf = historyDocs.slice(0, half);
+      const secondHalf = historyDocs.slice(half);
+
+      const countThreats = (docs: any[]) =>
+        docs.filter((d) => {
+          const v = String(d.verdict ?? d.label ?? '').toLowerCase().trim();
+          return v === 'malicious' || v === 'suspicious';
+        }).length;
+
+      const firstHalfThreats = countThreats(firstHalf);
+      const secondHalfThreats = countThreats(secondHalf);
+
+      const threatFeed = [...historyDocs]
+        .sort((a, b) => new Date(b.searched_at).getTime() - new Date(a.searched_at).getTime())
+        .slice(0, 20)
+        .map((doc) => ({
+          ioc: doc.value,
+          type: doc.type,
+          verdict: normalizeVerdict(String(doc.verdict ?? doc.label ?? '')),
+          source: doc.source || 'ioc-search',
+          timestamp: new Date(doc.searched_at).toISOString(),
+        }));
+
+      const payload = {
+        stats: {
+          totalIOCs,
+          maliciousIOCs,
+          cleanIOCs,
+          suspiciousIOCs,
+          pendingIOCs,
+          detectionRate,
+          trends: {
+            totalIOCs: percentDelta(firstHalf.length, secondHalf.length),
+            threatsDetected: percentDelta(firstHalfThreats, secondHalfThreats),
+          },
+        },
+        dailyTrends,
+        threatTypes,
+        iocTypeDistribution,
+        threatIntelligence,
+        geoDistribution,
+        threatVectors,
+        fileAnalysis,
+        malwareFamilies,
+        detectionEngines,
+        threatFeed,
+        timeRange: range,
+        daysIncluded: days,
+        startDate: startDate.toISOString(),
+        endDate: nowDate.toISOString(),
+        cachedAt: new Date(now).toISOString(),
+        dataVersion: '2.1-mongo',
+        privacyMode: dataScope === 'system' ? 'history-only' : 'history-all-users-fallback',
+      };
+
+    dashboardCache.set(cacheKey, {
+      timestamp: now,
+      data: payload,
+    });
+
+    return NextResponse.json(payload, {
+      headers: {
+        'X-Cache': 'MISS',
+        'X-Time-Range': range,
+        'Cache-Control': 'private, max-age=30',
       },
-      mitreAttack: { totalTechniques: 0, topTechniques: [] },
-      threatIntelligence: {
-        bySeverity: threatIntelBySeverity,
-        totalCritical: severityCounts.critical || 0,
-        totalHigh: severityCounts.high || 0,
-        totalMedium: severityCounts.medium || 0,
-        totalLow: severityCounts.low || 0,
-      },
-      malwareFamilies,
-      detectionEngines: detectionEnginePerformance,
-      timeRange,
-      daysIncluded: daysToFetch,
-      startDate: startDate.toISOString(),
-      endDate: new Date().toISOString(),
-      cachedAt: new Date().toISOString(),
-      dataVersion: '2.1-mongo',
-      privacyMode: 'history-only',
-    };
-
-    dashboardCache[cacheKey] = dashboardData;
-    cacheTimestamp[cacheKey] = now;
-
-    const processingTime = Date.now() - startTime;
-    const response = NextResponse.json(dashboardData);
-    response.headers.set('X-Cache', 'MISS');
-    response.headers.set('Cache-Control', 'public, max-age=30');
-    response.headers.set('X-Dashboard-IOCs', totalIOCs.toString());
-    response.headers.set('X-Data-Version', '2.1-mongo');
-    response.headers.set('X-Time-Range', timeRange);
-    response.headers.set('X-Processing-Time', `${processingTime}ms`);
-
-    return response;
+    });
   } catch (error: any) {
-    console.error('Dashboard-v2 API error:', error);
+    console.error('dashboard-v2 GET error', error);
     return NextResponse.json(
       {
-        error: 'Failed to fetch dashboard data',
-        message: error.message || 'Unknown error',
-        stats: {
-          totalIOCs: 0,
-          maliciousIOCs: 0,
-          cleanIOCs: 0,
-          suspiciousIOCs: 0,
-          pendingIOCs: 0,
-          detectionRate: 0,
-          trends: { totalIOCs: 0, threatsDetected: 0 },
-        },
-        dailyTrends: [],
-        threatTypes: [],
-        threatVectors: [],
-        iocTypeDistribution: [],
-        geoDistribution: [],
-        fileAnalysis: {
-          totalFiles: 0,
-          avgFileSize: 0,
-          maliciousFiles: 0,
-          cleanFiles: 0,
-          detectionRate: 0,
-          topFileTypes: [],
-        },
-        mitreAttack: { totalTechniques: 0, topTechniques: [] },
-        threatIntelligence: {
-          bySeverity: [],
-          totalCritical: 0,
-          totalHigh: 0,
-          totalMedium: 0,
-          totalLow: 0,
-        },
-        malwareFamilies: [],
-        detectionEngines: [],
+        error: 'Failed to build dashboard payload',
+        message: error?.message ?? 'Unknown error',
       },
       { status: 500 }
     );

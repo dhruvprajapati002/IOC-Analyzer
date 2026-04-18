@@ -1,11 +1,11 @@
 // app/api/ioc-v2/route.ts
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getTokenFromRequest, verifyToken } from '@/lib/auth';
 import { SubmitIOCRequestSchema, detectIOCType } from '@/lib/validators';
 import { getIOCFromCache, saveIOCAnalysis, getUserHistory } from '@/lib/ioc-cache';
 import { IocCache } from '@/lib/models/IocCache';
 import { getCacheTTL } from '@/lib/cache/cache-ttl';
+import { SYSTEM_USER, SYSTEM_USER_ID } from '@/lib/system-user';
 import {
   MultiSourceOrchestrator,
   formatIOCResponse,
@@ -13,7 +13,7 @@ import {
 } from '@/lib/threat-intel/orchestrator/multi-source.orchestrator';
 import { calculateIPRiskScore, getRiskLevelDetails } from '@/lib/threat-intel/services/risk-scoring.service';
 import { getGeolocationData, checkAbuseIPDB } from '@/lib/threat-intel/services/ip-reputation.service';
-import { checkRateLimit, RATE_LIMIT_CONFIG } from './services/rate-limit';
+import { checkRateLimit, RATE_LIMIT_CONFIG, type RateLimitResult } from './services/rate-limit';
 import type { IOCAnalysisResult } from '@/lib/threat-intel/types/threat-intel.types';
 
 const orchestrator = new MultiSourceOrchestrator();
@@ -38,15 +38,33 @@ function normalizeRequestBody(body: any) {
   return body;
 }
 
-function buildRateLimitHeaders(rateLimit: {
-  maxRequests: number;
-  remaining: number;
-  resetAt: number;
-}) {
+function getClientIdentifier(request: NextRequest): string {
+  const forwarded = request.headers.get('x-forwarded-for');
+  const realIp = request.headers.get('x-real-ip');
+  const cfIp = request.headers.get('cf-connecting-ip');
+
+  if (forwarded) {
+    return forwarded.split(',')[0]?.trim() || 'unknown-ip';
+  }
+
+  return cfIp || realIp || 'unknown-ip';
+}
+
+function buildRateLimitHeaders(rateLimit: RateLimitResult) {
+  const activeResetAt =
+    rateLimit.limitType === 'day' ? rateLimit.day.resetAt : rateLimit.minute.resetAt;
+
   return {
-    'X-RateLimit-Limit': rateLimit.maxRequests.toString(),
-    'X-RateLimit-Remaining': rateLimit.remaining.toString(),
-    'X-RateLimit-Reset': new Date(rateLimit.resetAt).toISOString(),
+    'X-RateLimit-Limit-Minute': rateLimit.minute.limit.toString(),
+    'X-RateLimit-Remaining-Minute': rateLimit.minute.remaining.toString(),
+    'X-RateLimit-Reset-Minute': Math.floor(rateLimit.minute.resetAt / 1000).toString(),
+    'X-RateLimit-Limit-Day': rateLimit.day.limit.toString(),
+    'X-RateLimit-Remaining-Day': rateLimit.day.remaining.toString(),
+    'X-RateLimit-Reset-Day': Math.floor(rateLimit.day.resetAt / 1000).toString(),
+    // Backward-compatible headers used by legacy clients.
+    'X-RateLimit-Limit': rateLimit.day.limit.toString(),
+    'X-RateLimit-Remaining': rateLimit.day.remaining.toString(),
+    'X-RateLimit-Reset': new Date(activeResetAt).toISOString(),
   };
 }
 
@@ -84,26 +102,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const token = getTokenFromRequest(request);
-    if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const userId = SYSTEM_USER_ID;
+    const username = SYSTEM_USER.username;
 
-    const payload = verifyToken(token);
-    if (!payload) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-    }
-
-    const userId = payload.userId;
-    const username = payload.username;
-
-    const rateLimit = checkRateLimit(userId);
+    const rateLimit = checkRateLimit(getClientIdentifier(request));
     if (!rateLimit.allowed) {
+      const resetAt =
+        rateLimit.limitType === 'day' ? rateLimit.day.resetAt : rateLimit.minute.resetAt;
+
       return NextResponse.json(
         {
           success: false,
           error: 'Rate limit exceeded',
-          resetAt: new Date(rateLimit.resetAt).toISOString(),
+          type: rateLimit.limitType,
+          retryAfter: rateLimit.retryAfter,
+          resetAt: new Date(resetAt).toISOString(),
+          minuteRemaining: rateLimit.minute.remaining,
+          dayRemaining: rateLimit.day.remaining,
         },
         { status: 429, headers: buildRateLimitHeaders(rateLimit) }
       );
@@ -327,25 +342,22 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const token = getTokenFromRequest(request);
-    if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const userId = SYSTEM_USER_ID;
 
-    const payload = verifyToken(token);
-    if (!payload) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-    }
-
-    const userId = payload.userId;
-
-    const rateLimit = checkRateLimit(userId);
+    const rateLimit = checkRateLimit(getClientIdentifier(request));
     if (!rateLimit.allowed) {
+      const resetAt =
+        rateLimit.limitType === 'day' ? rateLimit.day.resetAt : rateLimit.minute.resetAt;
+
       return NextResponse.json(
         {
           success: false,
           error: 'Rate limit exceeded',
-          resetAt: new Date(rateLimit.resetAt).toISOString(),
+          type: rateLimit.limitType,
+          retryAfter: rateLimit.retryAfter,
+          resetAt: new Date(resetAt).toISOString(),
+          minuteRemaining: rateLimit.minute.remaining,
+          dayRemaining: rateLimit.day.remaining,
         },
         { status: 429, headers: buildRateLimitHeaders(rateLimit) }
       );
@@ -360,7 +372,7 @@ export async function GET(request: NextRequest) {
     const severity = searchParams.get('severity') || undefined;
     const search = searchParams.get('search') || undefined;
 
-    const history = await getUserHistory({
+    let history = await getUserHistory({
       userId,
       page,
       limit,
@@ -368,6 +380,20 @@ export async function GET(request: NextRequest) {
       verdict,
       search,
     });
+
+    let dataScope: 'system' | 'legacy-fallback' = 'system';
+    if ((history.pagination?.totalCount ?? 0) === 0) {
+      history = await getUserHistory({
+        userId,
+        includeAllUsers: true,
+        page,
+        limit,
+        type,
+        verdict,
+        search,
+      });
+      dataScope = 'legacy-fallback';
+    }
 
     const historyRecords = history.records || [];
     const cacheQueries = historyRecords.map((record: any) => ({
@@ -469,6 +495,7 @@ export async function GET(request: NextRequest) {
         metadata: {
           timestamp: new Date().toISOString(),
           userId,
+          dataScope,
           filters: {
             type,
             verdict,
@@ -518,9 +545,11 @@ export async function OPTIONS() {
       },
     },
     rateLimit: {
-      maxRequests: RATE_LIMIT_CONFIG.MAX_REQUESTS,
-      window: `${RATE_LIMIT_CONFIG.WINDOW_MINUTES} minutes`,
-      perUser: true,
+      minuteLimit: RATE_LIMIT_CONFIG.MINUTE_LIMIT,
+      dayLimit: RATE_LIMIT_CONFIG.DAY_LIMIT,
+      minuteWindowSeconds: RATE_LIMIT_CONFIG.MINUTE_WINDOW_MS / 1000,
+      dayWindowHours: RATE_LIMIT_CONFIG.DAY_WINDOW_MS / 3600000,
+      perIp: true,
     },
     features: [
       'Multi-source threat intelligence aggregation',
@@ -534,7 +563,7 @@ export async function OPTIONS() {
       'IP geolocation',
       'Severity-based verdict aggregation',
       'Mongo cache with TTL',
-      'Rate limiting per user',
+      'Rate limiting per IP (minute/day)',
       'Batch analysis support',
     ],
     threatIntelligenceSources: {

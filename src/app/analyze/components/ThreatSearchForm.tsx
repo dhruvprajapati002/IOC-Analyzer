@@ -1,167 +1,147 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useEffect, useRef } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
-import { Search, Menu } from 'lucide-react';
-// import { ShareAnalysisButton } from './ShareAnalysisButton';
-import { APP_COLORS, BUTTON_STYLES, INPUT_STYLES, CARD_STYLES } from '@/lib/colors';
-import { TYPOGRAPHY } from '@/lib/typography';
-
-const formSchema = z.object({
-  iocs: z.string().min(1, 'At least one IOC is required'),
-});
-
-type FormData = z.infer<typeof formSchema>;
+import { FormEvent, useEffect, useRef, useState } from 'react';
+import { Search } from 'lucide-react';
+import {
+  APP_COLORS,
+} from '@/lib/colors';
 
 interface ThreatSearchFormProps {
-  onSubmit: (data: FormData) => Promise<void>;
-  isSubmitting: boolean;
-  validateIOCs?: (iocs: string, searchType: string) => any;
+  onAnalyze: (value: string) => Promise<void>;
+  isLoading: boolean;
+  disabled?: boolean;
   currentIOC?: string;
-  showShareButton?: boolean;
-  onMenuClick?: () => void;
 }
 
-export function ThreatSearchForm({ 
-  onSubmit, 
-  isSubmitting, 
-  currentIOC, 
-  showShareButton = false,
-  onMenuClick
+const QUICK_EXAMPLES = [
+  '8.8.8.8',
+  'example-malicious-domain.com',
+  '44d858c12fea8a8f36de82e1278abb02f',
+];
+
+export function ThreatSearchForm({
+  onAnalyze,
+  isLoading,
+  disabled = false,
+  currentIOC,
 }: ThreatSearchFormProps) {
-  const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      iocs: '',
-    },
-  });
+  const [value, setValue] = useState('');
+  const inputRef = useRef<HTMLTextAreaElement | null>(null);
 
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  // Ctrl+K / Cmd+K keyboard shortcut to focus search
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
         inputRef.current?.focus();
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
   }, []);
 
-  // Handle Enter key press
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && !isSubmitting) {
-      e.preventDefault();
-      form.handleSubmit(onSubmit)();
-    }
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const query = value.trim();
+    if (!query || isLoading || disabled) return;
+    await onAnalyze(query);
   };
 
   return (
-    <Card 
-      className={`${CARD_STYLES.base} transition-all duration-300 hover:shadow-lg`}
+    <div
       style={{
-        backgroundColor: APP_COLORS.backgroundSoft,
-        borderColor: APP_COLORS.border,
+        background: APP_COLORS.surface,
+        border: `1px solid ${APP_COLORS.border}`,
+        borderRadius: 16,
+        padding: 24,
       }}
     >
-      <CardContent className="p-4">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="flex items-center gap-3">
-              {/* Mobile Menu Button */}
-              {onMenuClick && (
-                <Button
-                  type="button"
-                  onClick={onMenuClick}
-                  className="lg:hidden h-11 w-11 p-0 rounded-xl hover:scale-105 transition-all flex-shrink-0"
-                  style={{
-                    backgroundColor: `${APP_COLORS.primary}15`,
-                    color: APP_COLORS.primary,
-                  }}
-                >
-                  <Menu className="h-5 w-5" />
-                </Button>
-              )}
+      <div className="mb-4 flex items-start justify-between gap-4">
+        <div>
+          <p
+            className="text-xs font-bold uppercase tracking-widest"
+            style={{ color: APP_COLORS.primary }}
+          >
+            VigilanceX Input Console
+          </p>
+          <h2 className="mt-1 text-xl font-bold" style={{ color: APP_COLORS.textPrimary }}>
+            Search IOCs for Intelligence Enrichment
+          </h2>
+          <p className="mt-1 text-sm" style={{ color: APP_COLORS.textMuted }}>
+            Supports IP, domain, URL, and hash indicators in a single query
+          </p>
+        </div>
 
-              {/* Search Input */}
-              <div className="flex-1 relative">
-                <FormField
-                  control={form.control}
-                  name="iocs"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <div className="relative">
-                          <Input
-                            {...field}
-                            ref={inputRef}
-                            placeholder="Search IOCs (IP, Domain, Hash, URL)..."
-                            className={`${INPUT_STYLES.base} ${TYPOGRAPHY.body.md} pl-11 h-11 border-2 transition-all`}
-                            style={{
-                              backgroundColor: APP_COLORS.backgroundSoft,
-                              borderColor: APP_COLORS.border,
-                              color: APP_COLORS.textPrimary,
-                            }}
-                            disabled={isSubmitting}
-                            onKeyDown={handleKeyDown}
-                          />
-                          
-                          {/* Search Icon */}
-                          <Search 
-                            className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 pointer-events-none" 
-                            style={{ color: APP_COLORS.textSecondary }} 
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage 
-                        className={`${TYPOGRAPHY.caption.md} mt-1.5`}
-                        style={{ color: APP_COLORS.danger }}
-                      />
-                    </FormItem>
-                  )}
-                />
-              </div>
+        {currentIOC ? (
+          <span
+            className="rounded-full px-3 py-1 text-xs font-semibold"
+            style={{
+              backgroundColor: APP_COLORS.backgroundSoft,
+              color: APP_COLORS.textPrimary,
+              fontFamily: 'monospace',
+            }}
+          >
+            Current Indicator: {currentIOC}
+          </span>
+        ) : null}
+      </div>
 
-              {/* Search Button */}
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className={`h-11 px-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 ${TYPOGRAPHY.body.sm} ${TYPOGRAPHY.fontWeight.bold}`}
-                style={{
-                  backgroundColor: isSubmitting ? APP_COLORS.surfaceMuted : APP_COLORS.primary,
-                  color: APP_COLORS.textPrimary,
-                }}
-              >
-                {isSubmitting ? (
-                  <div className="flex items-center gap-2">
-                    <div 
-                      className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin"
-                      style={{ borderColor: `${APP_COLORS.textPrimary}80`, borderTopColor: 'transparent' }}
-                    />
-                    <span>Analyzing...</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <Search className="h-4 w-4" />
-                    <span>Analyze</span>
-                  </div>
-                )}
-              </Button>
+      <form onSubmit={onSubmit} className="space-y-3">
+        <div className="flex items-stretch gap-3">
+          <div className="relative flex-1">
+            <Search
+              className="pointer-events-none absolute left-3 top-3.5 h-4 w-4"
+              style={{ color: APP_COLORS.textMuted }}
+            />
+            <textarea
+              ref={inputRef}
+              rows={2}
+              value={value}
+              onChange={(event) => setValue(event.target.value)}
+              placeholder="Enter one or multiple IOCs (newline supported)"
+              disabled={isLoading || disabled}
+              className="w-full resize-none rounded-xl border pl-9 pr-3 py-3 text-sm outline-none transition"
+              style={{
+                borderColor: APP_COLORS.border,
+                backgroundColor: APP_COLORS.background,
+                color: APP_COLORS.textPrimary,
+              }}
+            />
+          </div>
 
-              
-            </div>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+          <button
+            type="submit"
+            disabled={isLoading || disabled}
+            className="rounded-xl px-5 py-3 text-sm font-bold"
+            style={{
+              backgroundColor:
+                isLoading || disabled ? APP_COLORS.surfaceMuted : APP_COLORS.primary,
+              color: APP_COLORS.textOffWhite,
+              minWidth: 120,
+              opacity: disabled ? 0.7 : 1,
+            }}
+          >
+            {isLoading ? 'Analyzing...' : 'Analyze'}
+          </button>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {QUICK_EXAMPLES.map((sample) => (
+            <button
+              key={sample}
+              type="button"
+              onClick={() => setValue(sample)}
+              className="rounded-full px-2.5 py-1 text-xs"
+              style={{
+                backgroundColor: APP_COLORS.backgroundSoft,
+                color: APP_COLORS.textMuted,
+              }}
+            >
+              {sample}
+            </button>
+          ))}
+        </div>
+      </form>
+    </div>
   );
 }

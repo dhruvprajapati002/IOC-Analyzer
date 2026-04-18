@@ -9,19 +9,13 @@ import { TYPOGRAPHY } from '@/lib/typography';
 export default function RootPage() {
   const router = useRouter();
   const pathname = usePathname();
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isLoading } = useAuth();
 
   useEffect(() => {
-    if (!isLoading) {
-      if (isAuthenticated && pathname !== '/dashboard') {
-        // Redirect authenticated users to dashboard
-        router.replace('/dashboard');
-      } else if (!isAuthenticated && pathname !== '/login') {
-        // Redirect non-authenticated users to login
-        router.replace('/login');
-      }
+    if (!isLoading && pathname !== '/dashboard') {
+      router.replace('/dashboard');
     }
-  }, [isLoading, isAuthenticated, pathname, router]);
+  }, [isLoading, pathname, router]);
 
   // Show loading state while checking auth
   return (
