@@ -1,0 +1,58 @@
+%% ============================================================
+%% IOC ANALYSIS FLOW — From submission to threat verdict
+%% ============================================================
+
+flowchart TD
+
+  subgraph UI_SG["🖥️ Analyze Page (Frontend)"]
+    I_Form["IOC Input Form (IP · Domain · Hash · URL)"]
+    I_Results["Analysis Results (Verdict · Risk Score · Detections · MITRE ATT&CK)"]
+  end
+
+  subgraph IOCAPI_SG["⚙️ IOC Analysis API — POST /api/ioc-v2"]
+    I_Auth{"Verify JWT Token"}
+    I_Rate{"Rate Limit Check"}
+    I_Cache{"OpenSearch Cache Check"}
+    I_Detect["Auto-detect IOC Type (IP, Hash, Domain, URL)"]
+  end
+
+  subgraph Orch_SG["🧠 Multi-Source Orchestrator"]
+    I_Parallel["Query All Feeds in Parallel"]
+    I_Norm["Normalize Responses (VT · GN · IPQS · ...)"]
+    I_IP["IP Reputation Check (AbuseIPDB + Geolocation)"]
+    I_Risk["Risk Score and Verdict Aggregation"]
+  end
+
+  subgraph Feeds_SG["🌐 Threat Intelligence Feeds"]
+    I_VT["VirusTotal"]
+    I_GN["GreyNoise"]
+    I_IPQS["IPQS"]
+    I_TFox["ThreatFox"]
+    I_MB["MalwareBazaar"]
+    I_UH["URLhaus"]
+  end
+
+  subgraph Store_SG["🗄️ OpenSearch"]
+    I_OS[("Per-User IOC Cache — iocs_client_{userId}")]
+  end
+
+  I_Form -->|"submit IOC list"| I_Auth
+  I_Auth -->|"unauthorized"| I_Form
+  I_Auth -->|"authorized"| I_Rate
+  I_Rate -->|"limit exceeded"| I_Form
+  I_Rate -->|"allowed"| I_Cache
+  I_Cache -->|"cache HIT — return instantly"| I_Results
+  I_Cache -->|"cache MISS"| I_Detect
+  I_Detect -->|"IOC type identified"| I_Parallel
+  I_Parallel -->|"query"| I_VT
+  I_Parallel -->|"query"| I_GN
+  I_Parallel -->|"query"| I_IPQS
+  I_Parallel -->|"query"| I_TFox
+  I_Parallel -->|"query"| I_MB
+  I_Parallel -->|"query"| I_UH
+  I_Parallel -->|"IP type — check reputation"| I_IP
+  I_IP -->|"abuse score + geo data"| I_Risk
+  I_Parallel -->|"raw responses"| I_Norm
+  I_Norm -->|"unified data"| I_Risk
+  I_Risk -->|"final verdict + score"| I_OS
+  I_OS -->|"cached result"| I_Results

@@ -1,0 +1,61 @@
+%% ============================================================
+%% DASHBOARD & HISTORY FLOW — Stats aggregation and IOC history
+%% ============================================================
+
+flowchart TD
+
+  subgraph DashUI_SG["🖥️ Dashboard Page"]
+    D_Load("Dashboard Loads")
+    D_Picker["Time Range Picker (daily · weekly · monthly)"]
+    D_Cards["Stats Cards (total scans · verdicts · IOC types · trend chart)"]
+  end
+
+  subgraph HistUI_SG["🖥️ History Page"]
+    H_Table["IOC History Table"]
+    H_Filters["Filters (type · verdict · search · sort)"]
+    H_Detail["IOC Detail View"]
+  end
+
+  subgraph DashAPI_SG["⚙️ Dashboard API — GET /api/dashboard-v2"]
+    D_Auth{"Verify JWT"}
+    D_Cache{"30s In-Memory Cache"}
+    D_Agg["Aggregate IOC stats from OpenSearch"]
+  end
+
+  subgraph HistAPI_SG["⚙️ History API — GET /api/history-v2"]
+    H_Auth{"Verify JWT"}
+    H_Query["Build OpenSearch Query (filters + pagination)"]
+    H_Detail_API(["GET /api/history-v2/[ioc] — single IOC detail"])
+  end
+
+  subgraph RecentAPI_SG["⚙️ Recent IOCs API — GET /api/recent-iocs"]
+    R_Auth{"Verify JWT"}
+    R_Fetch["Fetch last N scans for Graph page"]
+  end
+
+  subgraph Store_SG["🗄️ OpenSearch"]
+    OS[("Per-User IOC Index — iocs_client_{userId}")]
+  end
+
+  D_Load --> D_Auth
+  D_Auth -->|"invalid"| D_Load
+  D_Auth -->|"valid"| D_Cache
+  D_Cache -->|"cache HIT (under 30s)"| D_Cards
+  D_Cache -->|"cache MISS"| D_Agg
+  D_Agg -->|"query last N days"| OS
+  OS -->|"aggregated counts"| D_Cards
+  D_Picker -->|"change range"| D_Agg
+
+  H_Table --> H_Auth
+  H_Filters -->|"change filters"| H_Auth
+  H_Auth -->|"invalid"| H_Table
+  H_Auth -->|"valid"| H_Query
+  H_Query -->|"paginated search"| OS
+  OS -->|"IOC list + total count"| H_Table
+  H_Table -->|"click row"| H_Detail_API
+  H_Detail_API -->|"fetch single record"| OS
+  OS -->|"full IOC detail"| H_Detail
+
+  R_Auth -->|"valid"| R_Fetch
+  R_Fetch -->|"fetch recent scans"| OS
+  OS -->|"recent IOCs list"| R_Fetch

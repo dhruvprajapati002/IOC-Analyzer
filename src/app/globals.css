@@ -1,0 +1,612 @@
+@import "tailwindcss";
+@import '../styles/dashboard.css';
+@import '../styles/sidebar.css';
+
+/* Custom height class for ThreatTrendChart */
+
+/* Custom variant for dark mode */
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-jetbrains);
+  --font-mono: var(--font-jetbrains);
+  --font-heading: var(--font-space-grotesk);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  /* ── Shared-component Sidebar theme tokens ── */
+  --color-t-sidebar: var(--t-sidebar);
+  --color-t-border: var(--t-border);
+  --color-t-textPrimary: var(--t-textPrimary);
+  --color-t-textSecondary: var(--t-textSecondary);
+  --color-t-textMuted: var(--t-textMuted);
+  --color-t-textLighter: var(--t-textLighter);
+  --color-t-primary: var(--t-primary);
+  --color-t-primaryLight: var(--t-primaryLight);
+  --color-t-primaryMuted: var(--t-primaryMuted);
+  --color-t-primaryHover: var(--t-primaryHover);
+  --color-t-surfaceAlt: var(--t-surfaceAlt);
+  --color-t-bg: var(--t-bg);
+  --color-t-bgDeep: var(--t-bgDeep);
+  --color-t-surface: var(--t-surface);
+  --color-t-surfaceMuted: var(--t-surfaceMuted);
+  --color-t-borderHover: var(--t-borderHover);
+  --color-t-borderSoft: var(--t-borderSoft);
+  --color-t-success: var(--t-success);
+  --color-t-warning: var(--t-warning);
+  --color-t-danger: var(--t-danger);
+  --color-t-dangerLight: var(--t-dangerLight);
+  --color-t-info: var(--t-info);
+  --color-t-accentViolet: var(--t-accentViolet);
+  --color-t-accentBlue: var(--t-accentBlue);
+  --color-t-accentIndigo: var(--t-accentIndigo);
+  --color-t-textOffWhite: var(--t-textOffWhite);
+  --color-t-surfaceTint: var(--t-surfaceTint);
+  --color-t-surfaceTintDark: var(--t-surfaceTintDark);
+  --color-t-accentBlueDark: var(--t-accentBlueDark);
+  --color-t-accentPurple600: var(--t-accentPurple600);
+  --color-t-accentCyan: var(--t-accentCyan);
+  --color-t-accentYellow: var(--t-accentYellow);
+  --shadow-t-sidebar: none;
+  --shadow-t-card: none;
+  --shadow-t-hover: none;
+}
+
+:root {
+  :root {
+  --surface: var(--t-surface);
+  --border: var(--t-border);
+  --background-soft: var(--t-bg);
+  --text-primary: var(--t-textPrimary);
+  --text-muted: var(--t-textMuted);
+  --primary: var(--t-primary);
+  --primary-10: rgba(var(--t-primary-rgb), 0.1);
+  --danger: var(--t-danger);
+  --warning: var(--t-warning);
+  --success: var(--t-success);
+}
+
+  /* ── Shared-component Sidebar CSS variables ── */
+  --t-sidebar: #09090b;
+  --t-backgroundSoft: #09090b;
+  --t-border: #27272a;
+  --t-textPrimary: #ffffff;
+  --t-textSecondary: #a1a1aa;
+  --t-textMuted: #6b7280;
+  --t-textLighter: #d4d4d8;
+  --t-textOffWhite: #e5e5e5;
+  --t-primary: #10b981;
+  --t-primaryLight: #34d399;
+  --t-primaryMuted: #6ee7b7;
+  --t-primaryHover: #059669;
+  --t-surfaceAlt: #1a1a1a;
+  --t-surfaceTint: #2a2a2a;
+  --t-surfaceTintDark: #1f1f1f;
+  --t-bg: #09090b;
+  --t-bgDeep: #050507;
+  --t-surface: #111111;
+  --t-surfaceMuted: #2a2d38;
+  --t-borderHover: #353840;
+  --t-borderSoft: rgba(255,255,255,0.05);
+  --t-success: #22c55e;
+  --t-warning: #f59e0b;
+  --t-danger: #ef4444;
+  --t-dangerLight: #f87171;
+  --t-info: #3b82f6;
+  --t-accentViolet: #8b5cf6;
+  --t-accentBlue: #3b82f6;
+  --t-accentBlueDark: #2563eb;
+  --t-accentIndigo: #6366f1;
+  --t-accentPurple600: #9333ea;
+  --t-accentCyan: #06b6d4;
+  --t-accentYellow: #eab308;
+  /* RGB channel triplets for rgba() usage */
+  --t-primary-rgb: 16, 185, 129;
+  --t-info-rgb: 59, 130, 246;
+  --t-danger-rgb: 239, 68, 68;
+  --t-warning-rgb: 245, 158, 11;
+  --t-success-rgb: 34, 197, 94;
+  --t-accentViolet-rgb: 139, 92, 246;
+  --t-accentIndigo-rgb: 99, 102, 241;
+
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: var(--t-sidebar);
+  --card-foreground: var(--t-textPrimary);
+  --popover: var(--t-sidebar);
+  --popover-foreground: var(--t-textPrimary);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: var(--t-sidebar);
+  --card-foreground: var(--t-textPrimary);
+  --popover: var(--t-sidebar);
+  --popover-foreground: var(--t-textPrimary);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  /* Global visual cleanup: force a border-first, no-shadow UI. */
+  *,
+  *::before,
+  *::after {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  
+  html {
+    font-size: 16px;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-jetbrains), 'JetBrains Mono', monospace;
+    position: relative;
+    overflow-x: hidden;
+    font-feature-settings: "liga" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* ✅ All headings use Space Grotesk */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-space-grotesk), ui-sans-serif, system-ui;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  
+  @media (min-width: 1024px) {
+    body:has(.analyze-page-compact) html {
+      font-size: 11px;
+    }
+
+    body:has(.analyze-page-compact) .w-64 {
+      width: 240px !important;
+    }
+
+    body:has(.analyze-page-compact) main {
+      padding: 1rem !important;
+    }
+
+    .analyze-page-compact .space-y-6 > * + * {
+      margin-top: 1rem !important;
+    }
+    
+    .analyze-page-compact .space-y-4 > * + * {
+      margin-top: 0.75rem !important;
+    }
+  }
+}
+
+/* ── Themed Scrollbar ─────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--t-bg);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--t-border);
+  border-radius: 999px;
+  transition: background 0.2s ease;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--t-primary);
+}
+::-webkit-scrollbar-corner {
+  background: var(--t-bg);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--t-border) var(--t-bg);
+}
+
+/* Mobile Responsive Utilities */
+@layer utilities {
+  .mobile-safe-area {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  
+  .mobile-scroll {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .mobile-tap-highlight {
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .mobile-text-sm {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+  
+  .mobile-p-2 {
+    padding: 0.5rem;
+  }
+  
+  .mobile-gap-2 {
+    gap: 0.5rem;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .tablet-grid-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .touch-optimized {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+@layer utilities {
+  @keyframes gradient-x {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  @keyframes gradient-rotate {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  .animate-gradient-x {
+    background-size: 200% 200%;
+    animation: gradient-x 3s ease infinite;
+  }
+
+  .animate-gradient-rotate {
+    animation: gradient-rotate 8s linear infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -1000px 0;
+    }
+    100% {
+      background-position: 1000px 0;
+    }
+  }
+
+  .animate-shimmer {
+    background: linear-gradient(
+      to right,
+      transparent 0%,
+      var(--t-borderSoft) 50%,
+      transparent 100%
+    );
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite;
+  }
+}
+
+/* (scrollbar rules consolidated above) */
+
+
+/* app/globals.css */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: var(--t-borderSoft);
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(var(--t-accentIndigo-rgb), 0.5);
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--t-accentIndigo-rgb), 0.7);
+}
+
+/* Smooth scroll for the whole page */
+html {
+  scroll-behavior: smooth;
+}
+
+
+/* Make sure flags render properly */
+.country-flag {
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+
+@keyframes shimmer {
+  0%, 100% {
+    transform: translateX(-100%) skewX(-15deg);
+  }
+  50% {
+    transform: translateX(100%) skewX(-15deg);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slideDown {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* Select Dropdown Theming */
+[data-radix-select-content] {
+  background-color: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+[data-radix-select-item] {
+  color: var(--text-primary) !important;
+  cursor: pointer !important;
+}
+
+[data-radix-select-item]:hover {
+  background-color: var(--background-soft) !important;
+}
+
+[data-radix-select-item][data-state="checked"] {
+  background-color: var(--primary-10) !important;
+  color: var(--primary) !important;
+}
+
+/* Dropdown Menu Theming */
+[data-radix-dropdown-content] {
+  background-color: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+[data-radix-dropdown-item] {
+  color: var(--text-primary) !important;
+  cursor: pointer !important;
+}
+
+[data-radix-dropdown-item]:hover {
+  background-color: var(--background-soft) !important;
+}
+
+
+
+/* ===== SELECT DROPDOWN DARK THEME ===== */
+[data-radix-select-viewport] {
+  background-color: var(--t-sidebar) !important;
+}
+
+[data-radix-popper-content-wrapper] [role="listbox"] {
+  background-color: var(--t-sidebar) !important;
+  border: 1px solid var(--t-border) !important;
+}
+
+/* Select items */
+[role="option"] {
+  color: var(--t-textOffWhite) !important;
+  cursor: pointer !important;
+  transition: background-color 0.15s ease !important;
+}
+
+[role="option"]:hover {
+  background-color: var(--t-surfaceAlt) !important;
+  color: var(--t-textPrimary) !important;
+}
+
+[role="option"][data-state="checked"] {
+  background-color: rgba(var(--t-info-rgb), 0.15) !important;
+  color: var(--t-info) !important;
+}
+
+[role="option"][data-state="checked"]:hover {
+  background-color: rgba(var(--t-info-rgb), 0.25) !important;
+  color: var(--t-info) !important;
+}
+
+/* Dropdown Menu Dark Theme */
+[data-radix-dropdown-content] {
+  background-color: var(--t-sidebar) !important;
+  border: 1px solid var(--t-border) !important;
+}
+
+[role="menuitem"] {
+  color: var(--t-textOffWhite) !important;
+  cursor: pointer !important;
+  transition: background-color 0.15s ease !important;
+}
+
+[role="menuitem"]:hover {
+  background-color: var(--t-surfaceAlt) !important;
+  color: var(--t-textPrimary) !important;
+}
+
+[role="menuitem"]:focus {
+  background-color: var(--t-surfaceAlt) !important;
+  outline: none !important;
+}
+
+
+/* Custom Scrollbar */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--t-surfaceTintDark) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: var(--t-surfaceTintDark);
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: var(--t-surfaceTint);
+}
+
+.custom-scrollbar::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+
+/* app/globals.css or components/ui/select.css */
+
+/* Select dropdown hover effects */
+[data-radix-select-content] [data-radix-select-item]:hover {
+  background-color: rgba(var(--t-info-rgb), 0.1) !important;
+  color: var(--t-info) !important;
+}
+
+[data-radix-select-content] [data-radix-select-item][data-highlighted] {
+  background-color: rgba(var(--t-info-rgb), 0.15) !important;
+  color: var(--t-info) !important;
+}
+
+/* Dropdown menu hover effects */
+[data-radix-dropdown-content] [data-radix-dropdown-item]:hover {
+  background-color: rgba(var(--t-info-rgb), 0.1) !important;
+  color: var(--t-info) !important;
+}
+
+[data-radix-dropdown-content] [data-radix-dropdown-item][data-highlighted] {
+  background-color: rgba(var(--t-info-rgb), 0.15) !important;
+  color: var(--t-info) !important;
+}

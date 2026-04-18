@@ -1,0 +1,75 @@
+%% ============================================================
+%% FILE ANALYSIS FLOW — Upload, hash, and analyze a file
+%% ============================================================
+
+flowchart TD
+
+  subgraph FileUI_SG["🖥️ File Analysis Page"]
+    F_Upload["Upload File (max 50 MB)"]
+    F_Report["File Report (File Type · Hash · Risk Level · AV Detections)"]
+  end
+
+  subgraph FileAPI_SG["⚙️ File Analysis API — POST /api/file-analysis-v2"]
+    F_Auth{"Verify JWT and Rate Limit"}
+    F_Parse["Parse Multipart Form Data"]
+    F_Engine["Analysis Engine (detect file type via magic bytes · compute MD5, SHA1, SHA256)"]
+  end
+
+  subgraph FileLogic_SG["🧠 Analysis Logic"]
+    F_Orch["Multi-Source Orchestrator (hash reputation lookup)"]
+    F_Cache{"OpenSearch Cache Check"}
+  end
+
+  subgraph FileExternal_SG["🌐 External APIs"]
+    F_VT["VirusTotal (hash lookup · AV scan results)"]
+    F_Other["GreyNoise · ThreatFox · MalwareBazaar"]
+  end
+
+  subgraph FileStore_SG["🗄️ OpenSearch"]
+    F_OS[("File Analysis Cache")]
+  end
+
+  F_Upload -->|"file upload"| F_Auth
+  F_Auth -->|"invalid — reject"| F_Upload
+  F_Auth -->|"valid"| F_Parse
+  F_Parse -->|"file bytes"| F_Engine
+  F_Engine -->|"file hashes"| F_Cache
+  F_Cache -->|"cache HIT"| F_Report
+  F_Cache -->|"cache MISS"| F_Orch
+  F_Orch -->|"hash lookup"| F_VT
+  F_Orch -->|"hash lookup"| F_Other
+  F_Orch -->|"save result"| F_OS
+  F_OS -->|"return analysis"| F_Report
+
+%% ============================================================
+%% THREAT GRAPH FLOW — IOC relationship mapping via VirusTotal
+%% ============================================================
+
+  subgraph GraphUI_SG["🖥️ Graph Page"]
+    G_Input["Select IOC or Recent Scan"]
+    G_Viz["Relationship Graph (nodes and edges)"]
+  end
+
+  subgraph GraphAPI_SG["⚙️ Graph API — GET /api/graph-v2"]
+    G_Auth{"Verify JWT"}
+    G_Cache{"OpenSearch Cache Check"}
+    G_Builder["VT Graph Builder (map related IPs, domains, files, URLs)"]
+  end
+
+  subgraph GraphExternal_SG["🌐 VirusTotal Graph API"]
+    G_VT["VirusTotal Relationship Endpoints"]
+  end
+
+  subgraph GraphStore_SG["🗄️ OpenSearch"]
+    G_OS[("Graph Cache — per IOC value)"]
+  end
+
+  G_Input -->|"IOC value"| G_Auth
+  G_Auth -->|"unauthorized"| G_Input
+  G_Auth -->|"valid"| G_Cache
+  G_Cache -->|"cache HIT"| G_Viz
+  G_Cache -->|"cache MISS"| G_Builder
+  G_Builder -->|"fetch relationships"| G_VT
+  G_VT -->|"graph relationship data"| G_Builder
+  G_Builder -->|"save graph"| G_OS
+  G_Builder -->|"nodes and edges"| G_Viz

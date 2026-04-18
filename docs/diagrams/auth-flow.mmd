@@ -1,0 +1,57 @@
+%% ============================================================
+%% AUTH FLOW — Login, JWT Session, and Route Protection
+%% ============================================================
+
+flowchart TD
+
+  subgraph Client_SG["👤 Client / Browser"]
+    A_Start("User Opens App")
+    A_Login["Login Page"]
+    A_Form["Submit Username and Password"]
+    A_Store["localStorage (JWT + user info)"]
+    A_Context["Auth Context (global React state)"]
+  end
+
+  subgraph Guards_SG["🔒 Route Protection"]
+    A_Guard{"Auth Guard (ProtectedPage)"}
+    A_MW{"Next.js Middleware (/admin routes)"}
+  end
+
+  subgraph AuthAPI_SG["⚙️ Auth API Routes"]
+    A_Login_Route(["POST /api/auth/login"])
+    A_Signup_Route(["POST /api/auth/signup"])
+    A_Me_Route(["GET /api/auth/me"])
+    A_Logout_Route(["POST /api/auth/logout"])
+  end
+
+  subgraph AuthSvc_SG["🧠 Auth Services"]
+    A_JWT["JWT Library (sign · verify · 7-day expiry)"]
+    A_BCrypt["bcrypt (compare password hash)"]
+  end
+
+  subgraph UserDB_SG["🗄️ MongoDB"]
+    A_Users[("User Collection (username · role · password hash)")]
+  end
+
+  subgraph Success_SG["✅ Outcome"]
+    A_Page["Protected Page Renders"]
+  end
+
+  A_Start -->|"page load"| A_Context
+  A_Context -->|"no stored JWT"| A_Login
+  A_Login --> A_Form
+  A_Form -->|"credentials"| A_Login_Route
+  A_Login_Route -->|"find user by username"| A_Users
+  A_Users -->|"return user record"| A_BCrypt
+  A_BCrypt -->|"password matches"| A_JWT
+  A_JWT -->|"signed JWT token"| A_Login_Route
+  A_Login_Route -->|"JWT + user data"| A_Store
+  A_Store -->|"restored on reload"| A_Context
+  A_Context -->|"isAuthenticated = true"| A_Guard
+  A_Guard ==>|"valid JWT"| A_Page
+  A_Guard -->|"no JWT"| A_Login
+  A_MW -->|"role = admin"| A_Page
+  A_MW -.->|"role not admin — redirect"| A_Login
+  A_Me_Route -->|"verify token validity"| A_JWT
+  A_Signup_Route -->|"hash password and save"| A_Users
+  A_Logout_Route -->|"remove JWT"| A_Store

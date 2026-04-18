@@ -1,0 +1,564 @@
+2025-09-18 06:53 +00:00:  ⨯ The requested resource isn't a valid image for /SentinelIQ-M.png received null
+2025-09-18 06:53 +00:00:  ⨯ The requested resource isn't a valid image for /SentinelIQ-M.png received null
+2025-09-18 06:53 +00:00:  ⨯ The requested resource isn't a valid image for /SentinelIQ-M.png received null
+2025-09-18 06:56 +00:00:  ⨯ The requested resource isn't a valid image for /SentinelIQ-M.png received null
+2025-09-18 06:57 +00:00:  ⨯ The requested resource isn't a valid image for /SentinelIQ-M.png received null
+2025-09-18 07:02 +00:00:  ⨯ The requested resource isn't a valid image for /SentinelIQ-M.png received null
+2025-09-18 07:02 +00:00:  ⨯ The requested resource isn't a valid image for /SentinelIQ-M.png received null
+2025-09-18 07:04 +00:00:  ⨯ The requested resource isn't a valid image for /SentinelIQ-M.png received null
+2025-09-18 07:07 +00:00:  ⨯ The requested resource isn't a valid image for /SentinelIQ-M.png received null
+2025-09-18 07:08 +00:00:  ⨯ The requested resource isn't a valid image for /SentinelIQ-M.png received null
+2025-09-18 07:08 +00:00:  ⨯ The requested resource isn't a valid image for /SentinelIQ-M.png received null
+2025-09-18 07:11 +00:00: node:internal/modules/cjs/loader:1137
+2025-09-18 07:11 +00:00:   throw err;
+2025-09-18 07:11 +00:00:   ^
+2025-09-18 07:11 +00:00: 
+2025-09-18 07:11 +00:00: Error: Cannot find module '/home/ubuntu/ioc/ioc-analyzer/.next/standalone/server.js'
+2025-09-18 07:11 +00:00:     at Module._resolveFilename (node:internal/modules/cjs/loader:1134:15)
+2025-09-18 07:11 +00:00:     at Module._load (node:internal/modules/cjs/loader:975:27)
+2025-09-18 07:11 +00:00:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-09-18 07:11 +00:00:     at node:internal/main/run_main_module:28:49 {
+2025-09-18 07:11 +00:00:   code: 'MODULE_NOT_FOUND',
+2025-09-18 07:11 +00:00:   requireStack: []
+2025-09-18 07:11 +00:00: }
+2025-09-18 07:11 +00:00: 
+2025-09-18 07:11 +00:00: Node.js v18.19.1
+2025-09-18 07:12 +00:00: node:internal/modules/cjs/loader:1137
+2025-09-18 07:12 +00:00:   throw err;
+2025-09-18 07:12 +00:00:   ^
+2025-09-18 07:12 +00:00: 
+2025-09-18 07:12 +00:00: Error: Cannot find module '/home/ubuntu/ioc/ioc-analyzer/.next/standalone/server.js'
+2025-09-18 07:12 +00:00:     at Module._resolveFilename (node:internal/modules/cjs/loader:1134:15)
+2025-09-18 07:12 +00:00:     at Module._load (node:internal/modules/cjs/loader:975:27)
+2025-09-18 07:12 +00:00:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-09-18 07:12 +00:00:     at node:internal/main/run_main_module:28:49 {
+2025-09-18 07:12 +00:00:   code: 'MODULE_NOT_FOUND',
+2025-09-18 07:12 +00:00:   requireStack: []
+2025-09-18 07:12 +00:00: }
+2025-09-18 07:12 +00:00: 
+2025-09-18 07:12 +00:00: Node.js v18.19.1
+2025-09-18 07:12 +00:00: node:internal/modules/cjs/loader:1137
+2025-09-18 07:12 +00:00:   throw err;
+2025-09-18 07:12 +00:00:   ^
+2025-09-18 07:12 +00:00: 
+2025-09-18 07:12 +00:00: Error: Cannot find module '/home/ubuntu/ioc/ioc-analyzer/.next/standalone/server.js'
+2025-09-18 07:12 +00:00:     at Module._resolveFilename (node:internal/modules/cjs/loader:1134:15)
+2025-09-18 07:12 +00:00:     at Module._load (node:internal/modules/cjs/loader:975:27)
+2025-09-18 07:12 +00:00:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-09-18 07:12 +00:00:     at node:internal/main/run_main_module:28:49 {
+2025-09-18 07:12 +00:00:   code: 'MODULE_NOT_FOUND',
+2025-09-18 07:12 +00:00:   requireStack: []
+2025-09-18 07:12 +00:00: }
+2025-09-18 07:12 +00:00: 
+2025-09-18 07:12 +00:00: Node.js v18.19.1
+2025-09-18 07:12 +00:00: node:internal/modules/cjs/loader:1137
+2025-09-18 07:12 +00:00:   throw err;
+2025-09-18 07:12 +00:00:   ^
+2025-09-18 07:12 +00:00: 
+2025-09-18 07:12 +00:00: Error: Cannot find module '/home/ubuntu/ioc/ioc-analyzer/.next/standalone/server.js'
+2025-09-18 07:12 +00:00:     at Module._resolveFilename (node:internal/modules/cjs/loader:1134:15)
+2025-09-18 07:12 +00:00:     at Module._load (node:internal/modules/cjs/loader:975:27)
+2025-09-18 07:12 +00:00:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-09-18 07:12 +00:00:     at node:internal/main/run_main_module:28:49 {
+2025-09-18 07:12 +00:00:   code: 'MODULE_NOT_FOUND',
+2025-09-18 07:12 +00:00:   requireStack: []
+2025-09-18 07:12 +00:00: }
+2025-09-18 07:12 +00:00: 
+2025-09-18 07:12 +00:00: Node.js v18.19.1
+2025-09-18 07:12 +00:00: node:internal/modules/cjs/loader:1137
+2025-09-18 07:12 +00:00:   throw err;
+2025-09-18 07:12 +00:00:   ^
+2025-09-18 07:12 +00:00: 
+2025-09-18 07:12 +00:00: Error: Cannot find module '/home/ubuntu/ioc/ioc-analyzer/.next/standalone/server.js'
+2025-09-18 07:12 +00:00:     at Module._resolveFilename (node:internal/modules/cjs/loader:1134:15)
+2025-09-18 07:12 +00:00:     at Module._load (node:internal/modules/cjs/loader:975:27)
+2025-09-18 07:12 +00:00:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-09-18 07:12 +00:00:     at node:internal/main/run_main_module:28:49 {
+2025-09-18 07:12 +00:00:   code: 'MODULE_NOT_FOUND',
+2025-09-18 07:12 +00:00:   requireStack: []
+2025-09-18 07:12 +00:00: }
+2025-09-18 07:12 +00:00: 
+2025-09-18 07:12 +00:00: Node.js v18.19.1
+2025-09-18 07:12 +00:00: node:internal/modules/cjs/loader:1137
+2025-09-18 07:12 +00:00:   throw err;
+2025-09-18 07:12 +00:00:   ^
+2025-09-18 07:12 +00:00: 
+2025-09-18 07:12 +00:00: Error: Cannot find module '/home/ubuntu/ioc/ioc-analyzer/.next/standalone/server.js'
+2025-09-18 07:12 +00:00:     at Module._resolveFilename (node:internal/modules/cjs/loader:1134:15)
+2025-09-18 07:12 +00:00:     at Module._load (node:internal/modules/cjs/loader:975:27)
+2025-09-18 07:12 +00:00:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-09-18 07:12 +00:00:     at node:internal/main/run_main_module:28:49 {
+2025-09-18 07:12 +00:00:   code: 'MODULE_NOT_FOUND',
+2025-09-18 07:12 +00:00:   requireStack: []
+2025-09-18 07:12 +00:00: }
+2025-09-18 07:12 +00:00: 
+2025-09-18 07:12 +00:00: Node.js v18.19.1
+2025-09-18 07:12 +00:00: node:internal/modules/cjs/loader:1137
+2025-09-18 07:12 +00:00:   throw err;
+2025-09-18 07:12 +00:00:   ^
+2025-09-18 07:12 +00:00: 
+2025-09-18 07:12 +00:00: Error: Cannot find module '/home/ubuntu/ioc/ioc-analyzer/.next/standalone/server.js'
+2025-09-18 07:12 +00:00:     at Module._resolveFilename (node:internal/modules/cjs/loader:1134:15)
+2025-09-18 07:12 +00:00:     at Module._load (node:internal/modules/cjs/loader:975:27)
+2025-09-18 07:12 +00:00:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-09-18 07:12 +00:00:     at node:internal/main/run_main_module:28:49 {
+2025-09-18 07:12 +00:00:   code: 'MODULE_NOT_FOUND',
+2025-09-18 07:12 +00:00:   requireStack: []
+2025-09-18 07:12 +00:00: }
+2025-09-18 07:12 +00:00: 
+2025-09-18 07:12 +00:00: Node.js v18.19.1
+2025-09-18 07:12 +00:00: node:internal/modules/cjs/loader:1137
+2025-09-18 07:12 +00:00:   throw err;
+2025-09-18 07:12 +00:00:   ^
+2025-09-18 07:12 +00:00: 
+2025-09-18 07:12 +00:00: Error: Cannot find module '/home/ubuntu/ioc/ioc-analyzer/.next/standalone/server.js'
+2025-09-18 07:12 +00:00:     at Module._resolveFilename (node:internal/modules/cjs/loader:1134:15)
+2025-09-18 07:12 +00:00:     at Module._load (node:internal/modules/cjs/loader:975:27)
+2025-09-18 07:12 +00:00:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-09-18 07:12 +00:00:     at node:internal/main/run_main_module:28:49 {
+2025-09-18 07:12 +00:00:   code: 'MODULE_NOT_FOUND',
+2025-09-18 07:12 +00:00:   requireStack: []
+2025-09-18 07:12 +00:00: }
+2025-09-18 07:12 +00:00: 
+2025-09-18 07:12 +00:00: Node.js v18.19.1
+2025-09-18 07:12 +00:00: node:internal/modules/cjs/loader:1137
+2025-09-18 07:12 +00:00:   throw err;
+2025-09-18 07:12 +00:00:   ^
+2025-09-18 07:12 +00:00: 
+2025-09-18 07:12 +00:00: Error: Cannot find module '/home/ubuntu/ioc/ioc-analyzer/.next/standalone/server.js'
+2025-09-18 07:12 +00:00:     at Module._resolveFilename (node:internal/modules/cjs/loader:1134:15)
+2025-09-18 07:12 +00:00:     at Module._load (node:internal/modules/cjs/loader:975:27)
+2025-09-18 07:12 +00:00:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-09-18 07:12 +00:00:     at node:internal/main/run_main_module:28:49 {
+2025-09-18 07:12 +00:00:   code: 'MODULE_NOT_FOUND',
+2025-09-18 07:12 +00:00:   requireStack: []
+2025-09-18 07:12 +00:00: }
+2025-09-18 07:12 +00:00: 
+2025-09-18 07:12 +00:00: Node.js v18.19.1
+2025-09-18 07:12 +00:00: node:internal/modules/cjs/loader:1137
+2025-09-18 07:12 +00:00:   throw err;
+2025-09-18 07:12 +00:00:   ^
+2025-09-18 07:12 +00:00: 
+2025-09-18 07:12 +00:00: Error: Cannot find module '/home/ubuntu/ioc/ioc-analyzer/.next/standalone/server.js'
+2025-09-18 07:12 +00:00:     at Module._resolveFilename (node:internal/modules/cjs/loader:1134:15)
+2025-09-18 07:12 +00:00:     at Module._load (node:internal/modules/cjs/loader:975:27)
+2025-09-18 07:12 +00:00:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-09-18 07:12 +00:00:     at node:internal/main/run_main_module:28:49 {
+2025-09-18 07:12 +00:00:   code: 'MODULE_NOT_FOUND',
+2025-09-18 07:12 +00:00:   requireStack: []
+2025-09-18 07:12 +00:00: }
+2025-09-18 07:12 +00:00: 
+2025-09-18 07:12 +00:00: Node.js v18.19.1
+2025-10-09 11:55 +00:00:  ⚠ "next start" does not work with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.
+2025-10-09 15:27 +00:00:  ⚠ "next start" does not work with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.
+2025-10-10 13:22 +00:00: ❌ Network graph generation error: TypeError: Cannot read properties of undefined (reading 'normalized')
+2025-10-10 13:22 +00:00:     at <unknown> (.next/server/app/api/graph/network/route.js:1:4226)
+2025-10-10 13:22 +00:00:     at Array.map (<anonymous>)
+2025-10-10 13:22 +00:00:     at y (.next/server/app/api/graph/network/route.js:1:4102)
+2025-10-10 13:22 +00:00:     at z (.next/server/app/api/graph/network/route.js:1:5112)
+2025-10-10 13:22 +00:00:     at async k (.next/server/app/api/graph/network/route.js:1:9562)
+2025-10-10 13:22 +00:00:     at async g (.next/server/app/api/graph/network/route.js:1:10565)
+2025-10-10 13:22 +00:00: ❌ Network graph generation error: TypeError: Cannot read properties of undefined (reading 'normalized')
+2025-10-10 13:22 +00:00:     at <unknown> (.next/server/app/api/graph/network/route.js:1:4226)
+2025-10-10 13:22 +00:00:     at Array.map (<anonymous>)
+2025-10-10 13:22 +00:00:     at y (.next/server/app/api/graph/network/route.js:1:4102)
+2025-10-10 13:22 +00:00:     at z (.next/server/app/api/graph/network/route.js:1:5112)
+2025-10-10 13:22 +00:00:     at async k (.next/server/app/api/graph/network/route.js:1:9562)
+2025-10-10 13:22 +00:00:     at async g (.next/server/app/api/graph/network/route.js:1:10565)
+2025-10-10 13:23 +00:00: ❌ Network graph generation error: TypeError: Cannot read properties of undefined (reading 'normalized')
+2025-10-10 13:23 +00:00:     at <unknown> (.next/server/app/api/graph/network/route.js:1:4226)
+2025-10-10 13:23 +00:00:     at Array.map (<anonymous>)
+2025-10-10 13:23 +00:00:     at y (.next/server/app/api/graph/network/route.js:1:4102)
+2025-10-10 13:23 +00:00:     at z (.next/server/app/api/graph/network/route.js:1:5112)
+2025-10-10 13:23 +00:00:     at async k (.next/server/app/api/graph/network/route.js:1:9562)
+2025-10-10 13:23 +00:00:     at async g (.next/server/app/api/graph/network/route.js:1:10565)
+2025-11-04 08:03 +00:00: ❌ Error processing IOC 112.5.67.86: [MongoServerError: E11000 duplicate key error collection: test.iocs index: ioc_1_type_1 dup key: { ioc: "112.5.67.86", type: "ip" }] {
+2025-11-04 08:03 +00:00:   errorLabelSet: Set(0) {},
+2025-11-04 08:03 +00:00:   errorResponse: [Object],
+2025-11-04 08:03 +00:00:   index: 0,
+2025-11-04 08:03 +00:00:   code: 11000,
+2025-11-04 08:03 +00:00:   keyPattern: [Object],
+2025-11-04 08:03 +00:00:   keyValue: [Object]
+2025-11-04 08:03 +00:00: }
+2025-11-04 10:33 +00:00: ❌ Network graph generation error: TypeError: Cannot read properties of undefined (reading 'normalized')
+2025-11-04 10:33 +00:00:     at <unknown> (.next/server/app/api/graph/network/route.js:1:4226)
+2025-11-04 10:33 +00:00:     at Array.map (<anonymous>)
+2025-11-04 10:33 +00:00:     at y (.next/server/app/api/graph/network/route.js:1:4102)
+2025-11-04 10:33 +00:00:     at z (.next/server/app/api/graph/network/route.js:1:5112)
+2025-11-04 10:33 +00:00:     at async k (.next/server/app/api/graph/network/route.js:1:9562)
+2025-11-04 10:33 +00:00:     at async g (.next/server/app/api/graph/network/route.js:1:10565)
+2025-11-04 10:33 +00:00: ❌ Network graph generation error: TypeError: Cannot read properties of undefined (reading 'normalized')
+2025-11-04 10:33 +00:00:     at <unknown> (.next/server/app/api/graph/network/route.js:1:4226)
+2025-11-04 10:33 +00:00:     at Array.map (<anonymous>)
+2025-11-04 10:33 +00:00:     at y (.next/server/app/api/graph/network/route.js:1:4102)
+2025-11-04 10:33 +00:00:     at z (.next/server/app/api/graph/network/route.js:1:5112)
+2025-11-04 10:33 +00:00:     at async k (.next/server/app/api/graph/network/route.js:1:9562)
+2025-11-04 10:33 +00:00:     at async g (.next/server/app/api/graph/network/route.js:1:10565)
+2025-11-04 10:33 +00:00: ❌ Network graph generation error: TypeError: Cannot read properties of undefined (reading 'normalized')
+2025-11-04 10:33 +00:00:     at <unknown> (.next/server/app/api/graph/network/route.js:1:4226)
+2025-11-04 10:33 +00:00:     at Array.map (<anonymous>)
+2025-11-04 10:33 +00:00:     at y (.next/server/app/api/graph/network/route.js:1:4102)
+2025-11-04 10:33 +00:00:     at z (.next/server/app/api/graph/network/route.js:1:5112)
+2025-11-04 10:33 +00:00:     at async k (.next/server/app/api/graph/network/route.js:1:9562)
+2025-11-04 10:33 +00:00:     at async g (.next/server/app/api/graph/network/route.js:1:10565)
+2025-11-04 10:33 +00:00: ❌ Network graph generation error: TypeError: Cannot read properties of undefined (reading 'normalized')
+2025-11-04 10:33 +00:00:     at <unknown> (.next/server/app/api/graph/network/route.js:1:4226)
+2025-11-04 10:33 +00:00:     at Array.map (<anonymous>)
+2025-11-04 10:33 +00:00:     at y (.next/server/app/api/graph/network/route.js:1:4102)
+2025-11-04 10:33 +00:00:     at z (.next/server/app/api/graph/network/route.js:1:5112)
+2025-11-04 10:33 +00:00:     at async k (.next/server/app/api/graph/network/route.js:1:9562)
+2025-11-04 10:33 +00:00:     at async g (.next/server/app/api/graph/network/route.js:1:10565)
+2025-11-04 10:33 +00:00: ❌ Network graph generation error: TypeError: Cannot read properties of undefined (reading 'normalized')
+2025-11-04 10:33 +00:00:     at <unknown> (.next/server/app/api/graph/network/route.js:1:4226)
+2025-11-04 10:33 +00:00:     at Array.map (<anonymous>)
+2025-11-04 10:33 +00:00:     at y (.next/server/app/api/graph/network/route.js:1:4102)
+2025-11-04 10:33 +00:00:     at z (.next/server/app/api/graph/network/route.js:1:5112)
+2025-11-04 10:33 +00:00:     at async k (.next/server/app/api/graph/network/route.js:1:9562)
+2025-11-04 10:33 +00:00:     at async g (.next/server/app/api/graph/network/route.js:1:10565)
+2025-11-04 10:33 +00:00: ❌ Network graph generation error: TypeError: Cannot read properties of undefined (reading 'normalized')
+2025-11-04 10:33 +00:00:     at <unknown> (.next/server/app/api/graph/network/route.js:1:4226)
+2025-11-04 10:33 +00:00:     at Array.map (<anonymous>)
+2025-11-04 10:33 +00:00:     at y (.next/server/app/api/graph/network/route.js:1:4102)
+2025-11-04 10:33 +00:00:     at z (.next/server/app/api/graph/network/route.js:1:5112)
+2025-11-04 10:33 +00:00:     at async k (.next/server/app/api/graph/network/route.js:1:9562)
+2025-11-04 10:33 +00:00:     at async g (.next/server/app/api/graph/network/route.js:1:10565)
+2025-11-04 10:33 +00:00: Error checking for updates: TypeError: Invalid state: Controller is already closed
+2025-11-04 10:33 +00:00:     at e (.next/server/app/api/history/stream/route.js:5:132) {
+2025-11-04 10:33 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-04 10:33 +00:00: }
+2025-11-04 10:33 +00:00: TypeError: Invalid state: Controller is already closed
+2025-11-04 10:33 +00:00:     at e (.next/server/app/api/history/stream/route.js:7:63) {
+2025-11-04 10:33 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-04 10:33 +00:00: }
+2025-11-04 10:33 +00:00:  ⨯ unhandledRejection:  TypeError: Invalid state: Controller is already closed
+2025-11-04 10:33 +00:00:     at e (.next/server/app/api/history/stream/route.js:7:63) {
+2025-11-04 10:33 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-04 10:33 +00:00: }
+2025-11-04 10:46 +00:00: ❌ Network graph generation error: TypeError: Cannot read properties of undefined (reading 'normalized')
+2025-11-04 10:46 +00:00:     at <unknown> (.next/server/app/api/graph/network/route.js:1:4226)
+2025-11-04 10:46 +00:00:     at Array.map (<anonymous>)
+2025-11-04 10:46 +00:00:     at y (.next/server/app/api/graph/network/route.js:1:4102)
+2025-11-04 10:46 +00:00:     at z (.next/server/app/api/graph/network/route.js:1:5112)
+2025-11-04 10:46 +00:00:     at async k (.next/server/app/api/graph/network/route.js:1:9562)
+2025-11-04 10:46 +00:00:     at async g (.next/server/app/api/graph/network/route.js:1:10565)
+2025-11-04 10:46 +00:00: ❌ Network graph generation error: TypeError: Cannot read properties of undefined (reading 'normalized')
+2025-11-04 10:46 +00:00:     at <unknown> (.next/server/app/api/graph/network/route.js:1:4226)
+2025-11-04 10:46 +00:00:     at Array.map (<anonymous>)
+2025-11-04 10:46 +00:00:     at y (.next/server/app/api/graph/network/route.js:1:4102)
+2025-11-04 10:46 +00:00:     at z (.next/server/app/api/graph/network/route.js:1:5112)
+2025-11-04 10:46 +00:00:     at async k (.next/server/app/api/graph/network/route.js:1:9562)
+2025-11-04 10:46 +00:00:     at async g (.next/server/app/api/graph/network/route.js:1:10565)
+2025-11-04 10:47 +00:00: ❌ Error processing IOC 100.38.210.187: [MongoServerError: E11000 duplicate key error collection: test.iocs index: ioc_1_type_1 dup key: { ioc: "100.38.210.187", type: "ip" }] {
+2025-11-04 10:47 +00:00:   errorLabelSet: Set(0) {},
+2025-11-04 10:47 +00:00:   errorResponse: [Object],
+2025-11-04 10:47 +00:00:   index: 0,
+2025-11-04 10:47 +00:00:   code: 11000,
+2025-11-04 10:47 +00:00:   keyPattern: [Object],
+2025-11-04 10:47 +00:00:   keyValue: [Object]
+2025-11-04 10:47 +00:00: }
+2025-11-04 10:49 +00:00: (node:1453) ExperimentalWarning: buffer.File is an experimental feature and might change at any time
+2025-11-04 10:49 +00:00: (Use `node --trace-warnings ...` to show where the warning was created)
+2025-11-04 10:49 +00:00: Failed to store analysis result: Error: IOC validation failed: ioc: Path `ioc` is required.
+2025-11-04 10:49 +00:00:     at I (.next/server/app/api/file-analysis/route.js:1:16240)
+2025-11-04 10:49 +00:00:     at async J (.next/server/app/api/file-analysis/route.js:1:16898) {
+2025-11-04 10:49 +00:00:   errors: [Object],
+2025-11-04 10:49 +00:00:   _message: 'IOC validation failed'
+2025-11-04 10:49 +00:00: }
+2025-11-04 10:50 +00:00: Failed to store analysis result: Error: IOC validation failed: ioc: Path `ioc` is required.
+2025-11-04 10:50 +00:00:     at I (.next/server/app/api/file-analysis/route.js:1:16240)
+2025-11-04 10:50 +00:00:     at async J (.next/server/app/api/file-analysis/route.js:1:16898) {
+2025-11-04 10:50 +00:00:   errors: [Object],
+2025-11-04 10:50 +00:00:   _message: 'IOC validation failed'
+2025-11-04 10:50 +00:00: }
+2025-11-04 10:51 +00:00: Failed to store analysis result: Error: IOC validation failed: ioc: Path `ioc` is required.
+2025-11-04 10:51 +00:00:     at I (.next/server/app/api/file-analysis/route.js:1:16240)
+2025-11-04 10:51 +00:00:     at async J (.next/server/app/api/file-analysis/route.js:1:16898) {
+2025-11-04 10:51 +00:00:   errors: [Object],
+2025-11-04 10:51 +00:00:   _message: 'IOC validation failed'
+2025-11-04 10:51 +00:00: }
+2025-11-04 10:51 +00:00: Failed to store analysis result: Error: IOC validation failed: ioc: Path `ioc` is required.
+2025-11-04 10:51 +00:00:     at I (.next/server/app/api/file-analysis/route.js:1:16240)
+2025-11-04 10:51 +00:00:     at async J (.next/server/app/api/file-analysis/route.js:1:16898) {
+2025-11-04 10:51 +00:00:   errors: [Object],
+2025-11-04 10:51 +00:00:   _message: 'IOC validation failed'
+2025-11-04 10:51 +00:00: }
+2025-11-04 10:52 +00:00: Failed to store analysis result: Error: IOC validation failed: ioc: Path `ioc` is required.
+2025-11-04 10:52 +00:00:     at I (.next/server/app/api/file-analysis/route.js:1:16240)
+2025-11-04 10:52 +00:00:     at async J (.next/server/app/api/file-analysis/route.js:1:16898) {
+2025-11-04 10:52 +00:00:   errors: [Object],
+2025-11-04 10:52 +00:00:   _message: 'IOC validation failed'
+2025-11-04 10:52 +00:00: }
+2025-11-04 11:03 +00:00: TypeError: Invalid state: Controller is already closed
+2025-11-04 11:03 +00:00:     at Timeout.g [as _onTimeout] (.next/server/app/api/history/stream/route.js:9:62) {
+2025-11-04 11:03 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-04 11:03 +00:00: }
+2025-11-04 11:03 +00:00:  ⨯ uncaughtException:  TypeError: Invalid state: Controller is already closed
+2025-11-04 11:03 +00:00:     at Timeout.g [as _onTimeout] (.next/server/app/api/history/stream/route.js:9:62) {
+2025-11-04 11:03 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-04 11:03 +00:00: }
+2025-11-04 11:03 +00:00: TypeError: Invalid state: Controller is already closed
+2025-11-04 11:03 +00:00:     at Timeout.g [as _onTimeout] (.next/server/app/api/history/stream/route.js:9:62) {
+2025-11-04 11:03 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-04 11:03 +00:00: }
+2025-11-04 11:03 +00:00:  ⨯ uncaughtException:  TypeError: Invalid state: Controller is already closed
+2025-11-04 11:03 +00:00:     at Timeout.g [as _onTimeout] (.next/server/app/api/history/stream/route.js:9:62) {
+2025-11-04 11:03 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-04 11:03 +00:00: }
+2025-11-05 04:18 +00:00: Failed to store analysis result: Error: IOC validation failed: ioc: Path `ioc` is required.
+2025-11-05 04:18 +00:00:     at I (.next/server/app/api/file-analysis/route.js:1:16240)
+2025-11-05 04:18 +00:00:     at async J (.next/server/app/api/file-analysis/route.js:1:16898) {
+2025-11-05 04:18 +00:00:   errors: [Object],
+2025-11-05 04:18 +00:00:   _message: 'IOC validation failed'
+2025-11-05 04:18 +00:00: }
+2025-11-05 04:19 +00:00: ❌ Network graph generation error: TypeError: Cannot read properties of undefined (reading 'normalized')
+2025-11-05 04:19 +00:00:     at <unknown> (.next/server/app/api/graph/network/route.js:1:4226)
+2025-11-05 04:19 +00:00:     at Array.map (<anonymous>)
+2025-11-05 04:19 +00:00:     at y (.next/server/app/api/graph/network/route.js:1:4102)
+2025-11-05 04:19 +00:00:     at z (.next/server/app/api/graph/network/route.js:1:5112)
+2025-11-05 04:19 +00:00:     at async k (.next/server/app/api/graph/network/route.js:1:9562)
+2025-11-05 04:19 +00:00:     at async g (.next/server/app/api/graph/network/route.js:1:10565)
+2025-11-05 04:19 +00:00: ❌ Network graph generation error: TypeError: Cannot read properties of undefined (reading 'normalized')
+2025-11-05 04:19 +00:00:     at <unknown> (.next/server/app/api/graph/network/route.js:1:4226)
+2025-11-05 04:19 +00:00:     at Array.map (<anonymous>)
+2025-11-05 04:19 +00:00:     at y (.next/server/app/api/graph/network/route.js:1:4102)
+2025-11-05 04:19 +00:00:     at z (.next/server/app/api/graph/network/route.js:1:5112)
+2025-11-05 04:19 +00:00:     at async k (.next/server/app/api/graph/network/route.js:1:9562)
+2025-11-05 04:19 +00:00:     at async g (.next/server/app/api/graph/network/route.js:1:10565)
+2025-11-05 04:20 +00:00: Error checking for updates: TypeError: Invalid state: Controller is already closed
+2025-11-05 04:20 +00:00:     at e (.next/server/app/api/history/stream/route.js:5:132) {
+2025-11-05 04:20 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-05 04:20 +00:00: }
+2025-11-05 04:20 +00:00: TypeError: Invalid state: Controller is already closed
+2025-11-05 04:20 +00:00:     at e (.next/server/app/api/history/stream/route.js:7:63) {
+2025-11-05 04:20 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-05 04:20 +00:00: }
+2025-11-05 04:20 +00:00:  ⨯ unhandledRejection:  TypeError: Invalid state: Controller is already closed
+2025-11-05 04:20 +00:00:     at e (.next/server/app/api/history/stream/route.js:7:63) {
+2025-11-05 04:20 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-05 04:20 +00:00: }
+2025-11-05 04:20 +00:00: Error checking for updates: TypeError: Invalid state: Controller is already closed
+2025-11-05 04:20 +00:00:     at e (.next/server/app/api/history/stream/route.js:5:132) {
+2025-11-05 04:20 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-05 04:20 +00:00: }
+2025-11-05 04:20 +00:00: TypeError: Invalid state: Controller is already closed
+2025-11-05 04:20 +00:00:     at e (.next/server/app/api/history/stream/route.js:7:63) {
+2025-11-05 04:20 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-05 04:20 +00:00: }
+2025-11-05 04:20 +00:00:  ⨯ unhandledRejection:  TypeError: Invalid state: Controller is already closed
+2025-11-05 04:20 +00:00:     at e (.next/server/app/api/history/stream/route.js:7:63) {
+2025-11-05 04:20 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-05 04:20 +00:00: }
+2025-11-05 04:50 +00:00: TypeError: Invalid state: Controller is already closed
+2025-11-05 04:50 +00:00:     at Timeout.g [as _onTimeout] (.next/server/app/api/history/stream/route.js:9:62) {
+2025-11-05 04:50 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-05 04:50 +00:00: }
+2025-11-05 04:50 +00:00:  ⨯ uncaughtException:  TypeError: Invalid state: Controller is already closed
+2025-11-05 04:50 +00:00:     at Timeout.g [as _onTimeout] (.next/server/app/api/history/stream/route.js:9:62) {
+2025-11-05 04:50 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-05 04:50 +00:00: }
+2025-11-05 04:50 +00:00: TypeError: Invalid state: Controller is already closed
+2025-11-05 04:50 +00:00:     at Timeout.g [as _onTimeout] (.next/server/app/api/history/stream/route.js:9:62) {
+2025-11-05 04:50 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-05 04:50 +00:00: }
+2025-11-05 04:50 +00:00:  ⨯ uncaughtException:  TypeError: Invalid state: Controller is already closed
+2025-11-05 04:50 +00:00:     at Timeout.g [as _onTimeout] (.next/server/app/api/history/stream/route.js:9:62) {
+2025-11-05 04:50 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-05 04:50 +00:00: }
+2025-11-05 15:34 +00:00: ❌ Network graph generation error: TypeError: Cannot read properties of undefined (reading 'normalized')
+2025-11-05 15:34 +00:00:     at <unknown> (.next/server/app/api/graph/network/route.js:1:4226)
+2025-11-05 15:34 +00:00:     at Array.map (<anonymous>)
+2025-11-05 15:34 +00:00:     at y (.next/server/app/api/graph/network/route.js:1:4102)
+2025-11-05 15:34 +00:00:     at z (.next/server/app/api/graph/network/route.js:1:5112)
+2025-11-05 15:34 +00:00:     at async k (.next/server/app/api/graph/network/route.js:1:9562)
+2025-11-05 15:34 +00:00:     at async g (.next/server/app/api/graph/network/route.js:1:10565)
+2025-11-05 15:34 +00:00: ❌ Network graph generation error: TypeError: Cannot read properties of undefined (reading 'normalized')
+2025-11-05 15:34 +00:00:     at <unknown> (.next/server/app/api/graph/network/route.js:1:4226)
+2025-11-05 15:34 +00:00:     at Array.map (<anonymous>)
+2025-11-05 15:34 +00:00:     at y (.next/server/app/api/graph/network/route.js:1:4102)
+2025-11-05 15:34 +00:00:     at z (.next/server/app/api/graph/network/route.js:1:5112)
+2025-11-05 15:34 +00:00:     at async k (.next/server/app/api/graph/network/route.js:1:9562)
+2025-11-05 15:34 +00:00:     at async g (.next/server/app/api/graph/network/route.js:1:10565)
+2025-11-05 17:27 +00:00: ❌ Network graph generation error: TypeError: Cannot read properties of undefined (reading 'normalized')
+2025-11-05 17:27 +00:00:     at <unknown> (.next/server/app/api/graph/network/route.js:1:4226)
+2025-11-05 17:27 +00:00:     at Array.map (<anonymous>)
+2025-11-05 17:27 +00:00:     at y (.next/server/app/api/graph/network/route.js:1:4102)
+2025-11-05 17:27 +00:00:     at z (.next/server/app/api/graph/network/route.js:1:5112)
+2025-11-05 17:27 +00:00:     at async k (.next/server/app/api/graph/network/route.js:1:9562)
+2025-11-05 17:27 +00:00:     at async g (.next/server/app/api/graph/network/route.js:1:10565)
+2025-11-05 17:27 +00:00: ❌ Network graph generation error: TypeError: Cannot read properties of undefined (reading 'normalized')
+2025-11-05 17:27 +00:00:     at <unknown> (.next/server/app/api/graph/network/route.js:1:4226)
+2025-11-05 17:27 +00:00:     at Array.map (<anonymous>)
+2025-11-05 17:27 +00:00:     at y (.next/server/app/api/graph/network/route.js:1:4102)
+2025-11-05 17:27 +00:00:     at z (.next/server/app/api/graph/network/route.js:1:5112)
+2025-11-05 17:27 +00:00:     at async k (.next/server/app/api/graph/network/route.js:1:9562)
+2025-11-05 17:27 +00:00:     at async g (.next/server/app/api/graph/network/route.js:1:10565)
+2025-11-05 17:27 +00:00: Error checking for updates: TypeError: Invalid state: Controller is already closed
+2025-11-05 17:27 +00:00:     at e (.next/server/app/api/history/stream/route.js:5:132) {
+2025-11-05 17:27 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-05 17:27 +00:00: }
+2025-11-05 17:27 +00:00: TypeError: Invalid state: Controller is already closed
+2025-11-05 17:27 +00:00:     at e (.next/server/app/api/history/stream/route.js:7:63) {
+2025-11-05 17:27 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-05 17:27 +00:00: }
+2025-11-05 17:27 +00:00:  ⨯ unhandledRejection:  TypeError: Invalid state: Controller is already closed
+2025-11-05 17:27 +00:00:     at e (.next/server/app/api/history/stream/route.js:7:63) {
+2025-11-05 17:27 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-05 17:27 +00:00: }
+2025-11-05 17:27 +00:00: Error checking for updates: TypeError: Invalid state: Controller is already closed
+2025-11-05 17:27 +00:00:     at e (.next/server/app/api/history/stream/route.js:5:132) {
+2025-11-05 17:27 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-05 17:27 +00:00: }
+2025-11-05 17:27 +00:00: TypeError: Invalid state: Controller is already closed
+2025-11-05 17:27 +00:00:     at e (.next/server/app/api/history/stream/route.js:7:63) {
+2025-11-05 17:27 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-05 17:27 +00:00: }
+2025-11-05 17:27 +00:00:  ⨯ unhandledRejection:  TypeError: Invalid state: Controller is already closed
+2025-11-05 17:27 +00:00:     at e (.next/server/app/api/history/stream/route.js:7:63) {
+2025-11-05 17:27 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-05 17:27 +00:00: }
+2025-11-05 17:57 +00:00: TypeError: Invalid state: Controller is already closed
+2025-11-05 17:57 +00:00:     at Timeout.g [as _onTimeout] (.next/server/app/api/history/stream/route.js:9:62) {
+2025-11-05 17:57 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-05 17:57 +00:00: }
+2025-11-05 17:57 +00:00:  ⨯ uncaughtException:  TypeError: Invalid state: Controller is already closed
+2025-11-05 17:57 +00:00:     at Timeout.g [as _onTimeout] (.next/server/app/api/history/stream/route.js:9:62) {
+2025-11-05 17:57 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-05 17:57 +00:00: }
+2025-11-05 17:57 +00:00: TypeError: Invalid state: Controller is already closed
+2025-11-05 17:57 +00:00:     at Timeout.g [as _onTimeout] (.next/server/app/api/history/stream/route.js:9:62) {
+2025-11-05 17:57 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-05 17:57 +00:00: }
+2025-11-05 17:57 +00:00:  ⨯ uncaughtException:  TypeError: Invalid state: Controller is already closed
+2025-11-05 17:57 +00:00:     at Timeout.g [as _onTimeout] (.next/server/app/api/history/stream/route.js:9:62) {
+2025-11-05 17:57 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-05 17:57 +00:00: }
+2025-11-08 09:08 +00:00: ❌ Error processing IOC 14d85bd5ea553e5ab32103b59568e81023fe72c017383506eb7702b90f0858ae: [MongoServerError: E11000 duplicate key error collection: test.iocs index: ioc_1_type_1 dup key: { ioc: "14d85bd5ea553e5ab32103b59568e81023fe72c017383506eb7702b90f0858ae", type: "hash" }] {
+2025-11-08 09:08 +00:00:   errorLabelSet: Set(0) {},
+2025-11-08 09:08 +00:00:   errorResponse: [Object],
+2025-11-08 09:08 +00:00:   index: 0,
+2025-11-08 09:08 +00:00:   code: 11000,
+2025-11-08 09:08 +00:00:   keyPattern: [Object],
+2025-11-08 09:08 +00:00:   keyValue: [Object]
+2025-11-08 09:08 +00:00: }
+2025-11-08 09:32 +00:00: ❌ Network graph generation error: TypeError: Cannot read properties of undefined (reading 'normalized')
+2025-11-08 09:32 +00:00:     at <unknown> (.next/server/app/api/graph/network/route.js:1:4226)
+2025-11-08 09:32 +00:00:     at Array.map (<anonymous>)
+2025-11-08 09:32 +00:00:     at y (.next/server/app/api/graph/network/route.js:1:4102)
+2025-11-08 09:32 +00:00:     at z (.next/server/app/api/graph/network/route.js:1:5112)
+2025-11-08 09:32 +00:00:     at async k (.next/server/app/api/graph/network/route.js:1:9562)
+2025-11-08 09:32 +00:00:     at async g (.next/server/app/api/graph/network/route.js:1:10565)
+2025-11-08 09:32 +00:00: ❌ Network graph generation error: TypeError: Cannot read properties of undefined (reading 'normalized')
+2025-11-08 09:32 +00:00:     at <unknown> (.next/server/app/api/graph/network/route.js:1:4226)
+2025-11-08 09:32 +00:00:     at Array.map (<anonymous>)
+2025-11-08 09:32 +00:00:     at y (.next/server/app/api/graph/network/route.js:1:4102)
+2025-11-08 09:32 +00:00:     at z (.next/server/app/api/graph/network/route.js:1:5112)
+2025-11-08 09:32 +00:00:     at async k (.next/server/app/api/graph/network/route.js:1:9562)
+2025-11-08 09:32 +00:00:     at async g (.next/server/app/api/graph/network/route.js:1:10565)
+2025-11-08 09:36 +00:00: ❌ Network graph generation error: TypeError: Cannot read properties of undefined (reading 'normalized')
+2025-11-08 09:36 +00:00:     at <unknown> (.next/server/app/api/graph/network/route.js:1:4226)
+2025-11-08 09:36 +00:00:     at Array.map (<anonymous>)
+2025-11-08 09:36 +00:00:     at y (.next/server/app/api/graph/network/route.js:1:4102)
+2025-11-08 09:36 +00:00:     at z (.next/server/app/api/graph/network/route.js:1:5112)
+2025-11-08 09:36 +00:00:     at async k (.next/server/app/api/graph/network/route.js:1:9562)
+2025-11-08 09:36 +00:00:     at async g (.next/server/app/api/graph/network/route.js:1:10565)
+2025-11-08 09:36 +00:00: ❌ Network graph generation error: TypeError: Cannot read properties of undefined (reading 'normalized')
+2025-11-08 09:36 +00:00:     at <unknown> (.next/server/app/api/graph/network/route.js:1:4226)
+2025-11-08 09:36 +00:00:     at Array.map (<anonymous>)
+2025-11-08 09:36 +00:00:     at y (.next/server/app/api/graph/network/route.js:1:4102)
+2025-11-08 09:36 +00:00:     at z (.next/server/app/api/graph/network/route.js:1:5112)
+2025-11-08 09:36 +00:00:     at async k (.next/server/app/api/graph/network/route.js:1:9562)
+2025-11-08 09:36 +00:00:     at async g (.next/server/app/api/graph/network/route.js:1:10565)
+2025-11-08 09:36 +00:00: ❌ Network graph generation error: TypeError: Cannot read properties of undefined (reading 'normalized')
+2025-11-08 09:36 +00:00:     at <unknown> (.next/server/app/api/graph/network/route.js:1:4226)
+2025-11-08 09:36 +00:00:     at Array.map (<anonymous>)
+2025-11-08 09:36 +00:00:     at y (.next/server/app/api/graph/network/route.js:1:4102)
+2025-11-08 09:36 +00:00:     at z (.next/server/app/api/graph/network/route.js:1:5112)
+2025-11-08 09:36 +00:00:     at async k (.next/server/app/api/graph/network/route.js:1:9562)
+2025-11-08 09:36 +00:00:     at async g (.next/server/app/api/graph/network/route.js:1:10565)
+2025-11-08 09:38 +00:00: ❌ Network graph generation error: TypeError: Cannot read properties of undefined (reading 'normalized')
+2025-11-08 09:38 +00:00:     at <unknown> (.next/server/app/api/graph/network/route.js:1:4226)
+2025-11-08 09:38 +00:00:     at Array.map (<anonymous>)
+2025-11-08 09:38 +00:00:     at y (.next/server/app/api/graph/network/route.js:1:4102)
+2025-11-08 09:38 +00:00:     at z (.next/server/app/api/graph/network/route.js:1:5112)
+2025-11-08 09:38 +00:00:     at async k (.next/server/app/api/graph/network/route.js:1:9562)
+2025-11-08 09:38 +00:00:     at async g (.next/server/app/api/graph/network/route.js:1:10565)
+2025-11-08 09:38 +00:00: ❌ Network graph generation error: TypeError: Cannot read properties of undefined (reading 'normalized')
+2025-11-08 09:38 +00:00:     at <unknown> (.next/server/app/api/graph/network/route.js:1:4226)
+2025-11-08 09:38 +00:00:     at Array.map (<anonymous>)
+2025-11-08 09:38 +00:00:     at y (.next/server/app/api/graph/network/route.js:1:4102)
+2025-11-08 09:38 +00:00:     at z (.next/server/app/api/graph/network/route.js:1:5112)
+2025-11-08 09:38 +00:00:     at async k (.next/server/app/api/graph/network/route.js:1:9562)
+2025-11-08 09:38 +00:00:     at async g (.next/server/app/api/graph/network/route.js:1:10565)
+2025-11-10 04:40 +00:00: ❌ Network graph generation error: TypeError: Cannot read properties of undefined (reading 'normalized')
+2025-11-10 04:40 +00:00:     at <unknown> (.next/server/app/api/graph/network/route.js:1:4226)
+2025-11-10 04:40 +00:00:     at Array.map (<anonymous>)
+2025-11-10 04:40 +00:00:     at y (.next/server/app/api/graph/network/route.js:1:4102)
+2025-11-10 04:40 +00:00:     at z (.next/server/app/api/graph/network/route.js:1:5112)
+2025-11-10 04:40 +00:00:     at async k (.next/server/app/api/graph/network/route.js:1:9562)
+2025-11-10 04:40 +00:00:     at async g (.next/server/app/api/graph/network/route.js:1:10565)
+2025-11-10 04:40 +00:00: ❌ Network graph generation error: TypeError: Cannot read properties of undefined (reading 'normalized')
+2025-11-10 04:40 +00:00:     at <unknown> (.next/server/app/api/graph/network/route.js:1:4226)
+2025-11-10 04:40 +00:00:     at Array.map (<anonymous>)
+2025-11-10 04:40 +00:00:     at y (.next/server/app/api/graph/network/route.js:1:4102)
+2025-11-10 04:40 +00:00:     at z (.next/server/app/api/graph/network/route.js:1:5112)
+2025-11-10 04:40 +00:00:     at async k (.next/server/app/api/graph/network/route.js:1:9562)
+2025-11-10 04:40 +00:00:     at async g (.next/server/app/api/graph/network/route.js:1:10565)
+2025-11-10 04:52 +00:00: ❌ Network graph generation error: TypeError: Cannot read properties of undefined (reading 'normalized')
+2025-11-10 04:52 +00:00:     at <unknown> (.next/server/app/api/graph/network/route.js:1:4226)
+2025-11-10 04:52 +00:00:     at Array.map (<anonymous>)
+2025-11-10 04:52 +00:00:     at y (.next/server/app/api/graph/network/route.js:1:4102)
+2025-11-10 04:52 +00:00:     at z (.next/server/app/api/graph/network/route.js:1:5112)
+2025-11-10 04:52 +00:00:     at async k (.next/server/app/api/graph/network/route.js:1:9562)
+2025-11-10 04:52 +00:00:     at async g (.next/server/app/api/graph/network/route.js:1:10565)
+2025-11-10 04:52 +00:00: ❌ Network graph generation error: TypeError: Cannot read properties of undefined (reading 'normalized')
+2025-11-10 04:52 +00:00:     at <unknown> (.next/server/app/api/graph/network/route.js:1:4226)
+2025-11-10 04:52 +00:00:     at Array.map (<anonymous>)
+2025-11-10 04:52 +00:00:     at y (.next/server/app/api/graph/network/route.js:1:4102)
+2025-11-10 04:52 +00:00:     at z (.next/server/app/api/graph/network/route.js:1:5112)
+2025-11-10 04:52 +00:00:     at async k (.next/server/app/api/graph/network/route.js:1:9562)
+2025-11-10 04:52 +00:00:     at async g (.next/server/app/api/graph/network/route.js:1:10565)
+2025-11-10 04:53 +00:00: Error checking for updates: TypeError: Invalid state: Controller is already closed
+2025-11-10 04:53 +00:00:     at Timeout.e (.next/server/app/api/history/stream/route.js:5:132) {
+2025-11-10 04:53 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-10 04:53 +00:00: }
+2025-11-10 04:53 +00:00: TypeError: Invalid state: Controller is already closed
+2025-11-10 04:53 +00:00:     at Timeout.e (.next/server/app/api/history/stream/route.js:7:63) {
+2025-11-10 04:53 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-10 04:53 +00:00: }
+2025-11-10 04:53 +00:00:  ⨯ unhandledRejection:  TypeError: Invalid state: Controller is already closed
+2025-11-10 04:53 +00:00:     at Timeout.e (.next/server/app/api/history/stream/route.js:7:63) {
+2025-11-10 04:53 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-10 04:53 +00:00: }
+2025-11-10 05:10 +00:00: TypeError: Invalid state: Controller is already closed
+2025-11-10 05:10 +00:00:     at Timeout.g [as _onTimeout] (.next/server/app/api/history/stream/route.js:9:62) {
+2025-11-10 05:10 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-10 05:10 +00:00: }
+2025-11-10 05:10 +00:00:  ⨯ uncaughtException:  TypeError: Invalid state: Controller is already closed
+2025-11-10 05:10 +00:00:     at Timeout.g [as _onTimeout] (.next/server/app/api/history/stream/route.js:9:62) {
+2025-11-10 05:10 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-10 05:10 +00:00: }
+2025-11-10 05:10 +00:00: TypeError: Invalid state: Controller is already closed
+2025-11-10 05:10 +00:00:     at Timeout.g [as _onTimeout] (.next/server/app/api/history/stream/route.js:9:62) {
+2025-11-10 05:10 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-10 05:10 +00:00: }
+2025-11-10 05:10 +00:00:  ⨯ uncaughtException:  TypeError: Invalid state: Controller is already closed
+2025-11-10 05:10 +00:00:     at Timeout.g [as _onTimeout] (.next/server/app/api/history/stream/route.js:9:62) {
+2025-11-10 05:10 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-10 05:10 +00:00: }
+2025-11-10 05:10 +00:00: TypeError: Invalid state: Controller is already closed
+2025-11-10 05:10 +00:00:     at Timeout.g [as _onTimeout] (.next/server/app/api/history/stream/route.js:9:62) {
+2025-11-10 05:10 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-10 05:10 +00:00: }
+2025-11-10 05:10 +00:00:  ⨯ uncaughtException:  TypeError: Invalid state: Controller is already closed
+2025-11-10 05:10 +00:00:     at Timeout.g [as _onTimeout] (.next/server/app/api/history/stream/route.js:9:62) {
+2025-11-10 05:10 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-10 05:10 +00:00: }
+2025-11-10 05:10 +00:00: TypeError: Invalid state: Controller is already closed
+2025-11-10 05:10 +00:00:     at Timeout.g [as _onTimeout] (.next/server/app/api/history/stream/route.js:9:62) {
+2025-11-10 05:10 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-10 05:10 +00:00: }
+2025-11-10 05:10 +00:00:  ⨯ uncaughtException:  TypeError: Invalid state: Controller is already closed
+2025-11-10 05:10 +00:00:     at Timeout.g [as _onTimeout] (.next/server/app/api/history/stream/route.js:9:62) {
+2025-11-10 05:10 +00:00:   code: 'ERR_INVALID_STATE'
+2025-11-10 05:10 +00:00: }
+

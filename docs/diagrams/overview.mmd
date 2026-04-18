@@ -1,0 +1,66 @@
+%% ============================================================
+%% MASTER OVERVIEW — SentinelIQ Threat Intelligence Platform
+%% 30,000ft view: how the entire app fits together
+%% ============================================================
+
+flowchart TD
+
+  subgraph Browser_SG["👤 User / Browser"]
+    Browser("Open SentinelIQ App")
+  end
+
+  subgraph FE_SG["🖥️ Next.js Frontend"]
+    AuthCtx["Auth Context (JWT stored in localStorage)"]
+    Guard{"Auth Guard"}
+    Pages["Protected App Pages"]
+  end
+
+  subgraph API_SG["⚙️ API Routes (Next.js Route Handlers)"]
+    AuthAPI(["Login · Signup · Me"])
+    AnalyzeAPI(["IOC Analysis API"])
+    FileAPI(["File Analysis API"])
+    GraphAPI(["Threat Graph API"])
+    DataAPI(["Dashboard · History APIs"])
+  end
+
+  subgraph Services_SG["🧠 Business Logic"]
+    Orchestrator["Multi-Source Orchestrator"]
+    FileEngine["File Analysis Engine"]
+    VTGraph["Graph Builder"]
+  end
+
+  subgraph External_SG["🌐 Threat Intelligence Feeds"]
+    VT["VirusTotal"]
+    OtherFeeds["GreyNoise · IPQS · ThreatFox · MalwareBazaar · URLhaus · AbuseIPDB"]
+  end
+
+  subgraph DB_SG["🗄️ Storage"]
+    MongoDB[("MongoDB — User Accounts")]
+    OpenSearch[("OpenSearch — IOC Results & Cache")]
+  end
+
+  Browser ==>|"first visit"| AuthCtx
+  AuthCtx -->|"no session"| AuthAPI
+  AuthAPI -->|"verify credentials"| MongoDB
+  AuthAPI -->|"issue JWT (7d)"| AuthCtx
+  AuthCtx -->|"JWT present"| Guard
+  Guard ==>|"authorized"| Pages
+  Guard -.->|"redirect to login"| AuthAPI
+
+  Pages -->|"submit IOC"| AnalyzeAPI
+  Pages -->|"upload file"| FileAPI
+  Pages -->|"view relationships"| GraphAPI
+  Pages -->|"load stats and history"| DataAPI
+
+  AnalyzeAPI -->|"cache miss — analyze"| Orchestrator
+  AnalyzeAPI -->|"cache hit or save result"| OpenSearch
+  FileAPI -->|"extract and hash file"| FileEngine
+  FileEngine -->|"delegates hash lookup"| Orchestrator
+  GraphAPI -->|"build relationship graph"| VTGraph
+
+  Orchestrator -->|"parallel queries"| VT
+  Orchestrator -->|"parallel queries"| OtherFeeds
+  VTGraph -->|"fetch relationships"| VT
+
+  DataAPI -->|"aggregate IOC history"| OpenSearch
+

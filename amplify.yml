@@ -1,0 +1,35 @@
+version: 1
+applications:
+  - frontend:
+      phases:
+        preBuild:
+          commands:
+            - echo "Installing dependencies..."
+            - npm ci
+        build:
+          commands:
+            - echo "Building IOC Analyzer Pro..."
+            - npm run build
+      artifacts:
+        baseDirectory: .next
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+          - .next/cache/**/*
+      buildSettings:
+        commands: []
+        baseDirectory: ''
+      customHeaders:
+        - pattern: '**/*'
+          headers:
+            - key: 'Strict-Transport-Security'
+              value: 'max-age=31536000; includeSubDomains'
+            - key: 'X-Frame-Options'
+              value: 'DENY'
+            - key: 'X-Content-Type-Options'
+              value: 'nosniff'
+            - key: 'Referrer-Policy'
+              value: 'strict-origin-when-cross-origin'
+    appRoot: /
