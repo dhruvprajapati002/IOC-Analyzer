@@ -44,7 +44,7 @@ export function Sidebar() {
           padding: '16px 0',
         }}
       >
-        <VigilanceLogo variant="icon" size="sm" theme="light" href="/" />
+        <VigilanceLogo variant="icon" size="md" theme="light" href="/" />
       </div>
 
       <ScrollArea asChild className="flex-1 px-3 py-4" variant="thin">

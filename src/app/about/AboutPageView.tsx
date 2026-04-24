@@ -29,7 +29,7 @@ const PORTFOLIO_URL = 'https://dhruv-portfolio-23.vercel.app';
 const GITHUB_URL = 'https://github.com/dhruvprajapati002';
 const LINKEDIN_URL = 'https://linkedin.com/in/Dhruv';
 const EMAIL = 'dhruvprajapati0023@gmail.com';
-const YOUR_NAME = 'Dhruv';
+const YOUR_NAME = 'Dhruv Prajapati'; ;
 
 const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -194,10 +194,10 @@ export default function AboutPageView() {
   const statsRef = useRef<HTMLDivElement | null>(null);
   const statsInView = useInView(statsRef, { once: true, margin: '-120px' });
 
-  const aboutRef = useRef<HTMLDivElement | null>(null);
-  const aboutInView = useInView(aboutRef, { once: true, margin: '-120px' });
-
   const [showScrollHint, setShowScrollHint] = useState(true);
+  const [isPrimaryCtaHovered, setIsPrimaryCtaHovered] = useState(false);
+  const [hoveredCard, setHoveredCard] = useState<number | null>(null);
+  const [hoveredContact, setHoveredContact] = useState<number | null>(null);
   const containerClass = 'mx-auto w-full max-w-[1100px] px-6';
 
   useEffect(() => {
@@ -290,6 +290,34 @@ export default function AboutPageView() {
               animation: 'float3 7s ease-in-out infinite alternate',
             }}
           />
+
+          <svg
+            aria-hidden="true"
+            className="absolute inset-0"
+            style={{
+              zIndex: 0,
+              opacity: 0.35,
+              WebkitMaskImage: 'linear-gradient(to bottom, black 40%, transparent 100%)',
+            }}
+          >
+            <defs>
+              <pattern id="dots-pattern" width="24" height="24" patternUnits="userSpaceOnUse">
+                <circle cx="12" cy="12" r="1" fill={APP_COLORS.border} />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#dots-pattern)" />
+          </svg>
+
+          <div
+            className="absolute inset-0"
+            style={{
+              zIndex: 1,
+              opacity: 0.04,
+              mixBlendMode: 'overlay',
+              backgroundImage:
+                "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.4'/%3E%3C/svg%3E\")",
+            }}
+          />
         </div>
 
         <div className={`${containerClass} relative z-10 flex min-h-screen flex-col items-center justify-center pb-16 pt-24 text-center`}>
@@ -299,12 +327,14 @@ export default function AboutPageView() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="inline-flex items-center gap-2 rounded-full border px-4 py-2"
             style={{
-              borderColor: `${APP_COLORS.primary}40`,
-              backgroundColor: `${APP_COLORS.primary}10`,
+              borderColor: `${APP_COLORS.primary}50`,
+              backgroundColor: `${APP_COLORS.primary}0C`,
               color: APP_COLORS.primary,
-              letterSpacing: '0.1em',
-              fontSize: 11,
+              letterSpacing: '0.12em',
+              fontSize: 10,
               fontWeight: 700,
+              boxShadow: `0 0 20px ${APP_COLORS.primary}20, inset 0 1px 0 ${APP_COLORS.primary}20`,
+              backdropFilter: 'blur(8px)',
             }}
           >
             <span
@@ -314,6 +344,7 @@ export default function AboutPageView() {
                 height: 6,
                 borderRadius: 999,
                 backgroundColor: APP_COLORS.primary,
+                boxShadow: `0 0 0 3px ${APP_COLORS.primary}30`,
               }}
             />
             CYBER THREAT INTELLIGENCE PLATFORM
@@ -353,7 +384,17 @@ export default function AboutPageView() {
                     key={`${word}-${lineIndex}`}
                     variants={heroWord}
                     style={{
-                      color: lineIndex === headlineLines.length - 1 ? APP_COLORS.primary : APP_COLORS.textPrimary,
+                      ...(lineIndex === headlineLines.length - 1
+                        ? {
+                            background: `linear-gradient(135deg, ${APP_COLORS.primary} 0%, ${APP_COLORS.accentOrange} 60%, #f0a070 100%)`,
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            backgroundClip: 'text',
+                          }
+                        : {
+                            color: APP_COLORS.textPrimary,
+                            textShadow: '0 2px 40px rgba(0,0,0,0.06)',
+                          }),
                     }}
                   >
                     {word}
@@ -380,7 +421,26 @@ export default function AboutPageView() {
             transition={{ duration: 0.6, delay: 0.65 }}
             className="mt-10 flex flex-wrap items-center justify-center gap-4"
           >
-            <motion.div whileHover={{ scale: 1.04, y: -2 }} whileTap={{ scale: 0.97 }}>
+            <motion.div
+              whileHover={{ scale: 1.04, y: -2 }}
+              whileTap={{ scale: 0.97 }}
+              style={{ position: 'relative' }}
+              onMouseEnter={() => setIsPrimaryCtaHovered(true)}
+              onMouseLeave={() => setIsPrimaryCtaHovered(false)}
+            >
+              <div
+                className="btn-glow-layer"
+                style={{
+                  position: 'absolute',
+                  inset: -1,
+                  borderRadius: 12,
+                  background: `linear-gradient(135deg, ${APP_COLORS.primary}, ${APP_COLORS.accentOrange})`,
+                  opacity: isPrimaryCtaHovered ? 0.6 : 0,
+                  filter: 'blur(12px)',
+                  transition: 'opacity 0.3s ease',
+                  zIndex: -1,
+                }}
+              />
               <Link href="/analyze" className={`${BUTTON_STYLES.primary} inline-flex items-center gap-2`}>
                 Analyze Threats
                 <ArrowRight className="h-4 w-4" />
@@ -430,7 +490,23 @@ export default function AboutPageView() {
               className={`flex-1 px-3 py-2 text-center ${index > 0 ? 'sm:border-l' : ''}`}
               style={{ borderColor: APP_COLORS.border }}
             >
-              <div className="text-4xl font-black sm:text-5xl" style={{ color: APP_COLORS.primary }}>
+              <div
+                style={{
+                  height: 2,
+                  width: 32,
+                  borderRadius: 1,
+                  background: `linear-gradient(90deg, ${APP_COLORS.primary}, transparent)`,
+                  margin: '0 auto 12px',
+                }}
+              />
+              <div
+                className="text-4xl font-black sm:text-5xl"
+                style={{
+                  color: APP_COLORS.primary,
+                  textShadow: `0 0 30px ${APP_COLORS.primary}40`,
+                  fontVariantNumeric: 'tabular-nums',
+                }}
+              >
                 {'valueText' in stat ? (
                   <span>{stat.valueText}</span>
                 ) : (
@@ -446,22 +522,37 @@ export default function AboutPageView() {
       </section>
 
       <section className="py-24">
-        <div ref={aboutRef} className={containerClass}>
+        <div className={containerClass}>
           <motion.div
             variants={fadeUp}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-80px' }}
           >
-            <h2 className="text-3xl font-black sm:text-4xl" style={{ color: APP_COLORS.textPrimary }}>
-              What is the platform?
+            <h2 className="text-3xl font-black sm:text-4xl">
+              <span style={{ color: APP_COLORS.textPrimary }}>What is the </span>
+              <span
+                style={{
+                  background: `linear-gradient(135deg, ${APP_COLORS.primary}, ${APP_COLORS.accentOrange})`,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
+              >
+                platform?
+              </span>
             </h2>
             <motion.div
               initial={{ width: 0 }}
-              animate={{ width: aboutInView ? 48 : 0 }}
-              transition={{ duration: 0.6, ease: EASE_OUT }}
-              className="mt-3 h-1 rounded-full"
-              style={{ backgroundColor: APP_COLORS.primary }}
+              whileInView={{ width: 48 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.7, delay: 0.2, ease: EASE_OUT }}
+              style={{
+                height: 3,
+                borderRadius: 2,
+                marginTop: 12,
+                background: `linear-gradient(90deg, ${APP_COLORS.primary}, ${APP_COLORS.accentOrange}80)`,
+              }}
             />
           </motion.div>
 
@@ -490,21 +581,35 @@ export default function AboutPageView() {
               <motion.div
                 key={card.title}
                 variants={fadeUp}
-                whileHover={{ y: -4 }}
+                whileHover={{ y: -6, scale: 1.01 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 20, delay: index * 0.05 }}
                 className={`relative overflow-hidden rounded-2xl border p-6 ${SHADOWS.card}`}
-                style={{ backgroundColor: APP_COLORS.surface, borderColor: APP_COLORS.border }}
+                onMouseEnter={() => setHoveredCard(index)}
+                onMouseLeave={() => setHoveredCard(null)}
+                style={{
+                  backgroundColor: APP_COLORS.surface,
+                  borderColor: hoveredCard === index ? `${APP_COLORS.primary}60` : APP_COLORS.border,
+                  boxShadow:
+                    hoveredCard === index
+                      ? `0 8px 32px ${APP_COLORS.primary}18, 0 2px 8px rgba(0,0,0,0.06)`
+                      : '0 1px 3px rgba(0,0,0,0.05)',
+                  transition: 'all 0.2s ease',
+                }}
               >
                 <span
                   className="absolute left-0 top-0 h-10 w-10"
                   style={{
-                    backgroundColor: `${APP_COLORS.primary}12`,
+                    background: `linear-gradient(135deg, ${APP_COLORS.primary}20, transparent)`,
                     borderBottomRightRadius: 16,
                   }}
                 />
                 <div
                   className="flex h-10 w-10 items-center justify-center rounded-xl"
-                  style={{ backgroundColor: `${APP_COLORS.primary}15` }}
+                  style={{
+                    backgroundColor:
+                      hoveredCard === index ? `${APP_COLORS.primary}25` : `${APP_COLORS.primary}15`,
+                    transition: 'all 0.2s ease',
+                  }}
                 >
                   <card.icon className="h-5 w-5" style={{ color: APP_COLORS.primary }} />
                 </div>
@@ -514,6 +619,21 @@ export default function AboutPageView() {
                 <p className="mt-2 text-sm" style={{ color: APP_COLORS.textSecondary, lineHeight: 1.7 }}>
                   {card.body}
                 </p>
+                <motion.div
+                  style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: 2,
+                    borderRadius: '0 0 16px 16px',
+                    background: `linear-gradient(90deg, ${APP_COLORS.primary}, ${APP_COLORS.accentOrange})`,
+                    originX: 0,
+                  }}
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: hoveredCard === index ? 1 : 0 }}
+                  transition={{ duration: 0.3, ease: EASE_OUT }}
+                />
               </motion.div>
             ))}
           </motion.div>
@@ -547,13 +667,33 @@ export default function AboutPageView() {
               <motion.div
                 key={item.name}
                 variants={scaleIn}
-                whileHover={{ scale: 1.08, y: -3 }}
+                whileHover={{ scale: 1.1, y: -4 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                 className="flex items-center gap-2 rounded-full border px-5 py-2"
-                style={{ backgroundColor: APP_COLORS.surface, borderColor: APP_COLORS.border }}
+                style={{
+                  backgroundColor: APP_COLORS.surface,
+                  borderColor: APP_COLORS.border,
+                  boxShadow: 'none',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = `${item.dot}60`;
+                  (e.currentTarget as HTMLElement).style.boxShadow = `0 4px 16px ${item.dot}25`;
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = APP_COLORS.border;
+                  (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+                }}
               >
                 <span
-                  className="h-2 w-2 rounded-full"
-                  style={{ backgroundColor: item.dot }}
+                  style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: 999,
+                    backgroundColor: item.dot,
+                    boxShadow: `0 0 6px ${item.dot}80`,
+                    flexShrink: 0,
+                  }}
                 />
                 <span className="text-sm font-semibold" style={{ color: APP_COLORS.textPrimary }}>
                   {item.name}
@@ -582,77 +722,129 @@ export default function AboutPageView() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-80px' }}
             transition={{ duration: 0.7, ease: EASE_OUT }}
-            className={`relative mx-auto mt-10 flex max-w-[780px] flex-col gap-8 overflow-hidden rounded-[24px] border p-8 sm:flex-row sm:p-10 ${SHADOWS.glow}`}
-            style={{ backgroundColor: APP_COLORS.surface, borderColor: APP_COLORS.border }}
+            style={{
+              padding: 1.5,
+              borderRadius: 26,
+              background: `linear-gradient(135deg, ${APP_COLORS.primary}60, ${APP_COLORS.border}40 40%, ${APP_COLORS.accentPurple}30 70%, ${APP_COLORS.primary}40)`,
+              maxWidth: 780,
+              margin: '40px auto 0',
+            }}
           >
             <div
-              className="absolute right-[-80px] top-[-80px] h-[300px] w-[300px] rounded-full"
-              style={{ backgroundColor: `${APP_COLORS.primary}0A` }}
-            />
-            <div
-              className="absolute bottom-[-60px] left-[-60px] h-[200px] w-[200px] rounded-full"
-              style={{ backgroundColor: `${APP_COLORS.accentPurple}0A` }}
-            />
-
-            <div className="relative z-10 flex flex-col items-center text-center sm:items-start sm:text-left">
+              className={`relative flex flex-col gap-8 overflow-hidden rounded-[24px] p-8 sm:flex-row sm:p-10 ${SHADOWS.glow}`}
+              style={{
+                backgroundColor: APP_COLORS.surface,
+                backdropFilter: 'blur(2px)',
+              }}
+            >
               <div
-                className="flex h-24 w-24 items-center justify-center rounded-full"
-                style={{
-                  background: `linear-gradient(135deg, ${APP_COLORS.primary}, ${APP_COLORS.accentOrange})`,
-                  border: `3px solid ${APP_COLORS.primary}30`,
-                }}
-              >
-                <span className="text-4xl font-black" style={{ color: APP_COLORS.textOffWhite }}>
-                  V
-                </span>
-              </div>
-              <h3 className="mt-4 text-xl font-black" style={{ color: APP_COLORS.textPrimary }}>
-                {YOUR_NAME}
-              </h3>
-              <p className="text-sm font-semibold" style={{ color: APP_COLORS.primary }}>
-                Full-Stack Developer
-              </p>
-              <span
-                className="mt-3 rounded-full px-3 py-1 text-xs"
-                style={{
-                  backgroundColor: APP_COLORS.backgroundSoft,
-                  color: APP_COLORS.textMuted,
-                }}
-              >
-                📍 India
-              </span>
-            </div>
+                className="absolute right-[-80px] top-[-80px] h-[300px] w-[300px] rounded-full"
+                style={{ backgroundColor: `${APP_COLORS.primary}0A` }}
+              />
+              <div
+                className="absolute bottom-[-60px] left-[-60px] h-[200px] w-[200px] rounded-full"
+                style={{ backgroundColor: `${APP_COLORS.accentPurple}0A` }}
+              />
 
-            <div className="relative z-10 flex-1">
-              <p className="text-lg font-bold" style={{ color: APP_COLORS.textPrimary }}>
-                Hey there 👋
-              </p>
-              <p className="mt-3 text-sm" style={{ color: APP_COLORS.textSecondary, lineHeight: 1.8 }}>
-                I'm {YOUR_NAME} — a full-stack developer with a passion for cybersecurity tooling,
-                data visualization, and building platforms that make complex intelligence data
-                accessible and actionable.
-              </p>
-              <p className="mt-3 text-sm" style={{ color: APP_COLORS.textSecondary, lineHeight: 1.8 }}>
-                This platform started as a personal project to learn threat intelligence APIs and
-                ended up becoming a full production platform — multi-source IOC analysis, live
-                dashboards, file analysis with MITRE ATT&CK mapping, and domain intelligence. Every
-                feature came from a real security problem I wanted to solve.
-              </p>
-
-              <div className="mt-4 flex flex-wrap gap-2">
-                {SKILLS.map((skill) => (
-                  <span
-                    key={skill}
-                    className="rounded-md border px-3 py-1 text-xs font-semibold"
+              <div className="relative z-10 flex flex-col items-center text-center sm:items-start sm:text-left">
+                <div style={{ position: 'relative', width: 96, height: 96 }}>
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
                     style={{
-                      backgroundColor: APP_COLORS.backgroundSoft,
-                      borderColor: APP_COLORS.border,
-                      color: APP_COLORS.textSecondary,
+                      position: 'absolute',
+                      inset: -4,
+                      borderRadius: 999,
+                      background: `conic-gradient(${APP_COLORS.primary}80, transparent 40%, ${APP_COLORS.accentOrange}60, transparent 80%, ${APP_COLORS.primary}80)`,
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: 'relative',
+                      zIndex: 1,
+                      background: `linear-gradient(135deg, ${APP_COLORS.primary}, ${APP_COLORS.accentOrange})`,
+                      borderRadius: 999,
+                      width: 96,
+                      height: 96,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      border: `3px solid ${APP_COLORS.surface}`,
                     }}
                   >
-                    {skill}
+                    <span className="text-4xl font-black" style={{ color: APP_COLORS.textOffWhite }}>
+                      D
+                    </span>
+                  </div>
+                </div>
+                <h3 className="mt-4 text-xl font-black" style={{ color: APP_COLORS.textPrimary }}>
+                  {YOUR_NAME}
+                </h3>
+                <p className="text-sm font-semibold" style={{ color: APP_COLORS.primary }}>
+                  Full-Stack Developer
+                </p>
+                <span
+                  className="mt-3 rounded-full px-3 py-1 text-xs"
+                  style={{
+                    backgroundColor: APP_COLORS.backgroundSoft,
+                    color: APP_COLORS.textMuted,
+                  }}
+                >
+                  📍 India
+                </span>
+              </div>
+
+              <div className="relative z-10 flex-1">
+                <p>
+                  <span
+                    style={{
+                      background: `linear-gradient(135deg, ${APP_COLORS.textPrimary}, ${APP_COLORS.primary})`,
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text',
+                      fontWeight: 900,
+                      fontSize: '1.25rem',
+                    }}
+                  >
+                    Hey there 👋
                   </span>
-                ))}
+                </p>
+                <p className="mt-3 text-sm" style={{ color: APP_COLORS.textSecondary, lineHeight: 1.8 }}>
+                  I'm {YOUR_NAME} — a full-stack developer with a passion for cybersecurity tooling,
+                  data visualization, and building platforms that make complex intelligence data
+                  accessible and actionable.
+                </p>
+                <p className="mt-3 text-sm" style={{ color: APP_COLORS.textSecondary, lineHeight: 1.8 }}>
+                  This platform started as a personal project to learn threat intelligence APIs and
+                  ended up becoming a full production platform — multi-source IOC analysis, live
+                  dashboards, file analysis with MITRE ATT&CK mapping, and domain intelligence. Every
+                  feature came from a real security problem I wanted to solve.
+                </p>
+
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {SKILLS.map((skill) => (
+                    <span
+                      key={skill}
+                      className="rounded-md border px-3 py-1 text-xs font-semibold"
+                      style={{
+                        backgroundColor: APP_COLORS.backgroundSoft,
+                        borderColor: APP_COLORS.border,
+                        color: APP_COLORS.textSecondary,
+                        transition: 'all 0.2s ease',
+                      }}
+                      onMouseEnter={(e) => {
+                        (e.currentTarget as HTMLElement).style.borderColor = `${APP_COLORS.primary}50`;
+                        (e.currentTarget as HTMLElement).style.boxShadow = `0 0 8px ${APP_COLORS.primary}20`;
+                      }}
+                      onMouseLeave={(e) => {
+                        (e.currentTarget as HTMLElement).style.borderColor = APP_COLORS.border;
+                        (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+                      }}
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
           </motion.div>
@@ -678,9 +870,18 @@ export default function AboutPageView() {
             whileInView="visible"
             viewport={{ once: true, margin: '-80px' }}
             className="mt-4 text-center text-3xl font-black sm:text-4xl"
-            style={{ color: APP_COLORS.textPrimary }}
           >
-            Let's Connect
+            <span style={{ color: APP_COLORS.textPrimary }}>Let's </span>
+            <span
+              style={{
+                background: `linear-gradient(135deg, ${APP_COLORS.primary}, ${APP_COLORS.accentOrange})`,
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}
+            >
+              Connect
+            </span>
           </motion.h2>
           <motion.p
             variants={fadeUp}
@@ -700,21 +901,44 @@ export default function AboutPageView() {
             viewport={{ once: true, margin: '-80px' }}
             className="mx-auto mt-12 grid max-w-3xl gap-4 sm:grid-cols-2 lg:grid-cols-4"
           >
-            {contactCards.map((card) => (
+            {contactCards.map((card, index) => (
               <motion.button
                 key={card.title}
                 type="button"
                 variants={fadeUp}
-                whileHover={{ y: -5, borderColor: APP_COLORS.primary }}
+                whileHover={{ y: -6, scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
                 className={`flex flex-col items-center rounded-2xl border p-6 text-center transition-colors ${SHADOWS.card}`}
-                style={{ backgroundColor: APP_COLORS.surface, borderColor: APP_COLORS.border }}
+                onMouseEnter={() => setHoveredContact(index)}
+                onMouseLeave={() => setHoveredContact(null)}
+                style={{
+                  backgroundColor: APP_COLORS.surface,
+                  borderColor: hoveredContact === index ? `${card.color}70` : APP_COLORS.border,
+                  boxShadow:
+                    hoveredContact === index
+                      ? `0 8px 24px ${card.color}20`
+                      : '0 1px 3px rgba(0,0,0,0.05)',
+                  transition: 'all 0.2s ease',
+                }}
                 onClick={card.action}
               >
                 <div
                   className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl"
-                  style={{ backgroundColor: `${card.color}15` }}
+                  style={{
+                    backgroundColor: hoveredContact === index ? `${card.color}22` : `${card.color}15`,
+                    transition: 'all 0.2s ease',
+                    borderRadius: 12,
+                  }}
                 >
-                  <card.icon className="h-5 w-5" style={{ color: card.color }} />
+                  <card.icon
+                    className="h-5 w-5"
+                    style={{
+                      color: card.color,
+                      filter:
+                        hoveredContact === index ? `drop-shadow(0 0 6px ${card.color}80)` : 'none',
+                      transition: 'all 0.2s ease',
+                    }}
+                  />
                 </div>
                 <p className="text-sm font-bold" style={{ color: APP_COLORS.textPrimary }}>
                   {card.title}
@@ -754,11 +978,15 @@ export default function AboutPageView() {
         </div>
       </section>
 
-      <section
-        className="border-t py-5"
-        style={{ backgroundColor: APP_COLORS.surface, borderColor: APP_COLORS.border }}
-      >
+      <section className="py-5" style={{ backgroundColor: APP_COLORS.background }}>
         <div className={containerClass}>
+          <div
+            style={{
+              height: 1,
+              background: `linear-gradient(90deg, transparent, ${APP_COLORS.border} 20%, ${APP_COLORS.primary}40 50%, ${APP_COLORS.border} 80%, transparent)`,
+              marginBottom: 20,
+            }}
+          />
           <p className="text-center text-xs" style={{ color: APP_COLORS.textMuted }}>
             Built with ❤️ and way too much caffeine
           </p>
@@ -804,6 +1032,29 @@ export default function AboutPageView() {
           100% {
             transform: scale(1);
           }
+        }
+        @keyframes shimmer {
+          0% {
+            background-position: -200% center;
+          }
+          100% {
+            background-position: 200% center;
+          }
+        }
+        @keyframes spinRing {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+        html {
+          scroll-behavior: smooth;
+        }
+        ::selection {
+          background-color: rgba(201, 100, 66, 0.2);
+          color: #3d3929;
         }
         .about-blob {
           position: absolute;

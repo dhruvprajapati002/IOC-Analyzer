@@ -14,7 +14,7 @@ export interface VigilanceLogoProps {
   className?: string;
 }
 
-const ICON_SRC = '/vigilanceX-logo.png';
+const ICON_SRC = '/logo.png';
 
 const SIZE_MAP = {
   xs: { iconSize: 20, textSize: '13px', taglineSize: '8px', gap: 6 },
@@ -47,8 +47,8 @@ function classNames(...values: Array<string | undefined>) {
 function renderBrandText(textColor: string, size: string) {
   return (
     <span style={{ fontSize: size, fontWeight: 900, lineHeight: 1 }}>
-      <span style={{ color: textColor }}>Vigilance</span>
-      <span style={{ color: APP_COLORS.primary }}>X</span>
+      <span style={{ color: textColor }}>Threat</span>
+      <span style={{ color: APP_COLORS.primary }}>Lense</span>
     </span>
   );
 }
@@ -85,7 +85,7 @@ export default function VigilanceLogo({
   const iconElement = (
     <Image
       src={ICON_SRC}
-      alt="VigilanceX"
+      alt="ThreatLense"
       width={sizeConfig.iconSize}
       height={sizeConfig.iconSize}
       priority={true}

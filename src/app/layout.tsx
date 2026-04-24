@@ -41,13 +41,13 @@ export const metadata: Metadata = {
   description:
     'Real-time multi-source threat intelligence platform. Analyze IPs, domains, URLs, and file hashes with unified verdicts.',
   icons: {
-    icon: '/vigilanceX-logo.png',
-    apple: '/vigilanceX-logo.png',
+    icon: '/logo.png',
+    apple: '/logo.png',
   },
   openGraph: {
     title: 'VigilanceX',
     description: 'Cyber Threat Intelligence Platform',
-    images: ['/vigilance-logo.svg'],
+    images: ['/logo.png'],
   },
 };
 
