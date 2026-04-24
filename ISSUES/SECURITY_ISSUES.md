@@ -86,7 +86,7 @@ curl -H "Authorization: Bearer system-public-token" \
 
 **Vulnerable Code:**
 ```
-MONGO_URI="mongodb+srv://dhruvprajapati002:LnpYTZwVPMKOLi1N@ioc-dhruv..."
+MONGO_URI="mongodb+srv:........."
 JWT_SECRET="8ae55a0fad52f1fdecae9b4c5a8a44df33a615..."
 VT_API_KEYS=bc230055c22e417929e3130c7100a6ffc...
 IPQS_API_KEYS=Cp2XzEbKR9MTeOa3ANQeyh8nJ...
