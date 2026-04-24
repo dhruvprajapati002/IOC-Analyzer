@@ -3,14 +3,13 @@
 import { Database } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { NoGraphData } from '@/components/NoGraphData';
-import { APP_COLORS, CARD_STYLES, LOADING_STYLES, style } from '@/lib/colors';
+import { APP_COLORS, CARD_STYLES, style } from '@/lib/colors';
 import { TYPOGRAPHY } from '@/lib/typography';
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
 import type { IocTypeDistributionItem } from './dashboard.types';
 
 interface IOCTypeDistributionChartProps {
   data: IocTypeDistributionItem[];
-  loading?: boolean;
 }
 
 type LooseIocTypeRow = IocTypeDistributionItem & {
@@ -45,7 +44,7 @@ function toNumber(value: unknown): number {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-export function IOCTypeDistributionChart({ data, loading = false }: IOCTypeDistributionChartProps) {
+export function IOCTypeDistributionChart({ data }: IOCTypeDistributionChartProps) {
   const rows = (Array.isArray(data) ? data : []).map((rawItem) => {
     const item = rawItem as LooseIocTypeRow;
     const rawType = toRawType(item);
@@ -74,9 +73,7 @@ export function IOCTypeDistributionChart({ data, loading = false }: IOCTypeDistr
       </CardHeader>
 
       <CardContent className="p-0">
-        {loading ? (
-          <div className={`${LOADING_STYLES.skeleton} h-56`} />
-        ) : !rows || rows.length === 0 || total === 0 ? (
+        {!rows || rows.length === 0 || total === 0 ? (
           <NoGraphData title="No IOC type data" subtitle="No IOC records in this range" />
         ) : (
           <>

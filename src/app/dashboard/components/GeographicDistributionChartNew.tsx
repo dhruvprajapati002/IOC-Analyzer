@@ -3,17 +3,16 @@
 import { Globe } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { NoGraphData } from '@/components/NoGraphData';
-import { APP_COLORS, CARD_STYLES, LOADING_STYLES, style } from '@/lib/colors';
+import { APP_COLORS, CARD_STYLES, style } from '@/lib/colors';
 import { TYPOGRAPHY } from '@/lib/typography';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import type { GeoDistributionItem } from './dashboard.types';
 
 interface GeographicDistributionChartProps {
   data: GeoDistributionItem[];
-  loading?: boolean;
 }
 
-export function GeographicDistributionChart({ data, loading = false }: GeographicDistributionChartProps) {
+export function GeographicDistributionChart({ data }: GeographicDistributionChartProps) {
   const rows = data.slice(0, 8);
 
   return (
@@ -28,9 +27,7 @@ export function GeographicDistributionChart({ data, loading = false }: Geographi
       </CardHeader>
 
       <CardContent className="p-0">
-        {loading ? (
-          <div className={`${LOADING_STYLES.skeleton} h-60`} />
-        ) : !rows || rows.length === 0 ? (
+        {!rows || rows.length === 0 ? (
           <NoGraphData title="No geolocation data" subtitle="No IP geolocation entries in this range" />
         ) : (
           <>

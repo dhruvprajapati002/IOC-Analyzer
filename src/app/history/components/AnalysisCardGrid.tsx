@@ -2,7 +2,6 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { APP_COLORS, BUTTON_STYLES } from '@/lib/colors';
 import type { HistoryRecord } from '../utils/historyMappers';
 import { AnalysisCard } from './AnalysisCard';
-import { AnalysisCardSkeleton } from './AnalysisCardSkeleton';
 
 interface Pagination {
   currentPage: number;
@@ -14,7 +13,6 @@ interface Pagination {
 
 interface AnalysisCardGridProps {
   records: HistoryRecord[];
-  loading: boolean;
   pagination: Pagination;
   pageSize: 10 | 25 | 50;
   onPageChange: (page: number) => void;
@@ -49,7 +47,6 @@ function getPageWindow(currentPage: number, totalPages: number): Array<number | 
 
 export function AnalysisCardGrid({
   records,
-  loading,
   pagination,
   pageSize,
   onPageChange,
@@ -60,14 +57,12 @@ export function AnalysisCardGrid({
   return (
     <div>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3 md:gap-5">
-        {loading
-          ? Array.from({ length: 9 }).map((_, index) => <AnalysisCardSkeleton key={index} />)
-          : records.map((record) => (
-              <AnalysisCard key={record.id} record={record} onOpenDetail={onOpenDetail} />
-            ))}
+        {records.map((record) => (
+          <AnalysisCard key={record.id} record={record} onOpenDetail={onOpenDetail} />
+        ))}
       </div>
 
-      {!loading && pagination.totalPages > 0 ? (
+      {pagination.totalPages > 0 ? (
         <div className="mt-6 flex flex-col items-center justify-between gap-3 rounded-xl border px-4 py-3 md:flex-row" style={{ borderColor: APP_COLORS.border, background: APP_COLORS.surface }}>
           <p className="text-sm" style={{ color: APP_COLORS.textMuted }}>
             Showing {(pagination.currentPage - 1) * pageSize + 1}–{Math.min(pagination.currentPage * pageSize, pagination.totalCount)} of {pagination.totalCount} results

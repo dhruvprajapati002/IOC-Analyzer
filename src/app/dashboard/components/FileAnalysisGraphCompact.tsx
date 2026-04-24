@@ -3,14 +3,13 @@
 import { FileText } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { NoGraphData } from '@/components/NoGraphData';
-import { APP_COLORS, CARD_STYLES, LOADING_STYLES, style } from '@/lib/colors';
+import { APP_COLORS, CARD_STYLES, style } from '@/lib/colors';
 import { TYPOGRAPHY } from '@/lib/typography';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import type { FileAnalysisSummary } from './dashboard.types';
 
 interface FileAnalysisGraphProps {
   data: FileAnalysisSummary | null;
-  loading?: boolean;
 }
 
 function formatBytes(value: number): string {
@@ -20,7 +19,7 @@ function formatBytes(value: number): string {
   return `${value} B`;
 }
 
-export function FileAnalysisGraph({ data, loading = false }: FileAnalysisGraphProps) {
+export function FileAnalysisGraph({ data }: FileAnalysisGraphProps) {
   const topTypes = data?.topFileTypes ?? [];
   const totalFiles = data?.totalFiles ?? 0;
 
@@ -39,9 +38,7 @@ export function FileAnalysisGraph({ data, loading = false }: FileAnalysisGraphPr
       </CardHeader>
 
       <CardContent className="p-0">
-        {loading ? (
-          <div className={`${LOADING_STYLES.skeleton} h-56`} />
-        ) : totalFiles === 0 ? (
+        {totalFiles === 0 ? (
           <NoGraphData title="No file analysis data yet. Analyze file hashes to see stats here." />
         ) : (
           <>

@@ -10,6 +10,7 @@ import { EmptyState } from './components/EmptyState';
 import { IOCDetailPanel } from './components/IOCDetailPanel';
 import { useHistoryQueryState } from './hooks/useHistoryQueryState';
 import { useHistoryRecords } from './hooks/useHistoryRecords';
+import { HistorySkeleton } from '@/components/skeletons';
 
 export default function HistoryPageView() {
   return (
@@ -79,6 +80,9 @@ function HistoryPageContent() {
               onClose={query.closeDetail}
             />
           ) : (
+            loading ? (
+              <HistorySkeleton />
+            ) : (
             <div className="flex h-full min-h-0 flex-col gap-4 overflow-auto">
               <HistoryCommandBar
                 search={query.search}
@@ -104,7 +108,7 @@ function HistoryPageContent() {
 
               {error ? (
                 <EmptyState variant="error" message={error} onRetry={refetch} />
-              ) : records.length === 0 && !loading ? (
+              ) : records.length === 0 ? (
                 <EmptyState
                   variant={hasActiveFilters ? 'no-results' : 'empty'}
                   onClearFilters={query.clearFilters}
@@ -112,7 +116,6 @@ function HistoryPageContent() {
               ) : (
                 <AnalysisCardGrid
                   records={records}
-                  loading={loading}
                   pagination={pagination}
                   pageSize={query.pageSize}
                   onPageChange={query.setPage}
@@ -120,6 +123,7 @@ function HistoryPageContent() {
                 />
               )}
             </div>
+            )
           )}
         </div>
       </div>

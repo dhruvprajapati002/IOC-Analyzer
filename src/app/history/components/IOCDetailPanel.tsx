@@ -18,6 +18,7 @@ import { ThreatIntelSection } from './detail/ThreatIntelSection';
 import { VerdictBanner } from './detail/VerdictBanner';
 import type { IOCDetailData } from './detail/types';
 import { toSafeStats } from './detail/types';
+import { DetailPanelSkeleton } from '@/components/skeletons';
 
 interface IOCDetailPanelProps {
   ioc: string;
@@ -81,12 +82,7 @@ export function IOCDetailPanel({ ioc, iocType, onClose }: IOCDetailPanelProps) {
   return (
     <div className="h-full min-h-0">
       {loading && !details ? (
-        <div className="flex h-[420px] items-center justify-center rounded-2xl border" style={{ background: APP_COLORS.surface, borderColor: APP_COLORS.border }}>
-          <div className="inline-flex items-center gap-2 text-sm font-semibold" style={{ color: APP_COLORS.textSecondary }}>
-            <RefreshCw className="h-4 w-4 animate-spin" />
-            Loading IOC details...
-          </div>
-        </div>
+        <DetailPanelSkeleton />
       ) : null}
 
       {details ? (

@@ -2,14 +2,13 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { NoGraphData } from '@/components/NoGraphData';
-import { APP_COLORS, CARD_STYLES, CHART_COLORS, LOADING_STYLES,style } from '@/lib/colors';
+import { APP_COLORS, CARD_STYLES, CHART_COLORS, style } from '@/lib/colors';
 import { TYPOGRAPHY } from '@/lib/typography';
 import { ResponsiveContainer, AreaChart, Area, CartesianGrid, Tooltip, XAxis, YAxis } from 'recharts';
 import type { DailyTrendPoint } from './dashboard.types';
 
 interface ThreatTrendChartProps {
   data: DailyTrendPoint[];
-  loading?: boolean;
 }
 
 type LooseDailyTrendPoint = DailyTrendPoint & {
@@ -24,7 +23,7 @@ function toNumber(value: unknown): number {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-export function ThreatTrendChart({ data, loading = false }: ThreatTrendChartProps) {
+export function ThreatTrendChart({ data }: ThreatTrendChartProps) {
   const rows = Array.isArray(data)
     ? data
         .map((rawItem) => {
@@ -59,9 +58,7 @@ export function ThreatTrendChart({ data, loading = false }: ThreatTrendChartProp
       </CardHeader>
 
       <CardContent className="p-0">
-        {loading ? (
-          <div className={`${LOADING_STYLES.skeleton} h-80`} />
-        ) : !rows || rows.length === 0 ? (
+        {!rows || rows.length === 0 ? (
           <NoGraphData title="No trend data" subtitle="No IOC activity found for this time range" />
         ) : (
           <div className="h-80">

@@ -3,14 +3,13 @@
 import { AlertTriangle, Radio } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { NoGraphData } from '@/components/NoGraphData';
-import { CARD_STYLES, LOADING_STYLES, style } from '@/lib/colors';
+import { CARD_STYLES, style } from '@/lib/colors';
 import { TYPOGRAPHY } from '@/lib/typography';
 import { ScrollArea } from '@/components/ui/ScrollArea';
 import type { ThreatFeedItem } from './dashboard.types';
 
 interface RealTimeThreatFeedProps {
   items: ThreatFeedItem[];
-  loading?: boolean;
 }
 
 function verdictClass(verdict: string): string {
@@ -29,7 +28,7 @@ function timeAgo(timestamp: string): string {
   return `${hours}h ago`;
 }
 
-export function RealTimeThreatFeed({ items, loading = false }: RealTimeThreatFeedProps) {
+export function RealTimeThreatFeed({ items }: RealTimeThreatFeedProps) {
   const rows = Array.isArray(items) ? items : [];
 
   return (
@@ -47,9 +46,7 @@ export function RealTimeThreatFeed({ items, loading = false }: RealTimeThreatFee
       </CardHeader>
 
       <CardContent className="p-0">
-        {loading ? (
-          <div className={`${LOADING_STYLES.skeleton} h-60`} />
-        ) : !rows || rows.length === 0 ? (
+        {!rows || rows.length === 0 ? (
           <NoGraphData title="No live events" subtitle="No recent IOC events to display" />
         ) : (
           <ScrollArea className="h-60 pr-2" variant="thin">

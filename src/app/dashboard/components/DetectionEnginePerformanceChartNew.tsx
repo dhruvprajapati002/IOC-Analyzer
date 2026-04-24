@@ -3,17 +3,16 @@
 import { Activity } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { NoGraphData } from '@/components/NoGraphData';
-import { APP_COLORS, CARD_STYLES, LOADING_STYLES, style } from '@/lib/colors';
+import { APP_COLORS, CARD_STYLES, style } from '@/lib/colors';
 import { TYPOGRAPHY } from '@/lib/typography';
 import { ResponsiveContainer, ComposedChart, Bar, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import type { DetectionEngineItem } from './dashboard.types';
 
 interface DetectionEnginePerformanceChartProps {
   data: DetectionEngineItem[];
-  loading?: boolean;
 }
 
-export function DetectionEnginePerformanceChart({ data, loading = false }: DetectionEnginePerformanceChartProps) {
+export function DetectionEnginePerformanceChart({ data }: DetectionEnginePerformanceChartProps) {
   const rows = Array.isArray(data) ? data : [];
 
   return (
@@ -31,9 +30,7 @@ export function DetectionEnginePerformanceChart({ data, loading = false }: Detec
       </CardHeader>
 
       <CardContent className="p-0">
-        {loading ? (
-          <div className={`${LOADING_STYLES.skeleton} h-60`} />
-        ) : !rows || rows.length === 0 ? (
+        {!rows || rows.length === 0 ? (
           <NoGraphData title="No engine data" subtitle="No detection-engine telemetry found" />
         ) : (
           <>

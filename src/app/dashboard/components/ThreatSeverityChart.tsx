@@ -3,14 +3,13 @@
 import { AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { NoGraphData } from '@/components/NoGraphData';
-import { APP_COLORS, CARD_STYLES, LOADING_STYLES, RISK_COLORS, style } from '@/lib/colors';
+import { APP_COLORS, CARD_STYLES, RISK_COLORS, style } from '@/lib/colors';
 import { TYPOGRAPHY } from '@/lib/typography';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell, CartesianGrid } from 'recharts';
 import type { ThreatIntelligenceSummary } from './dashboard.types';
 
 interface ThreatSeverityChartProps {
   data: ThreatIntelligenceSummary | null;
-  loading?: boolean;
 }
 
 const SEVERITY_COLORS: Record<string, string> = {
@@ -20,7 +19,7 @@ const SEVERITY_COLORS: Record<string, string> = {
   low: RISK_COLORS.low.primary,
 };
 
-export function ThreatSeverityChart({ data, loading = false }: ThreatSeverityChartProps) {
+export function ThreatSeverityChart({ data }: ThreatSeverityChartProps) {
   const rows = data?.bySeverity ?? [];
   const total = rows.reduce((sum, item) => sum + item.count, 0);
 
@@ -39,9 +38,7 @@ export function ThreatSeverityChart({ data, loading = false }: ThreatSeverityCha
       </CardHeader>
 
       <CardContent className="p-0">
-        {loading ? (
-          <div className={`${LOADING_STYLES.skeleton} h-60`} />
-        ) : !data || !rows || total === 0 ? (
+        {!data || !rows || total === 0 ? (
           <NoGraphData title="No severity data" subtitle="No cached severity results for this range" />
         ) : (
           <>

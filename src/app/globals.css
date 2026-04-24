@@ -464,6 +464,26 @@ html {
   }
 }
 
+@keyframes skeletonShimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: -100% 50%;
+  }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    #f5f4ee 0%,
+    #e5e2d8 40%,
+    #f5f4ee 80%
+  );
+  background-size: 300% 100%;
+  animation: skeletonShimmer 1.8s ease-in-out infinite;
+}
+
 
 /* Select Dropdown Theming */
 [data-radix-select-content] {

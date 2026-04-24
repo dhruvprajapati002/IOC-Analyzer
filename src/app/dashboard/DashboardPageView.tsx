@@ -8,6 +8,7 @@ import { TYPOGRAPHY } from '@/lib/typography';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/apiFetch';
 import { getSystemToken } from '@/lib/system-user';
+import { DashboardSkeleton } from '@/components/skeletons';
 
 import { DashboardHeader } from './components/DashboardHeader';
 import { ThreatTrendChart } from './components/ThreatTrendChart';
@@ -212,6 +213,10 @@ export default function DashboardPageView() {
     void fetchDashboardData(true);
   };
 
+  if (loading && !hasData) {
+    return <DashboardSkeleton />;
+  }
+
   return (
     <ProtectedPage>
       <div className="min-h-screen w-full bg-[#faf9f5]">
@@ -233,30 +238,30 @@ export default function DashboardPageView() {
             <div className="space-y-6">
               {error ? <ErrorState message={error} onRetry={handleRetry} /> : null}
 
-              <ThreatTrendChart data={dailyTrends} loading={isInitialLoading} />
+              <ThreatTrendChart data={dailyTrends} />
 
               <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-                <ThreatTypePieChart data={threatTypes} loading={isInitialLoading} />
-                <IOCTypeDistributionChart data={iocTypeDistribution} loading={isInitialLoading} />
-                <ThreatSeverityChart data={threatIntelligence} loading={isInitialLoading} />
+                <ThreatTypePieChart data={threatTypes} />
+                <IOCTypeDistributionChart data={iocTypeDistribution} />
+                <ThreatSeverityChart data={threatIntelligence} />
               </div>
 
               <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-                <GeographicDistributionChart data={geoDistribution} loading={isInitialLoading} />
-                <MalwareFamiliesChart data={malwareFamilies} loading={isInitialLoading} />
+                <GeographicDistributionChart data={geoDistribution} />
+                <MalwareFamiliesChart data={malwareFamilies} />
               </div>
 
               <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-                <TopThreatsGraph data={threatVectors} loading={isInitialLoading} />
-                <FileAnalysisGraph data={fileAnalysis} loading={isInitialLoading} />
+                <TopThreatsGraph data={threatVectors} />
+                <FileAnalysisGraph data={fileAnalysis} />
               </div>
 
               <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-                <RiskScoreTrend data={dailyTrends} loading={isInitialLoading} />
-                <RealTimeThreatFeed items={threatFeed} loading={isInitialLoading} />
+                <RiskScoreTrend data={dailyTrends} />
+                <RealTimeThreatFeed items={threatFeed} />
               </div>
 
-              <DetectionEnginePerformanceChart data={detectionEngines} loading={isInitialLoading} />
+              <DetectionEnginePerformanceChart data={detectionEngines} />
             </div>
           ) : null}
         </div>

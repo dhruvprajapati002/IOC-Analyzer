@@ -3,14 +3,13 @@
 import { Shield } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { NoGraphData } from '@/components/NoGraphData';
-import { APP_COLORS, CARD_STYLES, LOADING_STYLES, style } from '@/lib/colors';
+import { APP_COLORS, CARD_STYLES, style } from '@/lib/colors';
 import { TYPOGRAPHY } from '@/lib/typography';
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
 import type { ThreatTypeItem } from './dashboard.types';
 
 interface ThreatTypePieChartProps {
   data: ThreatTypeItem[];
-  loading?: boolean;
 }
 
 type LooseThreatTypeRow = ThreatTypeItem & {
@@ -47,7 +46,7 @@ function normalizeVerdictLabel(value: string): string {
   return normalized.charAt(0).toUpperCase() + normalized.slice(1);
 }
 
-export function ThreatTypePieChart({ data, loading = false }: ThreatTypePieChartProps) {
+export function ThreatTypePieChart({ data }: ThreatTypePieChartProps) {
   const rows = (Array.isArray(data) ? data : []).map((rawItem) => {
     const item = rawItem as LooseThreatTypeRow;
     const rawType = String(item.type ?? item.name ?? '').toLowerCase().trim();
@@ -75,9 +74,7 @@ export function ThreatTypePieChart({ data, loading = false }: ThreatTypePieChart
       </CardHeader>
 
       <CardContent className="p-0">
-        {loading ? (
-          <div className={`${LOADING_STYLES.skeleton} h-56`} />
-        ) : !rows || rows.length === 0 || total === 0 ? (
+        {!rows || rows.length === 0 || total === 0 ? (
           <NoGraphData title="No verdict data" subtitle="No classified IOC verdicts for this range" />
         ) : (
           <>

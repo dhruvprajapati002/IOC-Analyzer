@@ -3,17 +3,16 @@
 import { Activity } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { NoGraphData } from '@/components/NoGraphData';
-import { APP_COLORS, CARD_STYLES, LOADING_STYLES, style } from '@/lib/colors';
+import { APP_COLORS, CARD_STYLES, style } from '@/lib/colors';
 import { TYPOGRAPHY } from '@/lib/typography';
 import { ResponsiveContainer, ComposedChart, Line, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine } from 'recharts';
 import type { DailyTrendPoint } from './dashboard.types';
 
 interface RiskScoreTrendProps {
   data: DailyTrendPoint[];
-  loading?: boolean;
 }
 
-export function RiskScoreTrend({ data, loading = false }: RiskScoreTrendProps) {
+export function RiskScoreTrend({ data }: RiskScoreTrendProps) {
   const rows = data.map((item) => ({
     date: item.displayDate,
     score: item.total > 0 ? Number(((item.threats / item.total) * 100).toFixed(1)) : 0,
@@ -35,9 +34,7 @@ export function RiskScoreTrend({ data, loading = false }: RiskScoreTrendProps) {
       </CardHeader>
 
       <CardContent className="p-0">
-        {loading ? (
-          <div className={`${LOADING_STYLES.skeleton} h-60`} />
-        ) : !rows || rows.length === 0 ? (
+        {!rows || rows.length === 0 ? (
           <NoGraphData title="No risk trend data" subtitle="No daily trend records available" />
         ) : (
           <div className="h-60">

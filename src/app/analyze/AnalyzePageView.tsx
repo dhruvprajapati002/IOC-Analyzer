@@ -16,7 +16,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { DashboardSkeleton } from "@/components/ui/dashboard-skeleton";
+import { AnalyzeSkeleton } from "@/components/skeletons";
 import { ProtectedPage } from "@/components/ProtectedPage";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -956,8 +956,7 @@ function AnalyzePageContent() {
       value: threat.count,
       color: threat.color,
     })) || [];
-
-  if (loading) return <DashboardSkeleton />;
+  const isLoading = loading || isSubmitting;
 
   const maliciousDetections =
     threatOverview?.detections?.filter(
@@ -1262,6 +1261,9 @@ function AnalyzePageContent() {
             </motion.div>
           )}
 
+          {isLoading ? <AnalyzeSkeleton /> : null}
+
+          <div style={{ display: isLoading ? 'none' : 'block' }}>
           <AnimatePresence mode="wait">
             {!threatOverview && !isSubmitting && (
               <motion.div
@@ -1553,6 +1555,7 @@ function AnalyzePageContent() {
               </motion.div>
             )}
           </AnimatePresence>
+          </div>
         </div>
       </div>
 
@@ -1571,7 +1574,7 @@ function AnalyzePageContent() {
 export default function AnalyzePage() {
   return (
     <ProtectedPage>
-      <Suspense fallback={<DashboardSkeleton />}>
+      <Suspense fallback={<AnalyzeSkeleton />}>
         <AnalyzePageContent />
       </Suspense>
     </ProtectedPage>

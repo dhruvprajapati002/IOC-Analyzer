@@ -3,17 +3,16 @@
 import { Flame } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { NoGraphData } from '@/components/NoGraphData';
-import { APP_COLORS, CARD_STYLES, LOADING_STYLES, style } from '@/lib/colors';
+import { APP_COLORS, CARD_STYLES, style } from '@/lib/colors';
 import { TYPOGRAPHY } from '@/lib/typography';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell, CartesianGrid } from 'recharts';
 import type { ThreatVectorItem } from './dashboard.types';
 
 interface TopThreatsGraphProps {
   data: ThreatVectorItem[];
-  loading?: boolean;
 }
 
-export function TopThreatsGraph({ data, loading = false }: TopThreatsGraphProps) {
+export function TopThreatsGraph({ data }: TopThreatsGraphProps) {
   const rows = data.slice(0, 8);
 
   return (
@@ -28,9 +27,7 @@ export function TopThreatsGraph({ data, loading = false }: TopThreatsGraphProps)
       </CardHeader>
 
       <CardContent className="p-0">
-        {loading ? (
-          <div className={`${LOADING_STYLES.skeleton} h-70`} />
-        ) : !rows || rows.length === 0 ? (
+        {!rows || rows.length === 0 ? (
           <NoGraphData title="No threat vectors" subtitle="No threat-intel vectors in this range" />
         ) : (
           <>
