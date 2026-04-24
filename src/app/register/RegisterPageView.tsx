@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { RegisterForm } from '@/components/auth/RegisterForm';
 import { APP_COLORS } from '@/lib/colors';
-import { Logo } from '@/components/common/Logo';
+import VigilanceLogo from '@/components/brand/VigilanceLogo';
 
 export default function RegisterPageView() {
   return (
@@ -20,8 +20,8 @@ export default function RegisterPageView() {
       <div className="relative z-10 w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center mb-4">
-            <Logo showTagline />
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 32 }}>
+            <VigilanceLogo variant="full" size="lg" theme="light" showTagline={true} />
           </div>
           <p className="text-t-textMuted">Create your account</p>
         </div>

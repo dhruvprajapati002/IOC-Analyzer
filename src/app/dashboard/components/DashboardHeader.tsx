@@ -1,9 +1,11 @@
 'use client';
 
-import { AlertTriangle, Database, RefreshCw } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { AlertTriangle, Clock, Database, RefreshCw } from 'lucide-react';
 import { TYPOGRAPHY } from '@/lib/typography';
 import { TimeFilterDropdown } from './TimeFilterDropdown';
 import type { DashboardStats, TimeRange } from './dashboard.types';
+import { APP_COLORS } from '@/lib/colors';
 
 interface DashboardHeaderProps {
   timeRange: TimeRange;
@@ -39,11 +41,27 @@ export function DashboardHeader({
   onRetry,
   lastUpdated,
 }: DashboardHeaderProps) {
+  const [now, setNow] = useState(() => new Date());
+  const isBusy = loading || refreshing;
+  const clockLabel = useMemo(
+    () => now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+    [now]
+  );
+  const updatedLabel = lastUpdated
+    ? lastUpdated.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+    : null;
+
+  useEffect(() => {
+    const interval = window.setInterval(() => setNow(new Date()), 1000);
+    return () => window.clearInterval(interval);
+  }, []);
+
   const detectionRate = Number(stats?.detectionRate ?? 0);
   const safeRate = Math.max(0, Math.min(100, detectionRate));
   const ringRadius = 16;
   const ringCircumference = 2 * Math.PI * ringRadius;
   const ringOffset = ringCircumference - (safeRate / 100) * ringCircumference;
+  const refreshLabel = error ? 'Retry' : isBusy ? 'Refreshing' : 'Refresh';
 
   const metricCards = [
     { label: 'Total IOCs', value: (stats?.totalIOCs ?? 0).toLocaleString() },
@@ -55,7 +73,10 @@ export function DashboardHeader({
   ];
 
   return (
-    <div className="mb-6 border-b border-[#dad9d4] bg-[#faf9f5] pt-6 pb-5">
+    <div className="mb-6 border-b  pt-6 pb-5"
+    style={{
+      backgroundColor: APP_COLORS.background,
+    }}>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="space-y-2">
           <h1 className={`${TYPOGRAPHY.heading.h3} text-2xl font-extrabold text-t-textPrimary`}>
@@ -65,23 +86,32 @@ export function DashboardHeader({
             Real-time security monitoring built from MongoDB IOC history and cache intelligence.
           </p>
           <p className={`${TYPOGRAPHY.caption.sm} text-t-textMuted`}>
-            {lastUpdated ? `Last updated: ${lastUpdated.toLocaleTimeString()}` : 'Waiting for data...'}
+            {lastUpdated ? `Last updated at ${updatedLabel}` : 'Waiting for data...'}
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-1 rounded-full border border-[#dad9d4] bg-white px-2 py-1 text-xs font-semibold text-t-primary">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-t-primary" />
-            {refreshing ? 'Refreshing' : 'Live'}
+          <span className="inline-flex items-center gap-2 rounded-full border border-[#dad9d4] bg-white px-2.5 py-1 text-xs font-semibold text-t-textSecondary">
+            <Clock className="h-3.5 w-3.5 text-t-primary" />
+            <span className="tabular-nums text-t-textPrimary">{clockLabel}</span>
+          </span>
+          <span className="inline-flex items-center gap-2 rounded-full border border-[#dad9d4] bg-white px-2.5 py-1 text-xs font-semibold text-t-textSecondary">
+            <span
+              className={`h-2 w-2 rounded-full ${isBusy ? 'animate-pulse' : ''}`}
+              style={{ backgroundColor: isBusy ? APP_COLORS.warning : APP_COLORS.success }}
+            />
+            {isBusy ? 'Syncing' : 'Live'}
           </span>
           <TimeFilterDropdown value={timeRange} onChange={onTimeRangeChange} />
           <button
             type="button"
             onClick={onRetry}
-            className="inline-flex items-center gap-2 rounded-md border border-[#dad9d4] bg-white px-3 py-2 text-xs font-semibold text-t-textSecondary"
+            disabled={isBusy}
+            aria-busy={isBusy}
+            className="inline-flex items-center gap-2 rounded-md border border-[#dad9d4] bg-white px-3 py-2 text-xs font-semibold text-t-textSecondary shadow-sm transition hover:border-[#c96442]/40 hover:text-t-textPrimary disabled:cursor-not-allowed disabled:opacity-60"
           >
-            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-            Retry
+            <RefreshCw className={`h-4 w-4 ${isBusy ? 'animate-spin' : ''}`} />
+            {refreshLabel}
           </button>
         </div>
       </div>

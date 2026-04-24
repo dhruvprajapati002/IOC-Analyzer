@@ -20,7 +20,7 @@ import { DashboardSkeleton } from "@/components/ui/dashboard-skeleton";
 import { ProtectedPage } from "@/components/ProtectedPage";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Logo } from "@/components/common/Logo";
+import VigilanceLogo from "@/components/brand/VigilanceLogo";
 
 import { ThreatSearchForm } from "@/app/analyze/components/ThreatSearchForm";
 import { ThreatOverviewCard } from "@/app/analyze/components/cards/ThreatOverviewCard";
@@ -1032,7 +1032,7 @@ function AnalyzePageContent() {
       <div
         className="pointer-events-none absolute inset-0 -z-10"
         style={{
-          background: `radial-gradient(circle at 12% 14%, ${APP_COLORS.primary}20, transparent 42%), radial-gradient(circle at 88% 8%, ${APP_COLORS.accentCyan}1A, transparent 34%), linear-gradient(180deg, ${APP_COLORS.background}, ${APP_COLORS.backgroundSoft})`,
+          background: APP_COLORS.backgroundSoft,
         }}
       />
 
@@ -1050,15 +1050,20 @@ function AnalyzePageContent() {
             <Card
               className="rounded-2xl border"
               style={{
-                background: `linear-gradient(132deg, ${APP_COLORS.surface} 0%, ${APP_COLORS.backgroundSoft} 100%)`,
-                borderColor: `${APP_COLORS.primary}45`,
+                background: APP_COLORS.backgroundSoft,
+                borderColor: `${APP_COLORS.border}`,
               }}
             >
               <CardContent className="p-5 sm:p-6">
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
                   <div className="space-y-3">
                     <div className="flex items-center gap-3 flex-wrap">
-                      <Logo showTagline className="shrink-0" />
+                      <VigilanceLogo
+                        variant="compact"
+                        size="sm"
+                        theme="light"
+                        className="shrink-0"
+                      />
                       <Badge
                         className="border uppercase tracking-[0.16em] text-[10px] px-3 py-1"
                         style={{
@@ -1076,7 +1081,7 @@ function AnalyzePageContent() {
                         className="text-2xl sm:text-3xl font-black leading-tight tracking-tight"
                         style={{ color: APP_COLORS.textPrimary }}
                       >
-                        VigilanceX IOC Intelligence Console
+                        IOC Intelligence Console
                       </h1>
                       <p
                         className="text-sm sm:text-base mt-2 max-w-3xl"
@@ -1269,7 +1274,7 @@ function AnalyzePageContent() {
                 <Card
                   className="rounded-2xl border"
                   style={{
-                    backgroundColor: APP_COLORS.surface,
+                    backgroundColor: APP_COLORS.backgroundSoft,
                     borderColor: `${APP_COLORS.border}`,
                   }}
                 >
@@ -1298,7 +1303,7 @@ function AnalyzePageContent() {
                         style={{ color: APP_COLORS.textSecondary }}
                       >
                         Paste one or multiple indicators above to generate
-                        your VigilanceX threat intelligence report with
+                        your threat intelligence report with
                         actionable verdicts and source confidence.
                       </p>
                     </div>

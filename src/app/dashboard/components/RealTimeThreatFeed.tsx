@@ -3,7 +3,7 @@
 import { AlertTriangle, Radio } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { NoGraphData } from '@/components/NoGraphData';
-import { CARD_STYLES, LOADING_STYLES } from '@/lib/colors';
+import { CARD_STYLES, LOADING_STYLES, style } from '@/lib/colors';
 import { TYPOGRAPHY } from '@/lib/typography';
 import { ScrollArea } from '@/components/ui/ScrollArea';
 import type { ThreatFeedItem } from './dashboard.types';
@@ -33,7 +33,10 @@ export function RealTimeThreatFeed({ items, loading = false }: RealTimeThreatFee
   const rows = Array.isArray(items) ? items : [];
 
   return (
-    <Card className={`${CARD_STYLES.base} h-full rounded-2xl border border-[#dad9d4] bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.05)]`}>
+    <Card className={`${CARD_STYLES.base} h-full rounded-2xl border  p-6 `}
+    style={
+      style.card
+    }>
       <CardHeader className="p-0 pb-4">
         <div className="flex items-center gap-2">
           <Radio className="h-4 w-4 text-t-danger" />

@@ -22,8 +22,8 @@ export function RateLimitIndicator({ state }: RateLimitIndicatorProps) {
     <div
       className="rounded-xl border px-4 py-3"
       style={{
-        backgroundColor: state.isLimited ? 'rgba(239,68,68,0.06)' : APP_COLORS.surface,
-        borderColor: state.isLimited ? 'rgba(239,68,68,0.25)' : APP_COLORS.border,
+        backgroundColor:APP_COLORS.backgroundSoft,
+        borderColor: APP_COLORS.border,
       }}
     >
       <div className="flex items-center justify-between gap-4">

@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { APP_COLORS } from '@/lib/colors';
 import { ScrollArea } from '@/components/ui/ScrollArea';
+import VigilanceLogo from '@/components/brand/VigilanceLogo';
 
 const navigationItems = [
   { href: '/dashboard',     label: 'Dashboard',        icon: LayoutDashboard },
@@ -29,27 +30,21 @@ export function Sidebar() {
       style={{
         width: '70px',
         minWidth: '70px',
-        backgroundColor: APP_COLORS.surface,
+        backgroundColor: APP_COLORS.background,
         borderColor: APP_COLORS.border,
         color: APP_COLORS.textPrimary
       }}
     >
-      <div className="flex h-16 shrink-0 items-center border-b px-4" style={{ borderColor: APP_COLORS.border, justifyContent: 'center' }}>
-        <div className="flex items-center justify-center gap-3">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="h-6 w-6 shrink-0"
-            style={{ color: APP_COLORS.primary }}
-          >
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-          </svg>
-        </div>
+      <div
+        className="border-b"
+        style={{
+          borderColor: APP_COLORS.border,
+          display: 'flex',
+          justifyContent: 'center',
+          padding: '16px 0',
+        }}
+      >
+        <VigilanceLogo variant="icon" size="sm" theme="light" href="/" />
       </div>
 
       <ScrollArea asChild className="flex-1 px-3 py-4" variant="thin">

@@ -3,7 +3,7 @@
 import { Database } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { NoGraphData } from '@/components/NoGraphData';
-import { APP_COLORS, CARD_STYLES, CHART_COLORS, LOADING_STYLES, RISK_COLORS } from '@/lib/colors';
+import { APP_COLORS, CARD_STYLES, LOADING_STYLES, style } from '@/lib/colors';
 import { TYPOGRAPHY } from '@/lib/typography';
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
 import type { IocTypeDistributionItem } from './dashboard.types';
@@ -25,13 +25,6 @@ const IOC_COLORS: Record<string, string> = {
   hash: APP_COLORS.accentPurple,
 };
 
-const IOC_COLOR_CLASSES: Record<string, string> = {
-  ip: 'text-[#3b82f6]',
-  domain: 'text-[#c96442]',
-  url: 'text-[#f59e0b]',
-  hash: 'text-[#9c87f5]',
-};
-
 function toRawType(item: IocTypeDistributionItem): string {
   const raw = String(item.rawType ?? item.type ?? '').toLowerCase().trim();
   if (raw === 'file_hash' || raw === 'filehash') return 'hash';
@@ -44,6 +37,10 @@ function toRawType(item: IocTypeDistributionItem): string {
 }
 
 function toNumber(value: unknown): number {
+  if (typeof value === 'string') {
+    const parsed = Number(value.replace(/,/g, ''));
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
 }
@@ -54,18 +51,19 @@ export function IOCTypeDistributionChart({ data, loading = false }: IOCTypeDistr
     const rawType = toRawType(item);
     const count = toNumber(item.count ?? item.value ?? 0);
     const type = String((item.type ?? item.name ?? rawType) || 'Unknown');
+    const fill = typeof item.color === 'string' && item.color ? item.color : IOC_COLORS[rawType] ?? APP_COLORS.neutral;
     return {
       ...item,
       type,
       count,
       rawType,
-      fill: IOC_COLORS[rawType] ?? APP_COLORS.neutral,
+      fill,
     };
   }).filter((item) => item.count > 0);
   const total = rows.reduce((sum, item) => sum + item.count, 0);
 
   return (
-    <Card className={`${CARD_STYLES.base} h-full rounded-2xl border border-[#dad9d4] bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.05)]`}>
+    <Card className={`${CARD_STYLES.base} h-full rounded-2xl border p-6`} style={style.card}>
       <CardHeader className="p-0 pb-4">
         <div className="flex items-center gap-2">
           <Database className="h-4 w-4 text-t-primary" />
@@ -82,7 +80,7 @@ export function IOCTypeDistributionChart({ data, loading = false }: IOCTypeDistr
           <NoGraphData title="No IOC type data" subtitle="No IOC records in this range" />
         ) : (
           <>
-            <div className="h-56">
+            <div className="h-56 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie data={rows} dataKey="count" nameKey="type" innerRadius={45} outerRadius={75}>
@@ -113,7 +111,10 @@ export function IOCTypeDistributionChart({ data, loading = false }: IOCTypeDistr
                 return (
                   <div key={item.type} className="flex items-center justify-between rounded-lg border border-t-border px-2 py-1.5">
                     <span className={`${TYPOGRAPHY.caption.sm} text-t-textSecondary`}>{item.type}</span>
-                    <span className={`${TYPOGRAPHY.caption.sm} ${TYPOGRAPHY.fontWeight.bold} ${IOC_COLOR_CLASSES[item.rawType] ?? 'text-t-textPrimary'}`}>
+                    <span
+                      className={`${TYPOGRAPHY.caption.sm} ${TYPOGRAPHY.fontWeight.bold}`}
+                      style={{ color: item.fill ?? APP_COLORS.textPrimary }}
+                    >
                       {item.count.toLocaleString()} ({percent}%)
                     </span>
                   </div>

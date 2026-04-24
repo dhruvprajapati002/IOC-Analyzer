@@ -36,16 +36,16 @@ export function MainLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#faf9f5] text-t-textPrimary">
+    <div className="flex h-screen overflow-hidden  text-t-textPrimary">
       <Sidebar />
       
       {/* Main Content Area - Push right by sidebar width */}
-      <div className="flex w-full flex-col bg-[#faf9f5]">
+      <div className="flex w-full flex-col ">
         <Header />
         
         <ScrollArea
           asChild
-          className="relative h-full w-full flex-1 bg-[#faf9f5] p-4 sm:p-6 md:p-8"
+          className="relative h-full w-full flex-1  p-4 sm:p-6 md:p-8"
           variant="thin"
         >
           <main>

@@ -37,21 +37,18 @@ const robotoMono = Roboto_Mono({
 // ============================================================================
 
 export const metadata: Metadata = {
-  title: 'SentinelIQ',
-  description: 'Cyber Threat Intelligence Platform',
-  keywords: ['threat intelligence', 'IOC analysis', 'cybersecurity', 'malware detection'],
-  authors: [{ name: 'SentinelIQ Team' }],
+  title: 'VigilanceX — Cyber Threat Intelligence',
+  description:
+    'Real-time multi-source threat intelligence platform. Analyze IPs, domains, URLs, and file hashes with unified verdicts.',
   icons: {
-    icon: '/sentineliq-mark.svg',
-    shortcut: '/sentineliq-mark.svg',
-    apple: '/sentineliq-mark.svg',
+    icon: '/vigilanceX-logo.png',
+    apple: '/vigilanceX-logo.png',
   },
   openGraph: {
-    title: 'SentinelIQ',
+    title: 'VigilanceX',
     description: 'Cyber Threat Intelligence Platform',
-    type: 'website',
+    images: ['/vigilance-logo.svg'],
   },
- 
 };
 
 export const viewport: Viewport = {

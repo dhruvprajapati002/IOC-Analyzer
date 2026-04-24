@@ -45,15 +45,7 @@ function HistoryPageContent() {
     <div className="flex h-[calc(100vh-3rem)] flex-col" style={{ background: APP_COLORS.background }}>
       <div className="flex-shrink-0 border-b" style={{ borderColor: APP_COLORS.border }}>
         <div className="mx-auto flex w-full max-w-[1920px] items-center justify-between gap-3 px-4 py-4 sm:px-6 lg:px-8">
-          <div>
-            <h1 className="inline-flex items-center gap-2 text-xl font-black md:text-2xl" style={{ color: APP_COLORS.textPrimary }}>
-              <History className="h-5 w-5 md:h-6 md:w-6" style={{ color: APP_COLORS.primary }} />
-              Analysis History
-            </h1>
-            <p className="text-xs md:text-sm" style={{ color: APP_COLORS.textMuted }}>
-              Search, filter, and inspect IOC intelligence over time.
-            </p>
-          </div>
+          
 
           {!showDetailMode ? (
             <div className="flex items-center gap-2">

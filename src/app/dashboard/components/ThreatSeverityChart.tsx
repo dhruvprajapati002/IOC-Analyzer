@@ -3,7 +3,7 @@
 import { AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { NoGraphData } from '@/components/NoGraphData';
-import { APP_COLORS, CARD_STYLES, LOADING_STYLES, RISK_COLORS } from '@/lib/colors';
+import { APP_COLORS, CARD_STYLES, LOADING_STYLES, RISK_COLORS, style } from '@/lib/colors';
 import { TYPOGRAPHY } from '@/lib/typography';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell, CartesianGrid } from 'recharts';
 import type { ThreatIntelligenceSummary } from './dashboard.types';
@@ -25,7 +25,10 @@ export function ThreatSeverityChart({ data, loading = false }: ThreatSeverityCha
   const total = rows.reduce((sum, item) => sum + item.count, 0);
 
   return (
-    <Card className={`${CARD_STYLES.base} h-full rounded-2xl border border-[#dad9d4] bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.05)]`}>
+    <Card className={`${CARD_STYLES.base} h-full rounded-2xl border  p-6 `}
+    style={
+           style.card
+        }>
       <CardHeader className="p-0 pb-4">
         <div className="flex items-center gap-2">
           <AlertTriangle className="h-4 w-4 text-t-danger" />

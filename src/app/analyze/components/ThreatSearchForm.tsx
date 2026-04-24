@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import { Search } from 'lucide-react';
+import VigilanceLogo from '@/components/brand/VigilanceLogo';
 import {
   APP_COLORS,
 } from '@/lib/colors';
@@ -50,7 +51,7 @@ export function ThreatSearchForm({
   return (
     <div
       style={{
-        background: APP_COLORS.surface,
+        background: APP_COLORS.backgroundSoft,
         border: `1px solid ${APP_COLORS.border}`,
         borderRadius: 16,
         padding: 24,
@@ -58,12 +59,7 @@ export function ThreatSearchForm({
     >
       <div className="mb-4 flex items-start justify-between gap-4">
         <div>
-          <p
-            className="text-xs font-bold uppercase tracking-widest"
-            style={{ color: APP_COLORS.primary }}
-          >
-            VigilanceX Input Console
-          </p>
+          <VigilanceLogo variant="full" size="md" theme="light" />
           <h2 className="mt-1 text-xl font-bold" style={{ color: APP_COLORS.textPrimary }}>
             Search IOCs for Intelligence Enrichment
           </h2>
@@ -103,7 +99,7 @@ export function ThreatSearchForm({
               className="w-full resize-none rounded-xl border pl-9 pr-3 py-3 text-sm outline-none transition"
               style={{
                 borderColor: APP_COLORS.border,
-                backgroundColor: APP_COLORS.background,
+                backgroundColor: APP_COLORS.surface,
                 color: APP_COLORS.textPrimary,
               }}
             />

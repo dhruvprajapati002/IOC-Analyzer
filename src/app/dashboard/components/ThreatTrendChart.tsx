@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { NoGraphData } from '@/components/NoGraphData';
-import { APP_COLORS, CARD_STYLES, CHART_COLORS, LOADING_STYLES } from '@/lib/colors';
+import { APP_COLORS, CARD_STYLES, CHART_COLORS, LOADING_STYLES,style } from '@/lib/colors';
 import { TYPOGRAPHY } from '@/lib/typography';
 import { ResponsiveContainer, AreaChart, Area, CartesianGrid, Tooltip, XAxis, YAxis } from 'recharts';
 import type { DailyTrendPoint } from './dashboard.types';
@@ -48,25 +48,12 @@ export function ThreatTrendChart({ data, loading = false }: ThreatTrendChartProp
   return (
     <Card
       className={`${CARD_STYLES.base} h-full`}
-      style={{
-        background: APP_COLORS.surface,
-        border: `1px solid ${APP_COLORS.border}`,
-        borderRadius: 16,
-        padding: '24px',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-      }}
+      style={
+        style.card
+      }
     >
-      <CardHeader className="p-0 pb-4">
-        <CardTitle
-          className={TYPOGRAPHY.heading.h5}
-          style={{
-            color: APP_COLORS.textSecondary,
-            fontWeight: 700,
-            fontSize: '0.75rem',
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-          }}
-        >
+      <CardHeader className="p-2 pb-4">
+        <CardTitle className={`${TYPOGRAPHY.heading.h5} text-xs font-bold uppercase tracking-wide text-t-textSecondary`}>
           Threat Activity Timeline
         </CardTitle>
       </CardHeader>

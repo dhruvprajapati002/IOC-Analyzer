@@ -51,7 +51,7 @@ export function TimeFilterDropdown({ value, onChange }: TimeFilterDropdownProps)
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-1.5 px-2.5 py-1 rounded-md border transition-all hover:shadow-sm"
         style={{
-          backgroundColor: APP_COLORS.backgroundSoft,
+          backgroundColor: APP_COLORS.surface,
           borderColor: isOpen ? APP_COLORS.primary : APP_COLORS.borderSoft,
           boxShadow: isOpen ? `0 0 0 2px ${APP_COLORS.primary}20` : 'none',
         }}
@@ -76,7 +76,7 @@ export function TimeFilterDropdown({ value, onChange }: TimeFilterDropdownProps)
         <div
           className="absolute top-full right-0 mt-1 w-40 rounded-lg border shadow-xl z-50 overflow-hidden"
           style={{
-            backgroundColor: APP_COLORS.backgroundSoft,
+            backgroundColor: APP_COLORS.surface,
             borderColor: APP_COLORS.border,
           }}
         >

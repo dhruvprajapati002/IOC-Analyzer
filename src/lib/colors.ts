@@ -3,20 +3,6 @@
 // Single source of truth for the application's theme.
 // ============================================================
 
-export const DEFAULT_COLORS = {
-  background:      '#faf9f5',
-  backgroundSoft:  '#f5f4ee',
-  surface:         '#ffffff',
-  surfaceElevated: '#f5f4ee',
-  border:          '#dad9d4',
-  borderSoft:      'rgba(180,178,167,0.2)',
-  textPrimary:     '#3d3929',
-  textSecondary:   '#535146',
-  textMuted:       '#83827d',
-  textInverse:     '#ffffff',
-  primary:         '#c96442',
-  secondary:       '#e9e6dc',
-};
 
 export const sidebarColors = {
   background:       '#faf9f5',
@@ -102,17 +88,17 @@ export const sidebarColors = {
 };
 
 export const APP_COLORS = {
-  background:       DEFAULT_COLORS.background,
-  backgroundSoft:   DEFAULT_COLORS.backgroundSoft,
-  surface:          DEFAULT_COLORS.surface,
-  surfaceSoft:      DEFAULT_COLORS.surfaceElevated,
-  surfaceAlt:       DEFAULT_COLORS.surfaceElevated,
+  background:       sidebarColors.background,
+  backgroundSoft:   sidebarColors.backgroundSoft,
+  surface:          sidebarColors.surface,
+  surfaceSoft:      sidebarColors.surfaceElevated,
+  surfaceAlt:       sidebarColors.surfaceElevated,
   surfaceMuted:     sidebarColors.surfaceMuted,
   surfaceTint:      sidebarColors.surfaceTint,
-  border:           DEFAULT_COLORS.border,
-  borderSoft:       DEFAULT_COLORS.borderSoft,
+  border:           sidebarColors.border,
+  borderSoft:       sidebarColors.borderSoft,
   borderStrong:     sidebarColors.borderStrong,
-  primary:          DEFAULT_COLORS.primary,
+  primary:          sidebarColors.primary,
   primaryHover:     sidebarColors.accent,
   primarySoft:      sidebarColors.accent,
   primaryDark:      sidebarColors.primary,
@@ -138,9 +124,9 @@ export const APP_COLORS = {
   info:             sidebarColors.info,
   infoSoft:         sidebarColors.infoSoft,
   neutral:          sidebarColors.neutral,
-  textPrimary:      DEFAULT_COLORS.textPrimary,
-  textSecondary:    DEFAULT_COLORS.textSecondary,
-  textMuted:        DEFAULT_COLORS.textMuted,
+  textPrimary:      sidebarColors.textPrimary,
+  textSecondary:    sidebarColors.textSecondary,
+  textMuted:        sidebarColors.textMuted,
   textDim:          sidebarColors.textDim,
   textDisabled:     sidebarColors.textDisabled,
   textLighter:      sidebarColors.textLighter,
@@ -303,6 +289,20 @@ export const CARD_STYLES = {
 };
 
 
+export const style = {
+  card: {
+    backgroundColor : APP_COLORS.surface,
+    borderColor: APP_COLORS.border,
+    color: APP_COLORS.textPrimary,
+    boxShadow: `0 1px 3px ${APP_COLORS.borderSoft}`,
+  },
+  header: {
+    backgroundColor: APP_COLORS.surface,
+    borderColor: APP_COLORS.border,
+    color: APP_COLORS.textPrimary,
+    boxShadow: `0 1px 3px ${APP_COLORS.borderSoft}`,
+  },
 
+}
 
 export const RISK_COLORS = { "critical": { "primary": "#ef4444", "bg": "rgba(239, 68, 68, 0.1)", "border": "rgba(239, 68, 68, 0.2)", "text": "#ffffff", "level": "Critical" }, "high": { "primary": "#f97316", "bg": "rgba(249, 115, 22, 0.1)", "border": "rgba(249, 115, 22, 0.2)", "text": "#ffffff", "level": "High" }, "medium": { "primary": "#eab308", "bg": "rgba(234, 179, 8, 0.1)", "border": "rgba(234, 179, 8, 0.2)", "text": "#ffffff", "level": "Medium" }, "low": { "primary": "#10b981", "bg": "rgba(16, 185, 129, 0.1)", "border": "rgba(16, 185, 129, 0.2)", "text": "#ffffff", "level": "Low" }, "info": { "primary": "#3b82f6", "bg": "rgba(59, 130, 246, 0.1)", "border": "rgba(59, 130, 246, 0.2)", "text": "#ffffff", "level": "Info" }, "unknown": { "primary": "#6b7280", "bg": "rgba(107, 114, 128, 0.1)", "border": "rgba(107, 114, 128, 0.2)", "text": "#ffffff", "level": "Unknown" }, "clean": { "primary": "#10b981", "bg": "rgba(16, 185, 129, 0.1)", "border": "rgba(16, 185, 129, 0.2)", "text": "#ffffff", "level": "Clean" } };

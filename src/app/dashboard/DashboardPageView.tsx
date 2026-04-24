@@ -1,9 +1,9 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { ProtectedPage } from '@/components/ProtectedPage';
-import { APP_COLORS, CARD_STYLES, LOADING_STYLES } from '@/lib/colors';
+import { APP_COLORS } from '@/lib/colors';
 import { TYPOGRAPHY } from '@/lib/typography';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/apiFetch';
@@ -86,31 +86,6 @@ const EMPTY_PAYLOAD: DashboardPayload = {
   privacyMode: 'history-only',
 };
 
-function DashboardSkeleton() {
-  return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-        {Array.from({ length: 3 }).map((_, idx) => (
-          <div key={idx} className={`${CARD_STYLES.base} rounded-2xl border p-4`}>
-            <div className={`${LOADING_STYLES.skeleton} h-4 w-48 rounded`} />
-            <div className={`${LOADING_STYLES.skeleton} mt-3 h-40 rounded-xl`} />
-            <div className={`${LOADING_STYLES.skeleton} mt-3 h-10 rounded`} />
-          </div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-        {Array.from({ length: 4 }).map((_, idx) => (
-          <div key={idx} className={`${CARD_STYLES.base} rounded-2xl border p-4`}>
-            <div className={`${LOADING_STYLES.skeleton} h-4 w-48 rounded`} />
-            <div className={`${LOADING_STYLES.skeleton} mt-3 h-56 rounded-xl`} />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
   return (
     <div className="rounded-2xl border border-red-200 bg-red-50 p-5">
@@ -141,11 +116,17 @@ export default function DashboardPageView() {
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [retryCount, setRetryCount] = useState(0);
+  const hasData = useMemo(() => Boolean(payload), [payload]);
+  const hasDataRef = useRef(false);
+
+  useEffect(() => {
+    hasDataRef.current = hasData;
+  }, [hasData]);
 
   const fetchDashboardData = useCallback(async (foreground = false) => {
     const activeToken = token || getSystemToken();
 
-    if (foreground || !payload) {
+    if (foreground || !hasDataRef.current) {
       setLoading(true);
     } else {
       setRefreshing(true);
@@ -182,7 +163,7 @@ export default function DashboardPageView() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [globalTimeRange, payload, token]);
+  }, [globalTimeRange, token]);
 
   useEffect(() => {
     void fetchDashboardData(true);
@@ -222,7 +203,9 @@ export default function DashboardPageView() {
   const detectionEngines: DetectionEngineItem[] = safePayload.detectionEngines;
   const threatFeed: ThreatFeedItem[] = safePayload.threatFeed;
 
-  const hasData = useMemo(() => Boolean(payload), [payload]);
+  const isBusy = loading || refreshing;
+  const isInitialLoading = loading && !hasData;
+  const showCharts = hasData || isInitialLoading;
 
   const handleRetry = () => {
     setRetryCount(0);
@@ -237,45 +220,43 @@ export default function DashboardPageView() {
             timeRange={globalTimeRange}
             onTimeRangeChange={setGlobalTimeRange}
             stats={stats}
-            loading={loading || refreshing}
+            loading={isBusy}
             error={error}
             onRetry={handleRetry}
             lastUpdated={lastUpdated}
             refreshing={refreshing}
           />
 
-          {loading && !hasData ? <DashboardSkeleton /> : null}
+          {!showCharts && error ? <ErrorState message={error} onRetry={handleRetry} /> : null}
 
-          {!hasData && error ? <ErrorState message={error} onRetry={handleRetry} /> : null}
-
-          {hasData ? (
+          {showCharts ? (
             <div className="space-y-6">
               {error ? <ErrorState message={error} onRetry={handleRetry} /> : null}
 
-              <ThreatTrendChart data={dailyTrends} loading={refreshing} />
+              <ThreatTrendChart data={dailyTrends} loading={isInitialLoading} />
 
               <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-                <ThreatTypePieChart data={threatTypes} loading={refreshing} />
-                <IOCTypeDistributionChart data={iocTypeDistribution} loading={refreshing} />
-                <ThreatSeverityChart data={threatIntelligence} loading={refreshing} />
+                <ThreatTypePieChart data={threatTypes} loading={isInitialLoading} />
+                <IOCTypeDistributionChart data={iocTypeDistribution} loading={isInitialLoading} />
+                <ThreatSeverityChart data={threatIntelligence} loading={isInitialLoading} />
               </div>
 
               <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-                <GeographicDistributionChart data={geoDistribution} loading={refreshing} />
-                <MalwareFamiliesChart data={malwareFamilies} loading={refreshing} />
+                <GeographicDistributionChart data={geoDistribution} loading={isInitialLoading} />
+                <MalwareFamiliesChart data={malwareFamilies} loading={isInitialLoading} />
               </div>
 
               <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-                <TopThreatsGraph data={threatVectors} loading={refreshing} />
-                <FileAnalysisGraph data={fileAnalysis} loading={refreshing} />
+                <TopThreatsGraph data={threatVectors} loading={isInitialLoading} />
+                <FileAnalysisGraph data={fileAnalysis} loading={isInitialLoading} />
               </div>
 
               <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-                <RiskScoreTrend data={dailyTrends} loading={refreshing} />
-                <RealTimeThreatFeed items={threatFeed} loading={refreshing} />
+                <RiskScoreTrend data={dailyTrends} loading={isInitialLoading} />
+                <RealTimeThreatFeed items={threatFeed} loading={isInitialLoading} />
               </div>
 
-              <DetectionEnginePerformanceChart data={detectionEngines} loading={refreshing} />
+              <DetectionEnginePerformanceChart data={detectionEngines} loading={isInitialLoading} />
             </div>
           ) : null}
         </div>
