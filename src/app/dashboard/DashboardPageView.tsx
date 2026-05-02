@@ -110,7 +110,7 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
 
 export default function DashboardPageView() {
   const { token } = useAuth();
-  const [globalTimeRange, setGlobalTimeRange] = useState<TimeRange>('weekly');
+  const [globalTimeRange, setGlobalTimeRange] = useState<TimeRange>('all');
   const [payload, setPayload] = useState<DashboardPayload | null>(null);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);

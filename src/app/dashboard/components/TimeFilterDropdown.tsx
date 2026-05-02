@@ -5,7 +5,7 @@ import { Clock, ChevronDown, Check } from 'lucide-react';
 import { APP_COLORS } from '@/lib/colors';
 import { TYPOGRAPHY } from '@/lib/typography';
 
-export type TimeRange = 'daily' | 'weekly' | 'monthly';
+export type TimeRange = 'daily' | 'weekly' | 'monthly' | 'all';
 
 interface TimeFilterDropdownProps {
   value: TimeRange;
@@ -16,6 +16,7 @@ const timeRangeOptions = [
   { value: 'daily' as TimeRange, label: 'Last 24 Hours', icon: '📅' },
   { value: 'weekly' as TimeRange, label: 'Last 7 Days', icon: '📆' },
   { value: 'monthly' as TimeRange, label: 'Last 30 Days', icon: '📊' },
+  { value: 'all' as TimeRange, label: 'All Time', icon: '🌍' },
 ];
 
 export function TimeFilterDropdown({ value, onChange }: TimeFilterDropdownProps) {

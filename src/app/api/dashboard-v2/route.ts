@@ -5,7 +5,7 @@ import { IocUserHistory } from '@/lib/models/IocUserHistory';
 import { IocCache } from '@/lib/models/IocCache';
 import { SYSTEM_USER_ID } from '@/lib/system-user';
 
-type TimeRange = 'daily' | 'weekly' | 'monthly';
+type TimeRange = 'daily' | 'weekly' | 'monthly' | 'all';
 
 type DashboardCacheEntry = {
   timestamp: number;
@@ -19,6 +19,7 @@ const RANGE_DAYS: Record<TimeRange, number> = {
   daily: 1,
   weekly: 7,
   monthly: 30,
+  all: 3650, // 10 years
 };
 
 const THREAT_VECTOR_COLORS = {
@@ -63,10 +64,10 @@ const VERDICT_COLOR_MAP: Record<string, string> = {
 };
 
 function toRange(value: string | null): TimeRange {
-  if (value === 'daily' || value === 'weekly' || value === 'monthly') {
-    return value;
+  if (value === 'daily' || value === 'weekly' || value === 'monthly' || value === 'all') {
+    return value as TimeRange;
   }
-  return 'weekly';
+  return 'all';
 }
 
 function clampPercent(value: number): number {

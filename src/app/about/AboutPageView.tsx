@@ -603,7 +603,7 @@ export default function AboutPageView() {
                 }}
               >
                 <span className="text-4xl font-black" style={{ color: APP_COLORS.textOffWhite }}>
-                  V
+                  D
                 </span>
               </div>
               <h3 className="mt-4 text-xl font-black" style={{ color: APP_COLORS.textPrimary }}>

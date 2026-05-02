@@ -1,4 +1,4 @@
-export type TimeRange = 'daily' | 'weekly' | 'monthly';
+export type TimeRange = 'daily' | 'weekly' | 'monthly' | 'all';
 
 export interface DashboardStats {
   totalIOCs: number;
