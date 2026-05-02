@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ThreatLens – Security Architecture</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #f8fafc; display: flex; justify-content: center; padding: 40px 20px; }
+.page { background: #fff; width: 1060px; border: 1px solid #e2e8f0; border-radius: 16px; padding: 40px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+h1 { text-align: center; font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
+.subtitle { text-align: center; font-size: 12px; color: #64748b; margin-bottom: 32px; }
+.onion { position: relative; display: flex; justify-content: center; }
+.layer { border-radius: 18px; padding: 16px 20px; margin: 0 auto; border: 2px solid; margin-bottom: -1px; position: relative; }
+.l1 { width: 100%; background: #f0fdf4; border-color: #22c55e; }
+.l2 { width: 92%; background: #eff6ff; border-color: #3b82f6; margin-left: 4%; }
+.l3 { width: 84%; background: #fefce8; border-color: #f59e0b; margin-left: 8%; }
+.l4 { width: 76%; background: #faf5ff; border-color: #a855f7; margin-left: 12%; }
+.l5 { width: 68%; background: #fff1f2; border-color: #f43f5e; margin-left: 16%; }
+.layer-num { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 12px; margin-bottom: 6px; }
+.l1 .layer-num { background: #22c55e; color: #fff; }
+.l2 .layer-num { background: #3b82f6; color: #fff; }
+.l3 .layer-num { background: #f59e0b; color: #fff; }
+.l4 .layer-num { background: #a855f7; color: #fff; }
+.l5 .layer-num { background: #f43f5e; color: #fff; }
+.layer-title { font-size: 12px; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
+.items { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 4px; }
+.item { font-size: 10px; padding: 3px 9px; border-radius: 5px; border: 1px solid; white-space: nowrap; }
+.item-g { background: #dcfce7; border-color: #86efac; color: #15803d; }
+.item-b { background: #dbeafe; border-color: #93c5fd; color: #1d4ed8; }
+.item-y { background: #fef9c3; border-color: #fde047; color: #a16207; }
+.item-p { background: #f3e8ff; border-color: #d8b4fe; color: #7e22ce; }
+.item-r { background: #fee2e2; border-color: #fca5a5; color: #b91c1c; }
+.block-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.block { display: flex; align-items: center; gap: 4px; font-size: 10px; background: #fee2e2; border: 1px solid #fca5a5; border-radius: 5px; padding: 2px 8px; color: #b91c1c; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>ThreatLens — Security Architecture (Defence-in-Depth)</h1>
+  <p class="subtitle">5 concentric security layers · OWASP controls · Attack blocking at each layer · Light theme</p>
+
+  <div style="display:flex;flex-direction:column;gap:0;">
+
+    <!-- Layer 1 -->
+    <div class="layer l1">
+      <span class="layer-num">LAYER 1</span>
+      <div class="layer-title">🌐 Network / Transport Security</div>
+      <div class="items">
+        <span class="item item-g">HTTPS enforced (Vercel)</span>
+        <span class="item item-g">TLS certificate auto-renewal</span>
+        <span class="item item-g">Global edge network (47 PoPs)</span>
+        <span class="item item-g">X-Frame-Options: DENY</span>
+        <span class="item item-g">X-Content-Type-Options: nosniff</span>
+        <span class="item item-g">X-XSS-Protection: 1; mode=block</span>
+        <span class="item item-g">Referrer-Policy: strict-origin</span>
+        <span class="item item-g">Permissions-Policy: restricted</span>
+      </div>
+      <div class="block-row">
+        <span class="block">❌ Blocks: Cleartext HTTP downgrade attacks</span>
+        <span class="block">❌ Blocks: Clickjacking (iFrame embedding)</span>
+        <span class="block">❌ Blocks: MIME-type sniffing attacks</span>
+      </div>
+    </div>
+
+    <!-- Layer 2 -->
+    <div class="layer l2">
+      <span class="layer-num">LAYER 2</span>
+      <div class="layer-title">🚦 Rate Limiting &amp; Quota Protection</div>
+      <div class="items">
+        <span class="item item-b">4 requests/minute per IP</span>
+        <span class="item item-b">100 requests/day per IP</span>
+        <span class="item item-b">In-memory sliding window counter</span>
+        <span class="item item-b">429 Too Many Requests on breach</span>
+        <span class="item item-b">Quota protection for all 6 external APIs</span>
+      </div>
+      <div class="block-row">
+        <span class="block">❌ Blocks: DDoS / brute-force flooding</span>
+        <span class="block">❌ Blocks: API quota exhaustion attacks</span>
+        <span class="block">❌ Blocks: Credential stuffing enumeration</span>
+      </div>
+    </div>
+
+    <!-- Layer 3 -->
+    <div class="layer l3">
+      <span class="layer-num">LAYER 3</span>
+      <div class="layer-title">🧹 Input Validation &amp; Sanitization</div>
+      <div class="items">
+        <span class="item item-y">Zod schema enforcement</span>
+        <span class="item item-y">Type enum validation (ip|domain|url|hash)</span>
+        <span class="item item-y">Max 500 character limit</span>
+        <span class="item item-y">sanitizeIOCValue() strips $</span>
+        <span class="item item-y">Strips &lt; &gt; ' " special chars</span>
+        <span class="item item-y">Regex pattern validation per IOC type</span>
+        <span class="item item-y">400 Bad Request on schema failure</span>
+      </div>
+      <div class="block-row">
+        <span class="block">❌ Blocks: NoSQL Injection ($ operators)</span>
+        <span class="block">❌ Blocks: XSS via HTML injection</span>
+        <span class="block">❌ Blocks: SQL-i / JSON injection</span>
+        <span class="block">❌ Blocks: Oversized payload attacks</span>
+      </div>
+    </div>
+
+    <!-- Layer 4 -->
+    <div class="layer l4">
+      <span class="layer-num">LAYER 4</span>
+      <div class="layer-title">🔐 Authentication &amp; Session Security</div>
+      <div class="items">
+        <span class="item item-p">JWT HS256 — algorithm explicitly set</span>
+        <span class="item item-p">24-hour token expiry</span>
+        <span class="item item-p">bcrypt 12 salt rounds (password hashing)</span>
+        <span class="item item-p">SYSTEM_USER_ID fallback for anonymous</span>
+        <span class="item item-p">verifyAuth() middleware on all protected routes</span>
+        <span class="item item-p">Token stored in HttpOnly context</span>
+      </div>
+      <div class="block-row">
+        <span class="block">❌ Blocks: JWT algorithm confusion (none/RS256)</span>
+        <span class="block">❌ Blocks: Token forgery / tampering</span>
+        <span class="block">❌ Blocks: Weak password rainbow table attacks</span>
+        <span class="block">❌ Blocks: Unauthorized API access</span>
+      </div>
+    </div>
+
+    <!-- Layer 5 -->
+    <div class="layer l5">
+      <span class="layer-num">LAYER 5</span>
+      <div class="layer-title">🛡️ Data &amp; API Protection</div>
+      <div class="items">
+        <span class="item item-r">SSRF blocklist in safeFetch()</span>
+        <span class="item item-r">Blocks: 127.0.0.1, 169.254.x.x</span>
+        <span class="item item-r">Blocks: 10.x.x.x, 192.168.x.x ranges</span>
+        <span class="item item-r">MongoDB parameterised queries (Mongoose)</span>
+        <span class="item item-r">Sensitive field redaction in logger.ts</span>
+        <span class="item item-r">10s fetch timeout — prevents hung requests</span>
+        <span class="item item-r">API keys never logged or exposed to client</span>
+      </div>
+      <div class="block-row">
+        <span class="block">❌ Blocks: SSRF to internal AWS metadata</span>
+        <span class="block">❌ Blocks: NoSQL operator injection via queries</span>
+        <span class="block">❌ Blocks: API key leakage in logs</span>
+        <span class="block">❌ Blocks: Internal network probing</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Attack Summary -->
+  <div style="margin-top:24px;display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+    <div style="background:#fff1f2;border:1px solid #fca5a5;border-radius:10px;padding:14px;">
+      <div style="font-size:11px;font-weight:700;color:#b91c1c;margin-bottom:8px;">🔴 OWASP Top 10 Coverage</div>
+      <div style="font-size:10px;color:#374151;line-height:1.8;">
+        A01 Broken Access Control → Layers 4 &amp; 5<br>
+        A02 Cryptographic Failures → Layer 1 (TLS) + Layer 4 (bcrypt)<br>
+        A03 Injection (SQLi/NoSQLi/XSS) → Layer 3<br>
+        A04 Insecure Design → Layers 2, 3, 4<br>
+        A07 Identification &amp; Auth → Layer 4<br>
+        A10 SSRF → Layer 5 safeFetch() blocklist
+      </div>
+    </div>
+    <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:14px;">
+      <div style="font-size:11px;font-weight:700;color:#15803d;margin-bottom:8px;">🟢 Security Controls Summary</div>
+      <div style="font-size:10px;color:#374151;line-height:1.8;">
+        ✅ 8 HTTP security headers enforced<br>
+        ✅ Rate limiting: 4/min + 100/day per IP<br>
+        ✅ Zod schema validation on all inputs<br>
+        ✅ JWT HS256 with explicit algorithm lock<br>
+        ✅ bcrypt 12 rounds for all passwords<br>
+        ✅ SSRF protection on all outbound calls
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>ThreatLens — System Overview</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d1117;font-family:'Inter',sans-serif;color:#e2e8f0;padding:20px;min-height:100vh;display:flex;flex-direction:column;align-items:center}
+.header{text-align:center;margin-bottom:18px}
+.badge{display:inline-block;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.4);border-radius:20px;padding:3px 12px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#60a5fa;margin-bottom:8px}
+h1{font-size:20px;font-weight:700;background:linear-gradient(135deg,#e2e8f0,#93c5fd,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sub{color:#64748b;font-size:11px;margin-top:4px}
+.card{background:#161b27;border:1px solid #1e2d45;border-radius:14px;padding:24px;width:100%;max-width:1100px;overflow-x:auto}
+.mermaid{display:flex;justify-content:center}
+.footer{margin-top:14px;color:#374151;font-size:10px;text-align:center}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="badge">System Overview · ThreatLens</div>
+  <h1>End-to-End Platform Architecture</h1>
+  <div class="sub">Next.js · MongoDB · OpenSearch · 6 Threat Intelligence APIs</div>
+</div>
+<div class="card">
+<div class="mermaid">
+%%{init:{"theme":"base","themeVariables":{"primaryColor":"#1a2235","primaryTextColor":"#e2e8f0","primaryBorderColor":"#2d3f5a","lineColor":"#3b82f6","secondaryColor":"#111827","tertiaryColor":"#0f172a","clusterBkg":"#111827","clusterBorder":"#1e2d45","edgeLabelBackground":"#111827","fontFamily":"Inter,sans-serif","fontSize":"12px"}}}%%
+flowchart LR
+
+  subgraph USER["👤 User"]
+    Browser(["Browser"])
+  end
+
+  subgraph FE["🖥️ Next.js Frontend"]
+    Auth["Auth Context\nJWT · localStorage"]
+    Guard{"Auth\nGuard"}
+    Pages["Protected Pages\nAnalyze · Dashboard\nHistory · File · Graph"]
+  end
+
+  subgraph MW["⚙️ Middleware"]
+    MWNode["Route Protection\nJWT verify\nRole check"]
+  end
+
+  subgraph API["🔌 API Routes"]
+    AuthAPI(["Auth API\n/api/auth/*"])
+    IOCApi(["IOC API\n/api/ioc-v2"])
+    FileAPI(["File API\n/api/file-analysis"])
+    OtherAPI(["Dashboard · History\nGraph APIs"])
+  end
+
+  subgraph BL["🧠 Business Logic"]
+    Orch["Multi-Source\nOrchestrator"]
+    FileEng["File Engine\nMD5·SHA1·SHA256"]
+    Norm["Normaliser +\nRisk Scorer"]
+  end
+
+  subgraph EXT["🌐 Threat Intelligence Feeds"]
+    VT["VirusTotal"]
+    GN["GreyNoise"]
+    IPQS["IPQS"]
+    TF["ThreatFox"]
+    MB["MalwareBazaar"]
+    UH["URLhaus"]
+  end
+
+  subgraph DB["🗄️ Storage"]
+    Mongo[("MongoDB\nUsers · Auth")]
+    OS[("OpenSearch\niocs_cache\niocs_client_userId\ngraphs_cache")]
+  end
+
+  Browser ==>|"Visit"| Auth
+  Auth -->|"No JWT"| AuthAPI
+  AuthAPI --> Mongo
+  Mongo --> AuthAPI
+  AuthAPI -->|"JWT issued"| Auth
+  Auth --> Guard
+  Guard ==>|"Authorised"| Pages
+  Guard -.->|"Redirect"| AuthAPI
+
+  Pages -->|"All requests"| MWNode
+  MWNode -->|"IOC submit"| IOCApi
+  MWNode -->|"File upload"| FileAPI
+  MWNode -->|"Stats / logs"| OtherAPI
+
+  IOCApi -->|"Cache check"| OS
+  OS -.->|"Cache HIT"| IOCApi
+  IOCApi -->|"Cache MISS"| Orch
+  FileAPI --> FileEng
+  FileEng -->|"Hash IOC"| Orch
+
+  Orch -->|"Parallel"| VT & GN & IPQS & TF & MB & UH
+  VT & GN & IPQS & TF & MB & UH --> Norm
+  Norm -->|"Save result"| OS
+
+  OtherAPI --> OS
+
+  classDef usr fill:#1e3a5f,stroke:#3b82f6,color:#93c5fd
+  classDef fe  fill:#1e1b4b,stroke:#6366f1,color:#a5b4fc
+  classDef api fill:#0c4a6e,stroke:#06b6d4,color:#67e8f9
+  classDef bl  fill:#064e3b,stroke:#10b981,color:#6ee7b7
+  classDef ext fill:#451a03,stroke:#f59e0b,color:#fcd34d
+  classDef db  fill:#2e1065,stroke:#8b5cf6,color:#c4b5fd
+  classDef gd  fill:#1c1917,stroke:#ef4444,color:#fca5a5
+
+  class Browser usr
+  class Auth,Pages fe
+  class Guard gd
+  class AuthAPI,IOCApi,FileAPI,OtherAPI api
+  class Orch,FileEng,Norm bl
+  class VT,GN,IPQS,TF,MB,UH ext
+  class Mongo,OS db
+</div>
+</div>
+<div class="footer">ThreatLens · ForensicCyberTech Internship 2025–2026</div>
+<script>
+mermaid.initialize({startOnLoad:true,theme:'base',flowchart:{htmlLabels:false,curve:'basis',nodeSpacing:25,rankSpacing:45}});
+</script>
+</body>
+</html>

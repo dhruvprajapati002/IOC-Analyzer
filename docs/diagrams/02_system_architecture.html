@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ThreatLens – Main System Architecture</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #f8fafc; display: flex; justify-content: center; padding: 40px 20px; }
+.page { background: #fff; width: 1120px; border: 1px solid #e2e8f0; border-radius: 16px; padding: 40px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+h1 { text-align: center; font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
+.subtitle { text-align: center; font-size: 12px; color: #64748b; margin-bottom: 32px; }
+.layer { border-radius: 12px; margin-bottom: 6px; padding: 14px 18px; border: 2px solid; position: relative; margin-top: 14px; }
+.layer-badge { position: absolute; top: -12px; left: 14px; font-size: 10px; font-weight: 700; padding: 2px 12px; border-radius: 6px; letter-spacing: .4px; white-space: nowrap; }
+.l1 { background: #eff6ff; border-color: #3b82f6; }
+.l1 .layer-badge { background: #1d4ed8; color: #fff; }
+.l2 { background: #f0fdf4; border-color: #22c55e; }
+.l2 .layer-badge { background: #15803d; color: #fff; }
+.l3 { background: #fff7ed; border-color: #f97316; }
+.l3 .layer-badge { background: #c2410c; color: #fff; }
+.l4 { background: #faf5ff; border-color: #a855f7; }
+.l4 .layer-badge { background: #7e22ce; color: #fff; }
+.layer-title { font-size: 12px; font-weight: 700; margin-bottom: 10px; margin-top: 4px; }
+.modules { display: flex; flex-wrap: wrap; gap: 8px; }
+.mod { border-radius: 8px; padding: 7px 12px; border: 1.5px solid; font-size: 10px; font-weight: 500; }
+.mod sub { display: block; font-size: 8.5px; font-weight: 400; opacity: .7; margin-top: 1px; }
+.mb { background: #dbeafe; border-color: #93c5fd; color: #1d4ed8; }
+.mg { background: #dcfce7; border-color: #86efac; color: #15803d; }
+.mo { background: #ffedd5; border-color: #fdba74; color: #c2410c; }
+.mp { background: #f3e8ff; border-color: #d8b4fe; color: #7e22ce; }
+.mt { background: #ccfbf1; border-color: #5eead4; color: #0f766e; }
+.mr { background: #fee2e2; border-color: #fca5a5; color: #b91c1c; }
+.mgy { background: #f1f5f9; border-color: #cbd5e1; color: #475569; }
+.mam { background: #fef9c3; border-color: #fde047; color: #a16207; }
+.connector { display: flex; justify-content: center; gap: 40px; align-items: center; margin: 2px 0; }
+.conn-item { display: flex; flex-direction: column; align-items: center; font-size: 9px; color: #64748b; gap: 0; }
+.arr { font-size: 16px; line-height: 1; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>ThreatLens — Main System Architecture (4-Layer)</h1>
+  <p class="subtitle">Frontend · Backend API · Data &amp; Intelligence · Infrastructure · Light theme</p>
+
+  <!-- LAYER 1: Frontend -->
+  <div class="layer l1">
+    <span class="layer-badge">LAYER 1 — FRONTEND / CLIENT</span>
+    <div class="layer-title" style="color:#1d4ed8;">🖥️ Next.js 15 App Router · React 18 · TypeScript</div>
+    <div class="modules">
+      <div class="mod mb">📄 /analyze<sub>IOC search form + results display</sub></div>
+      <div class="mod mb">📊 /dashboard<sub>Charts, stats, aggregations</sub></div>
+      <div class="mod mb">📜 /history<sub>Paginated IOC history table</sub></div>
+      <div class="mod mb">ℹ️ /about<sub>Project information page</sub></div>
+      <div class="mod mb">🎨 Tailwind CSS<sub>Utility-first styling</sub></div>
+      <div class="mod mb">🎞️ Framer Motion<sub>Page transitions &amp; animations</sub></div>
+      <div class="mod mb">📈 Recharts<sub>Dashboard data visualization</sub></div>
+      <div class="mod mb">🔐 Auth Context<sub>JWT session &amp; user state</sub></div>
+    </div>
+  </div>
+
+  <!-- Connector 1→2 -->
+  <div class="connector">
+    <div class="conn-item"><div class="arr">⬇</div><span>HTTP Requests</span></div>
+    <div class="conn-item"><div class="arr">⬇</div><span>JWT Bearer Token</span></div>
+    <div class="conn-item"><div class="arr">⬆</div><span>JSON Responses</span></div>
+  </div>
+
+  <!-- LAYER 2: Backend -->
+  <div class="layer l2">
+    <span class="layer-badge">LAYER 2 — BACKEND / API LAYER</span>
+    <div class="layer-title" style="color:#15803d;">⚙️ Next.js API Routes (Serverless) · Node.js Runtime</div>
+    <div class="modules">
+      <div class="mod mg">🔑 auth.ts<sub>JWT sign/verify · bcrypt</sub></div>
+      <div class="mod mg">🛡️ safe-fetch.ts<sub>SSRF protection · 10s timeout</sub></div>
+      <div class="mod mg">🧹 sanitize.ts<sub>Strip $ &lt; &gt; operators</sub></div>
+      <div class="mod mg">✅ validate-request.ts<sub>Zod schema enforcement</sub></div>
+      <div class="mod mg">💾 ioc-cache.ts<sub>Cache read/write logic</sub></div>
+      <div class="mod mg">📝 logger.ts<sub>Structured logs · field redaction</sub></div>
+      <div class="mod mg">📦 api-response.ts<sub>Standardised format</sub></div>
+      <div class="mod mg">🚦 POST /api/ioc-v2<sub>Main IOC analysis route</sub></div>
+      <div class="mod mg">📊 GET /api/dashboard-v2<sub>Aggregation pipeline</sub></div>
+      <div class="mod mg">📜 GET /api/history-v2<sub>Paginated history</sub></div>
+      <div class="mod mg">🔐 POST /api/auth/login<sub>Authenticate user</sub></div>
+      <div class="mod mg">📝 POST /api/auth/register<sub>Register new user</sub></div>
+    </div>
+  </div>
+
+  <!-- Connector 2→3 -->
+  <div class="connector">
+    <div class="conn-item"><div class="arr">⬇</div><span>Mongoose Queries</span></div>
+    <div class="conn-item"><div class="arr">⬇</div><span>HTTPS API Calls (safeFetch)</span></div>
+    <div class="conn-item"><div class="arr">⬆</div><span>Documents / JSON</span></div>
+  </div>
+
+  <!-- LAYER 3: Data & Intelligence -->
+  <div class="layer l3">
+    <span class="layer-badge">LAYER 3 — DATA &amp; INTELLIGENCE LAYER</span>
+    <div class="layer-title" style="color:#c2410c;">🗄️ MongoDB Atlas · 6 External Intelligence APIs</div>
+    <div class="modules">
+      <div class="mod mam">🗄️ IocCache<sub>Compound {value,type} · TTL 1hr</sub></div>
+      <div class="mod mam">📜 IocUserHistory<sub>{userId, searched_at} · text idx</sub></div>
+      <div class="mod mr">🔴 VirusTotal<sub>IP·Domain·URL·Hash · 4/min</sub></div>
+      <div class="mod mb">🔵 GreyNoise<sub>IP only · Noise/Riot classify</sub></div>
+      <div class="mod mo">🟠 ThreatFox<sub>IP·Domain·Hash · Malware DB</sub></div>
+      <div class="mod mg">🟢 URLhaus<sub>URL·Domain · Blacklist DB</sub></div>
+      <div class="mod mp">🟣 MalwareBazaar<sub>Hash only · File hash DB</sub></div>
+      <div class="mod mt">🔷 IPQS<sub>IP·Domain·URL · Fraud 0–100</sub></div>
+    </div>
+  </div>
+
+  <!-- Connector 3→4 -->
+  <div class="connector">
+    <div class="conn-item"><div class="arr">⬇</div><span>Deploy artifacts</span></div>
+    <div class="conn-item"><div class="arr">⬆</div><span>Runtime execution</span></div>
+  </div>
+
+  <!-- LAYER 4: Infrastructure -->
+  <div class="layer l4">
+    <span class="layer-badge">LAYER 4 — INFRASTRUCTURE</span>
+    <div class="layer-title" style="color:#7e22ce;">☁️ Vercel Serverless · AWS MongoDB Atlas</div>
+    <div class="modules">
+      <div class="mod mp">🚀 Vercel Serverless<sub>47 global edge locations</sub></div>
+      <div class="mod mp">⚡ Lambda Functions<sub>10s max execution · auto-scale</sub></div>
+      <div class="mod mp">🌐 Global CDN<sub>Auto SSL/TLS · edge caching</sub></div>
+      <div class="mod mp">🔒 Vercel Env Config<sub>API keys · DB URI · JWT secret</sub></div>
+      <div class="mod mgy">🗄️ AWS US-East-1<sub>MongoDB Atlas M0 cluster</sub></div>
+      <div class="mod mgy">🔗 Connection Pool<sub>maxPoolSize: 10</sub></div>
+      <div class="mod mgy">⏱️ TTL Indexes<sub>Auto-expire cache docs</sub></div>
+      <div class="mod mgy">📊 Query Profiler<sub>Atlas monitoring</sub></div>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div style="border-top:1px solid #e2e8f0;margin-top:20px;padding-top:14px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;font-size:10px;color:#374151;">
+    <strong style="font-size:11px;color:#1e293b;">Legend:</strong>
+    <span><span style="display:inline-block;width:12px;height:10px;background:#dbeafe;border:1px solid #93c5fd;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Frontend</span>
+    <span><span style="display:inline-block;width:12px;height:10px;background:#dcfce7;border:1px solid #86efac;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>API/Backend</span>
+    <span><span style="display:inline-block;width:12px;height:10px;background:#ffedd5;border:1px solid #fdba74;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Data &amp; Intelligence</span>
+    <span><span style="display:inline-block;width:12px;height:10px;background:#f3e8ff;border:1px solid #d8b4fe;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Infrastructure</span>
+    <span style="margin-left:auto;color:#64748b;">Edge → DB: ~20ms · Full analysis avg: ~3800ms · Cache HIT: ~8ms</span>
+  </div>
+</div>
+</body>
+</html>

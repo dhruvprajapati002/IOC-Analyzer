@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ThreatLens – Deployment Architecture</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #f8fafc; display: flex; justify-content: center; padding: 40px 20px; }
+.page { background: #fff; width: 1100px; border: 1px solid #e2e8f0; border-radius: 16px; padding: 40px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+h1 { text-align: center; font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
+.subtitle { text-align: center; font-size: 12px; color: #64748b; margin-bottom: 32px; }
+svg text { font-family: 'Segoe UI', Arial, sans-serif; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>ThreatLens — Deployment Architecture</h1>
+  <p class="subtitle">CI/CD pipeline · Vercel edge network · MongoDB Atlas · Preview deployments · Auto SSL</p>
+
+  <svg width="1020" height="820" viewBox="0 0 1020 820">
+    <defs>
+      <marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto"><polygon points="0 0,8 3.5,0 7" fill="#64748b"/></marker>
+      <marker id="ab" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto"><polygon points="0 0,8 3.5,0 7" fill="#1e293b"/></marker>
+      <marker id="ag" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto"><polygon points="0 0,8 3.5,0 7" fill="#16a34a"/></marker>
+      <marker id="ao" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto"><polygon points="0 0,8 3.5,0 7" fill="#f97316"/></marker>
+    </defs>
+
+    <!-- DEVELOPER -->
+    <rect x="30" y="50" width="130" height="64" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+    <text x="95" y="74" text-anchor="middle" font-size="22">👨‍💻</text>
+    <text x="95" y="92" text-anchor="middle" font-size="11" font-weight="700" fill="#1d4ed8">Developer</text>
+    <text x="95" y="107" text-anchor="middle" font-size="9" fill="#64748b">git push origin main</text>
+
+    <!-- Arrow to GitHub -->
+    <line x1="160" y1="82" x2="225" y2="82" stroke="#64748b" stroke-width="1.5" marker-end="url(#a)"/>
+    <text x="192" y="76" text-anchor="middle" font-size="9" fill="#64748b">push</text>
+
+    <!-- GitHub -->
+    <rect x="227" y="50" width="140" height="64" rx="10" fill="#f8fafc" stroke="#374151" stroke-width="2"/>
+    <text x="297" y="74" text-anchor="middle" font-size="22">🐙</text>
+    <text x="297" y="92" text-anchor="middle" font-size="11" font-weight="700" fill="#1e293b">GitHub</text>
+    <text x="297" y="107" text-anchor="middle" font-size="9" fill="#64748b">main branch · webhook</text>
+
+    <!-- Arrow to Vercel Build -->
+    <line x1="367" y1="82" x2="432" y2="82" stroke="#64748b" stroke-width="1.5" marker-end="url(#a)"/>
+    <text x="400" y="75" text-anchor="middle" font-size="9" fill="#64748b">trigger</text>
+
+    <!-- VERCEL BUILD PIPELINE box -->
+    <rect x="434" y="30" width="220" height="110" rx="10" fill="#1e293b" stroke="#374151" stroke-width="2"/>
+    <text x="544" y="54" text-anchor="middle" font-size="12" font-weight="700" fill="#f8fafc">⚙️ Vercel Build Pipeline</text>
+    <text x="544" y="72" text-anchor="middle" font-size="9" fill="#94a3b8">1. TypeScript compile (tsc --noEmit)</text>
+    <text x="544" y="88" text-anchor="middle" font-size="9" fill="#94a3b8">2. Tailwind CSS purge + bundle</text>
+    <text x="544" y="104" text-anchor="middle" font-size="9" fill="#94a3b8">3. Next.js bundle optimisation</text>
+    <text x="544" y="120" text-anchor="middle" font-size="9" fill="#94a3b8">4. Env variable validation</text>
+
+    <!-- PR branch (dashed) -->
+    <line x1="297" y1="114" x2="297" y2="170" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#a)"/>
+    <rect x="200" y="172" width="200" height="50" rx="8" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5,3"/>
+    <text x="300" y="194" text-anchor="middle" font-size="10" font-weight="700" fill="#475569">🔀 Preview Deployments</text>
+    <text x="300" y="210" text-anchor="middle" font-size="9" fill="#64748b">Pull request → unique preview URL</text>
+
+    <!-- Env config -->
+    <rect x="720" y="30" width="270" height="110" rx="10" fill="#fefce8" stroke="#f59e0b" stroke-width="2"/>
+    <text x="855" y="54" text-anchor="middle" font-size="12" font-weight="700" fill="#a16207">🔒 Vercel Env Config</text>
+    <text x="855" y="72" text-anchor="middle" font-size="9" fill="#374151">MONGODB_URI (Atlas connection string)</text>
+    <text x="855" y="88" text-anchor="middle" font-size="9" fill="#374151">JWT_SECRET (HS256 signing key)</text>
+    <text x="855" y="104" text-anchor="middle" font-size="9" fill="#374151">VIRUSTOTAL_API_KEY</text>
+    <text x="855" y="120" text-anchor="middle" font-size="9" fill="#374151">GREYNOISE · IPQS · TF · URLhaus keys</text>
+
+    <!-- Arrows env → serverless -->
+    <line x1="855" y1="140" x2="855" y2="280" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#a)"/>
+    <text x="866" y="215" font-size="9" fill="#a16207">injected at runtime</text>
+
+    <!-- Deploy arrow -->
+    <line x1="544" y1="140" x2="544" y2="280" stroke="#1e293b" stroke-width="2" marker-end="url(#ab)"/>
+    <text x="555" y="215" font-size="9" fill="#374151">deploy</text>
+
+    <!-- VERCEL SERVERLESS box -->
+    <rect x="280" y="282" width="560" height="150" rx="12" fill="#0f172a" stroke="#334155" stroke-width="2"/>
+    <text x="560" y="308" text-anchor="middle" font-size="13" font-weight="700" fill="#f8fafc">🚀 Vercel Serverless Infrastructure</text>
+    <text x="560" y="328" text-anchor="middle" font-size="10" fill="#94a3b8">47 Edge Locations Worldwide · AWS Lambda-equivalent Functions</text>
+    <!-- sub boxes -->
+    <rect x="300" y="338" width="150" height="42" rx="6" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
+    <text x="375" y="357" text-anchor="middle" font-size="9" font-weight="600" fill="#e2e8f0">Edge Runtime</text>
+    <text x="375" y="372" text-anchor="middle" font-size="8" fill="#94a3b8">10s max exec · Auto-scale</text>
+    <rect x="462" y="338" width="150" height="42" rx="6" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
+    <text x="537" y="357" text-anchor="middle" font-size="9" font-weight="600" fill="#e2e8f0">Global CDN</text>
+    <text x="537" y="372" text-anchor="middle" font-size="8" fill="#94a3b8">Static assets · Edge cache</text>
+    <rect x="624" y="338" width="196" height="42" rx="6" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
+    <text x="722" y="357" text-anchor="middle" font-size="9" font-weight="600" fill="#e2e8f0">Auto SSL/TLS</text>
+    <text x="722" y="372" text-anchor="middle" font-size="8" fill="#94a3b8">HTTPS enforced · cert auto-renew</text>
+    <text x="560" y="422" text-anchor="middle" font-size="9" fill="#64748b">All API routes run as serverless functions · Zero cold-start infrastructure management</text>
+
+    <!-- MongoDB Atlas -->
+    <rect x="370" y="530" width="380" height="110" rx="12" fill="#f0fdf4" stroke="#22c55e" stroke-width="2.5"/>
+    <text x="560" y="556" text-anchor="middle" font-size="13" font-weight="700" fill="#15803d">🗄️ MongoDB Atlas</text>
+    <text x="560" y="575" text-anchor="middle" font-size="10" fill="#374151">M0 Cluster · AWS US-East-1 · maxPoolSize: 10</text>
+    <text x="560" y="593" text-anchor="middle" font-size="9" fill="#374151">IocCache collection · IocUserHistory collection</text>
+    <text x="560" y="610" text-anchor="middle" font-size="9" fill="#374151">TTL Indexes (auto-expire 1hr) · Query Profiler enabled</text>
+    <text x="560" y="628" text-anchor="middle" font-size="9" fill="#374151">Avg latency: edge → DB ~20ms</text>
+
+    <!-- Arrow: Vercel → MongoDB -->
+    <line x1="560" y1="432" x2="560" y2="530" stroke="#22c55e" stroke-width="2" marker-end="url(#ag)"/>
+    <text x="576" y="486" font-size="9" fill="#16a34a">Mongoose queries</text>
+    <text x="576" y="500" font-size="9" fill="#16a34a">~20ms latency</text>
+
+    <!-- END USERS -->
+    <rect x="30" y="680" width="200" height="64" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+    <text x="130" y="704" text-anchor="middle" font-size="13">🌍</text>
+    <text x="130" y="722" text-anchor="middle" font-size="11" font-weight="700" fill="#1d4ed8">Global End Users</text>
+    <text x="130" y="738" text-anchor="middle" font-size="9" fill="#64748b">Analysts / Security teams</text>
+
+    <!-- Arrow: users → Vercel -->
+    <line x1="230" y1="712" x2="305" y2="412" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#a)"/>
+    <text x="242" y="560" font-size="9" fill="#3b82f6" transform="rotate(-60,242,560)">HTTPS request</text>
+
+    <!-- Arrow: Vercel → users -->
+    <line x1="295" y1="400" x2="195" y2="690" stroke="#16a34a" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#ag)"/>
+    <text x="200" y="545" font-size="9" fill="#16a34a" transform="rotate(-60,200,545)">JSON response</text>
+
+    <!-- Latency labels box -->
+    <rect x="760" y="530" width="230" height="110" rx="10" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
+    <text x="875" y="554" text-anchor="middle" font-size="11" font-weight="700" fill="#1e293b">⏱ Performance Metrics</text>
+    <text x="875" y="572" text-anchor="middle" font-size="10" fill="#374151">Edge → MongoDB: ~20ms</text>
+    <text x="875" y="590" text-anchor="middle" font-size="10" fill="#374151">Cache HIT response: ~8ms</text>
+    <text x="875" y="608" text-anchor="middle" font-size="10" fill="#374151">Full analysis avg: ~3800ms</text>
+    <text x="875" y="626" text-anchor="middle" font-size="10" fill="#374151">Static asset CDN: &lt;50ms</text>
+  </svg>
+</div>
+</body>
+</html>

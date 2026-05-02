@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ThreatLens – REST API Endpoint Map</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #f8fafc; display: flex; justify-content: center; padding: 40px 20px; }
+.page { background: #fff; width: 1100px; border: 1px solid #e2e8f0; border-radius: 16px; padding: 40px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+h1 { text-align: center; font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
+.subtitle { text-align: center; font-size: 12px; color: #64748b; margin-bottom: 32px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.group { border-radius: 12px; overflow: hidden; border: 2px solid; }
+.group-header { padding: 12px 16px; }
+.group-title { font-size: 13px; font-weight: 700; color: #fff; }
+.group-desc { font-size: 10px; color: rgba(255,255,255,.75); margin-top: 2px; }
+.endpoint { padding: 10px 14px; border-bottom: 1px solid; background: #fff; }
+.endpoint:last-child { border-bottom: none; }
+.ep-top { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.method { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; white-space: nowrap; }
+.m-post { background: #fef9c3; color: #a16207; border: 1px solid #fde047; }
+.m-get  { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+.m-del  { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+.path { font-size: 11px; font-weight: 700; color: #1e293b; font-family: 'Courier New', monospace; }
+.badges { display: flex; gap: 5px; margin-left: auto; flex-wrap: wrap; justify-content: flex-end; }
+.badge { font-size: 9px; padding: 1px 6px; border-radius: 3px; white-space: nowrap; }
+.badge-jwt { background: #faf5ff; color: #7e22ce; border: 1px solid #d8b4fe; }
+.badge-rate { background: #fff7ed; color: #c2410c; border: 1px solid #fdba74; }
+.badge-time { background: #f0f9ff; color: #0369a1; border: 1px solid #bae6fd; }
+.ep-body { font-size: 9px; color: #64748b; line-height: 1.6; }
+.ep-body strong { color: #374151; }
+/* colours per group */
+.auth-g { border-color: #3b82f6; }
+.auth-g .group-header { background: #1d4ed8; }
+.auth-g .endpoint { border-color: #dbeafe; }
+.core-g { border-color: #f97316; }
+.core-g .group-header { background: #c2410c; }
+.core-g .endpoint { border-color: #ffedd5; }
+.dash-g { border-color: #22c55e; }
+.dash-g .group-header { background: #15803d; }
+.dash-g .endpoint { border-color: #dcfce7; }
+.hist-g { border-color: #a855f7; }
+.hist-g .group-header { background: #7e22ce; }
+.hist-g .endpoint { border-color: #f3e8ff; }
+.dom-g { border-color: #0ea5e9; }
+.dom-g .group-header { background: #0369a1; }
+.dom-g .endpoint { border-color: #e0f2fe; }
+/* middleware stack */
+.mw-stack { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-top: 20px; }
+.mw-title { font-size: 12px; font-weight: 700; color: #1e293b; margin-bottom: 12px; }
+.mw-flow { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.mw-box { background: #eff6ff; border: 1.5px solid #93c5fd; border-radius: 8px; padding: 8px 14px; font-size: 11px; font-weight: 600; color: #1d4ed8; text-align: center; }
+.mw-box sub { display: block; font-size: 9px; font-weight: 400; color: #64748b; }
+.mw-arr { font-size: 18px; color: #94a3b8; }
+.mw-box-green { background: #f0fdf4; border-color: #86efac; color: #15803d; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>ThreatLens — REST API Endpoint Map</h1>
+  <p class="subtitle">4 endpoint groups · Method badges · Auth requirements · Rate limits · Avg response times</p>
+
+  <div class="grid">
+
+    <!-- AUTH GROUP -->
+    <div class="group auth-g">
+      <div class="group-header">
+        <div class="group-title">🔐 Authentication Group</div>
+        <div class="group-desc">User login &amp; registration · bcrypt · JWT</div>
+      </div>
+      <div class="endpoint">
+        <div class="ep-top">
+          <span class="method m-post">POST</span>
+          <span class="path">/api/auth/login</span>
+          <div class="badges">
+            <span class="badge badge-rate">No rate limit</span>
+            <span class="badge badge-time">~120ms</span>
+          </div>
+        </div>
+        <div class="ep-body">
+          <strong>Body:</strong> { email, password } · <strong>Process:</strong> bcrypt verify → JWT sign (HS256, 24h)<br>
+          <strong>Returns:</strong> { token, user } · <strong>Errors:</strong> 401 invalid creds · 422 missing fields
+        </div>
+      </div>
+      <div class="endpoint">
+        <div class="ep-top">
+          <span class="method m-post">POST</span>
+          <span class="path">/api/auth/register</span>
+          <div class="badges">
+            <span class="badge badge-rate">No rate limit</span>
+            <span class="badge badge-time">~180ms</span>
+          </div>
+        </div>
+        <div class="ep-body">
+          <strong>Body:</strong> { email, password, name } · <strong>Process:</strong> bcrypt hash (12 rounds) → store user<br>
+          <strong>Returns:</strong> { token, user } · <strong>Errors:</strong> 409 email exists
+        </div>
+      </div>
+    </div>
+
+    <!-- CORE ANALYSIS GROUP -->
+    <div class="group core-g">
+      <div class="group-header">
+        <div class="group-title">⚡ Core Analysis Group</div>
+        <div class="group-desc">Main IOC analysis · Multi-source orchestration</div>
+      </div>
+      <div class="endpoint">
+        <div class="ep-top">
+          <span class="method m-post">POST</span>
+          <span class="path">/api/ioc-v2</span>
+          <div class="badges">
+            <span class="badge badge-jwt">🔐 JWT optional</span>
+            <span class="badge badge-rate">4/min · 100/day</span>
+            <span class="badge badge-time">~3800ms avg</span>
+          </div>
+        </div>
+        <div class="ep-body">
+          <strong>Body:</strong> { value: string, type: "ip"|"domain"|"url"|"hash" }<br>
+          <strong>Process:</strong> Validate → Sanitize → Cache lookup → 6 parallel APIs → Normalise → Score<br>
+          <strong>Returns:</strong> { analysis, risk_score, risk_level, cached, sources[] }<br>
+          <strong>Errors:</strong> 400 invalid · 429 rate limit · 500 upstream failure
+        </div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD GROUP -->
+    <div class="group dash-g">
+      <div class="group-header">
+        <div class="group-title">📊 Dashboard Group</div>
+        <div class="group-desc">Aggregated statistics · Chart data · Cached 30s</div>
+      </div>
+      <div class="endpoint">
+        <div class="ep-top">
+          <span class="method m-get">GET</span>
+          <span class="path">/api/dashboard-v2</span>
+          <div class="badges">
+            <span class="badge badge-jwt">🔐 JWT required</span>
+            <span class="badge badge-rate">No strict limit</span>
+            <span class="badge badge-time">~400ms</span>
+          </div>
+        </div>
+        <div class="ep-body">
+          <strong>Process:</strong> MongoDB aggregation pipeline · 30s server-side cache<br>
+          <strong>Returns:</strong> { totalScans, riskDistribution, typeBreakdown, recentActivity, topThreats, 10+ chart datasets }<br>
+          <strong>Errors:</strong> 401 unauthenticated · 500 DB error
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTORY GROUP -->
+    <div class="group hist-g">
+      <div class="group-header">
+        <div class="group-title">📜 History Group</div>
+        <div class="group-desc">Paginated history · Filterable · Export CSV/JSON</div>
+      </div>
+      <div class="endpoint">
+        <div class="ep-top">
+          <span class="method m-get">GET</span>
+          <span class="path">/api/history-v2</span>
+          <div class="badges">
+            <span class="badge badge-jwt">🔐 JWT required</span>
+            <span class="badge badge-time">~85ms</span>
+          </div>
+        </div>
+        <div class="ep-body">
+          <strong>Query:</strong> ?page=1&limit=20&type=ip&search=192.168 · <strong>Returns:</strong> { items[], total, pages }
+        </div>
+      </div>
+      <div class="endpoint">
+        <div class="ep-top">
+          <span class="method m-del">DELETE</span>
+          <span class="path">/api/history-v2</span>
+          <div class="badges">
+            <span class="badge badge-jwt">🔐 JWT required</span>
+            <span class="badge badge-time">~50ms</span>
+          </div>
+        </div>
+        <div class="ep-body">
+          Clears all history for authenticated userId · Returns: { deleted: count }
+        </div>
+      </div>
+      <div class="endpoint">
+        <div class="ep-top">
+          <span class="method m-get">GET</span>
+          <span class="path">/api/history-v2/export</span>
+          <div class="badges">
+            <span class="badge badge-jwt">🔐 JWT required</span>
+            <span class="badge badge-time">~200ms</span>
+          </div>
+        </div>
+        <div class="ep-body">
+          <strong>Query:</strong> ?format=csv|json · Returns file download with Content-Disposition header
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Domain Intel -->
+  <div class="group dom-g" style="margin-top:20px;">
+    <div class="group-header">
+      <div class="group-title">🌐 Domain Intelligence Group</div>
+      <div class="group-desc">WHOIS · DNS · SSL certificate data · SSRF-protected</div>
+    </div>
+    <div class="endpoint" style="border-color:#e0f2fe;">
+      <div class="ep-top">
+        <span class="method m-get">GET</span>
+        <span class="path">/api/domain-intel</span>
+        <div class="badges">
+          <span class="badge badge-jwt">🔐 JWT optional</span>
+          <span class="badge badge-rate">4/min</span>
+          <span class="badge badge-time">~1200ms</span>
+        </div>
+      </div>
+      <div class="ep-body">
+        <strong>Query:</strong> ?domain=example.com · Fetches: WHOIS registration, DNS records (A/MX/NS), SSL cert info<br>
+        <strong>Security:</strong> SSRF-protected via safeFetch() blocklist · <strong>Returns:</strong> { whois, dns, ssl }
+      </div>
+    </div>
+  </div>
+
+  <!-- Middleware Stack -->
+  <div class="mw-stack">
+    <div class="mw-title">🔧 Middleware Stack (applied to all protected routes)</div>
+    <div class="mw-flow">
+      <div class="mw-box">📥 Incoming Request<sub>HTTP/HTTPS</sub></div>
+      <span class="mw-arr">→</span>
+      <div class="mw-box">🔐 verifyAuth()<sub>JWT HS256 verify</sub></div>
+      <span class="mw-arr">→</span>
+      <div class="mw-box">✅ validateBody()<sub>Zod schema</sub></div>
+      <span class="mw-arr">→</span>
+      <div class="mw-box">🧹 sanitize()<sub>Strip operators</sub></div>
+      <span class="mw-arr">→</span>
+      <div class="mw-box">🚦 rateLimit()<sub>4/min · 100/day</sub></div>
+      <span class="mw-arr">→</span>
+      <div class="mw-box mw-box-green">⚙️ Handler<sub>Business logic</sub></div>
+      <span class="mw-arr">→</span>
+      <div class="mw-box mw-box-green">📤 api-response.ts<sub>Standardised JSON</sub></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

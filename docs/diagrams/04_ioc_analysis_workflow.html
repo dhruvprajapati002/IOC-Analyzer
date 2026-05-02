@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ThreatLens – IOC Analysis Workflow</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #f8fafc; display: flex; justify-content: center; padding: 40px 20px; }
+.page { background: #fff; width: 860px; border: 1px solid #e2e8f0; border-radius: 16px; padding: 40px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+h1 { text-align: center; font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
+.subtitle { text-align: center; font-size: 12px; color: #64748b; margin-bottom: 32px; }
+svg text { font-family: 'Segoe UI', Arial, sans-serif; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>ThreatLens IOC Analysis Workflow</h1>
+  <p class="subtitle">Step-by-step process · Decision points · Happy path and rejection branches</p>
+
+  <svg width="780" height="1600" viewBox="0 0 780 1600">
+    <defs>
+      <marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto"><polygon points="0 0,8 3.5,0 7" fill="#64748b"/></marker>
+      <marker id="ag" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto"><polygon points="0 0,8 3.5,0 7" fill="#16a34a"/></marker>
+      <marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto"><polygon points="0 0,8 3.5,0 7" fill="#dc2626"/></marker>
+    </defs>
+
+    <!-- STEP 1: User submits -->
+    <rect x="240" y="20" width="300" height="54" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+    <text x="390" y="44" text-anchor="middle" font-size="12" font-weight="700" fill="#1d4ed8">1. User Submits IOC</text>
+    <text x="390" y="62" text-anchor="middle" font-size="10" fill="#374151">Search form → POST /api/ioc-v2 { value, type }</text>
+    <line x1="390" y1="74" x2="390" y2="108" stroke="#64748b" stroke-width="1.5" marker-end="url(#a)"/>
+
+    <!-- STEP 2: Type detection -->
+    <rect x="240" y="110" width="300" height="64" rx="10" fill="#f0f9ff" stroke="#0ea5e9" stroke-width="2"/>
+    <text x="390" y="132" text-anchor="middle" font-size="12" font-weight="700" fill="#0369a1">2. IOC Type Auto-Detection</text>
+    <text x="390" y="148" text-anchor="middle" font-size="9" fill="#374151">Regex: IPv4/IPv6 → IP · domain → Domain</text>
+    <text x="390" y="162" text-anchor="middle" font-size="9" fill="#374151">http/https → URL · 32/40/64 hex → Hash</text>
+    <line x1="390" y1="174" x2="390" y2="208" stroke="#64748b" stroke-width="1.5" marker-end="url(#a)"/>
+
+    <!-- STEP 3: Validation diamond -->
+    <polygon points="390,210 510,248 390,286 270,248" fill="#fefce8" stroke="#f59e0b" stroke-width="2"/>
+    <text x="390" y="244" text-anchor="middle" font-size="11" font-weight="700" fill="#a16207">3. Zod Validation</text>
+    <text x="390" y="260" text-anchor="middle" font-size="9" fill="#374151">Schema check</text>
+    <!-- YES arrow down -->
+    <line x1="390" y1="286" x2="390" y2="320" stroke="#16a34a" stroke-width="1.5" marker-end="url(#ag)"/>
+    <text x="396" y="308" font-size="9" fill="#16a34a" font-weight="600">VALID</text>
+    <!-- NO arrow right -->
+    <line x1="510" y1="248" x2="620" y2="248" stroke="#dc2626" stroke-width="1.5" marker-end="url(#ar)"/>
+    <rect x="622" y="226" width="120" height="44" rx="8" fill="#fee2e2" stroke="#fca5a5" stroke-width="1.5"/>
+    <text x="682" y="246" text-anchor="middle" font-size="10" font-weight="700" fill="#b91c1c">❌ 400 Error</text>
+    <text x="682" y="262" text-anchor="middle" font-size="9" fill="#374151">Invalid IOC type</text>
+    <text x="516" y="242" font-size="9" fill="#dc2626" font-weight="600">INVALID</text>
+
+    <!-- STEP 4: Sanitization -->
+    <rect x="240" y="322" width="300" height="54" rx="10" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/>
+    <text x="390" y="344" text-anchor="middle" font-size="12" font-weight="700" fill="#15803d">4. Sanitization</text>
+    <text x="390" y="362" text-anchor="middle" font-size="9" fill="#374151">Strip $ &lt; &gt; ' " operators · max 500 chars</text>
+    <line x1="390" y1="376" x2="390" y2="410" stroke="#64748b" stroke-width="1.5" marker-end="url(#a)"/>
+
+    <!-- STEP 5: JWT Auth -->
+    <rect x="240" y="412" width="300" height="54" rx="10" fill="#faf5ff" stroke="#a855f7" stroke-width="2"/>
+    <text x="390" y="434" text-anchor="middle" font-size="12" font-weight="700" fill="#7e22ce">5. JWT Auth Check</text>
+    <text x="390" y="452" text-anchor="middle" font-size="9" fill="#374151">Registered user OR assign SYSTEM_USER_ID</text>
+    <line x1="390" y1="466" x2="390" y2="500" stroke="#64748b" stroke-width="1.5" marker-end="url(#a)"/>
+
+    <!-- STEP 6: Rate limit diamond -->
+    <polygon points="390,502 510,540 390,578 270,540" fill="#fefce8" stroke="#f59e0b" stroke-width="2"/>
+    <text x="390" y="535" text-anchor="middle" font-size="11" font-weight="700" fill="#a16207">6. Rate Limit</text>
+    <text x="390" y="552" text-anchor="middle" font-size="9" fill="#374151">4/min · 100/day</text>
+    <!-- YES down -->
+    <line x1="390" y1="578" x2="390" y2="612" stroke="#16a34a" stroke-width="1.5" marker-end="url(#ag)"/>
+    <text x="396" y="600" font-size="9" fill="#16a34a" font-weight="600">WITHIN LIMIT</text>
+    <!-- NO right -->
+    <line x1="510" y1="540" x2="620" y2="540" stroke="#dc2626" stroke-width="1.5" marker-end="url(#ar)"/>
+    <rect x="622" y="518" width="120" height="44" rx="8" fill="#fee2e2" stroke="#fca5a5" stroke-width="1.5"/>
+    <text x="682" y="538" text-anchor="middle" font-size="10" font-weight="700" fill="#b91c1c">❌ 429 Error</text>
+    <text x="682" y="554" text-anchor="middle" font-size="9" fill="#374151">Rate limit exceeded</text>
+    <text x="516" y="534" font-size="9" fill="#dc2626" font-weight="600">EXCEEDED</text>
+
+    <!-- STEP 7: Cache lookup diamond -->
+    <polygon points="390,614 510,652 390,690 270,652" fill="#fefce8" stroke="#f59e0b" stroke-width="2"/>
+    <text x="390" y="646" text-anchor="middle" font-size="11" font-weight="700" fill="#a16207">7. Cache Lookup</text>
+    <text x="390" y="663" text-anchor="middle" font-size="9" fill="#374151">{value, type} index</text>
+    <!-- HIT: right to cached result -->
+    <line x1="510" y1="652" x2="620" y2="652" stroke="#16a34a" stroke-width="1.5" marker-end="url(#ag)"/>
+    <rect x="622" y="630" width="120" height="44" rx="8" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5"/>
+    <text x="682" y="650" text-anchor="middle" font-size="10" font-weight="700" fill="#15803d">✅ Cache HIT</text>
+    <text x="682" y="666" text-anchor="middle" font-size="9" fill="#374151">Return · ~8ms</text>
+    <text x="516" y="646" font-size="9" fill="#16a34a" font-weight="600">HIT</text>
+    <!-- MISS: down -->
+    <line x1="390" y1="690" x2="390" y2="724" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#ar)"/>
+    <text x="396" y="710" font-size="9" fill="#dc2626" font-weight="600">MISS</text>
+
+    <!-- STEP 8: Parallel calls -->
+    <rect x="200" y="726" width="380" height="64" rx="10" fill="#faf5ff" stroke="#a855f7" stroke-width="2"/>
+    <text x="390" y="748" text-anchor="middle" font-size="12" font-weight="700" fill="#7e22ce">8. Parallel API Calls</text>
+    <text x="390" y="765" text-anchor="middle" font-size="9" fill="#374151">Promise.allSettled() → all 6 sources simultaneously</text>
+    <text x="390" y="780" text-anchor="middle" font-size="9" fill="#374151">VirusTotal · GreyNoise · ThreatFox · URLhaus · MalwareBazaar · IPQS</text>
+    <line x1="390" y1="790" x2="390" y2="824" stroke="#64748b" stroke-width="1.5" marker-end="url(#a)"/>
+
+    <!-- STEP 9: Normalisation -->
+    <rect x="240" y="826" width="300" height="54" rx="10" fill="#f0f9ff" stroke="#0ea5e9" stroke-width="2"/>
+    <text x="390" y="848" text-anchor="middle" font-size="12" font-weight="700" fill="#0369a1">9. Response Normalisation</text>
+    <text x="390" y="866" text-anchor="middle" font-size="9" fill="#374151">Map each source → standard unified schema</text>
+    <line x1="390" y1="880" x2="390" y2="914" stroke="#64748b" stroke-width="1.5" marker-end="url(#a)"/>
+
+    <!-- STEP 10: Risk Score -->
+    <rect x="200" y="916" width="380" height="64" rx="10" fill="#fff7ed" stroke="#f97316" stroke-width="2"/>
+    <text x="390" y="938" text-anchor="middle" font-size="12" font-weight="700" fill="#c2410c">10. Risk Score Calculation</text>
+    <text x="390" y="955" text-anchor="middle" font-size="9" fill="#374151">VT×40 + GN×20 + IPQS×10 + TF×10 + VT_sus×20</text>
+    <text x="390" y="970" text-anchor="middle" font-size="9" fill="#374151">Score 0–100 → Low / Medium / High / Critical</text>
+    <line x1="390" y1="980" x2="390" y2="1014" stroke="#64748b" stroke-width="1.5" marker-end="url(#a)"/>
+
+    <!-- STEP 11: Cache write -->
+    <rect x="240" y="1016" width="300" height="54" rx="10" fill="#fefce8" stroke="#f59e0b" stroke-width="2"/>
+    <text x="390" y="1038" text-anchor="middle" font-size="12" font-weight="700" fill="#a16207">11. Store in MongoDB Cache</text>
+    <text x="390" y="1056" text-anchor="middle" font-size="9" fill="#374151">IocCache collection · TTL 1 hour</text>
+    <line x1="390" y1="1070" x2="390" y2="1104" stroke="#64748b" stroke-width="1.5" marker-end="url(#a)"/>
+
+    <!-- STEP 12: History -->
+    <rect x="240" y="1106" width="300" height="54" rx="10" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/>
+    <text x="390" y="1128" text-anchor="middle" font-size="12" font-weight="700" fill="#15803d">12. Save User History</text>
+    <text x="390" y="1146" text-anchor="middle" font-size="9" fill="#374151">IocUserHistory · userId + timestamp</text>
+    <line x1="390" y1="1160" x2="390" y2="1194" stroke="#64748b" stroke-width="1.5" marker-end="url(#a)"/>
+
+    <!-- STEP 13: Return -->
+    <rect x="200" y="1196" width="380" height="64" rx="10" fill="#f0fdf4" stroke="#16a34a" stroke-width="2.5"/>
+    <text x="390" y="1218" text-anchor="middle" font-size="13" font-weight="700" fill="#15803d">13. ✅ Return Unified Result</text>
+    <text x="390" y="1236" text-anchor="middle" font-size="9" fill="#374151">Risk score · Level · Source data · Timestamps</text>
+    <text x="390" y="1252" text-anchor="middle" font-size="9" fill="#374151">Rendered in frontend UI · Avg ~3800ms total</text>
+
+    <!-- Legend -->
+    <rect x="30" y="1310" width="720" height="80" rx="10" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+    <text x="390" y="1332" text-anchor="middle" font-size="11" font-weight="700" fill="#1e293b">Legend</text>
+    <rect x="50" y="1344" width="16" height="12" rx="3" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5"/>
+    <text x="72" y="1355" font-size="10" fill="#374151">Process Step (action)</text>
+    <polygon points="160,1358 188,1370 160,1382 132,1370" fill="#fefce8" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="196" y="1374" font-size="10" fill="#374151">Decision Point</text>
+    <line x1="280" y1="1370" x2="310" y2="1370" stroke="#16a34a" stroke-width="2" marker-end="url(#ag)"/>
+    <text x="316" y="1374" font-size="10" fill="#374151">Success / Valid path</text>
+    <line x1="430" y1="1370" x2="460" y2="1370" stroke="#dc2626" stroke-width="2" marker-end="url(#ar)"/>
+    <text x="466" y="1374" font-size="10" fill="#374151">Rejection / Error path</text>
+    <line x1="580" y1="1370" x2="610" y2="1370" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#ar)"/>
+    <text x="616" y="1374" font-size="10" fill="#374151">Cache miss branch</text>
+    <text x="390" y="1382" text-anchor="middle" font-size="9" fill="#94a3b8">Steps 3 and 6 have rejection branches · Steps 1–13 are the happy path</text>
+  </svg>
+</div>
+</body>
+</html>

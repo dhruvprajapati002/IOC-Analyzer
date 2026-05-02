@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ThreatLens – API Integration Architecture</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #f8fafc; display: flex; justify-content: center; padding: 40px 20px; }
+.page { background: #fff; width: 1100px; border: 1px solid #e2e8f0; border-radius: 16px; padding: 40px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+h1 { text-align: center; font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
+.subtitle { text-align: center; font-size: 12px; color: #64748b; margin-bottom: 32px; }
+svg text { font-family: 'Segoe UI', Arial, sans-serif; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>ThreatLens — API Integration Architecture</h1>
+  <p class="subtitle">Multi-source orchestration · Promise.allSettled() · safeFetch wrapper · Response normalisation</p>
+
+  <svg width="1020" height="760" viewBox="0 0 1020 760">
+    <defs>
+      <marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto"><polygon points="0 0,8 3.5,0 7" fill="#64748b"/></marker>
+      <marker id="ao" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto"><polygon points="0 0,8 3.5,0 7" fill="#f97316"/></marker>
+    </defs>
+
+    <!-- safeFetch wrapper -->
+    <rect x="30" y="20" width="960" height="700" rx="14" fill="none" stroke="#e2e8f0" stroke-width="2" stroke-dasharray="8,4"/>
+    <text x="510" y="42" text-anchor="middle" font-size="11" fill="#94a3b8" font-weight="600">safeFetch() Wrapper — Timeout: 10s · Retry logic · SSRF Protection (blocks private IP ranges)</text>
+
+    <!-- ORCHESTRATOR centre -->
+    <rect x="380" y="60" width="260" height="72" rx="12" fill="#faf5ff" stroke="#a855f7" stroke-width="2.5"/>
+    <text x="510" y="85" text-anchor="middle" font-size="13" font-weight="700" fill="#7e22ce">⚡ Multi-Source Orchestrator</text>
+    <text x="510" y="103" text-anchor="middle" font-size="10" fill="#6b21a8">Promise.allSettled() — fires all 6 in parallel</text>
+    <text x="510" y="118" text-anchor="middle" font-size="9" fill="#94a3b8">No single-source failure blocks the result</text>
+
+    <!-- 6 API boxes - left column -->
+    <!-- VirusTotal -->
+    <rect x="30" y="190" width="200" height="88" rx="10" fill="#fff1f2" stroke="#f43f5e" stroke-width="2"/>
+    <text x="130" y="212" text-anchor="middle" font-size="12" font-weight="700" fill="#be123c">🔴 VirusTotal</text>
+    <text x="130" y="229" text-anchor="middle" font-size="9" fill="#374151">IOC Types: IP · Domain · URL · Hash</text>
+    <text x="130" y="244" text-anchor="middle" font-size="9" fill="#374151">Rate Limit: 4 requests/minute</text>
+    <text x="130" y="259" text-anchor="middle" font-size="9" fill="#374151">Auth: X-Apikey header</text>
+    <text x="130" y="273" text-anchor="middle" font-size="9" fill="#374151">Weight: ×40 in risk score</text>
+
+    <!-- GreyNoise -->
+    <rect x="30" y="294" width="200" height="88" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+    <text x="130" y="316" text-anchor="middle" font-size="12" font-weight="700" fill="#1d4ed8">🔵 GreyNoise</text>
+    <text x="130" y="333" text-anchor="middle" font-size="9" fill="#374151">IOC Types: IP only</text>
+    <text x="130" y="348" text-anchor="middle" font-size="9" fill="#374151">Classification: Noise / Riot</text>
+    <text x="130" y="363" text-anchor="middle" font-size="9" fill="#374151">Auth: key header</text>
+    <text x="130" y="377" text-anchor="middle" font-size="9" fill="#374151">Weight: ×20 in risk score</text>
+
+    <!-- ThreatFox -->
+    <rect x="30" y="398" width="200" height="88" rx="10" fill="#fff7ed" stroke="#f97316" stroke-width="2"/>
+    <text x="130" y="420" text-anchor="middle" font-size="12" font-weight="700" fill="#c2410c">🟠 ThreatFox</text>
+    <text x="130" y="437" text-anchor="middle" font-size="9" fill="#374151">IOC Types: IP · Domain · Hash</text>
+    <text x="130" y="452" text-anchor="middle" font-size="9" fill="#374151">Source: Malware IOC database</text>
+    <text x="130" y="467" text-anchor="middle" font-size="9" fill="#374151">Auth: API key in body</text>
+    <text x="130" y="481" text-anchor="middle" font-size="9" fill="#374151">Weight: ×10 in risk score</text>
+
+    <!-- Right column -->
+    <!-- URLhaus -->
+    <rect x="790" y="190" width="200" height="88" rx="10" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/>
+    <text x="890" y="212" text-anchor="middle" font-size="12" font-weight="700" fill="#15803d">🟢 URLhaus</text>
+    <text x="890" y="229" text-anchor="middle" font-size="9" fill="#374151">IOC Types: URL · Domain</text>
+    <text x="890" y="244" text-anchor="middle" font-size="9" fill="#374151">Source: URL blacklist DB</text>
+    <text x="890" y="259" text-anchor="middle" font-size="9" fill="#374151">Auth: No auth required</text>
+    <text x="890" y="273" text-anchor="middle" font-size="9" fill="#374151">Rate Limit: generous</text>
+
+    <!-- MalwareBazaar -->
+    <rect x="790" y="294" width="200" height="88" rx="10" fill="#faf5ff" stroke="#a855f7" stroke-width="2"/>
+    <text x="890" y="316" text-anchor="middle" font-size="12" font-weight="700" fill="#7e22ce">🟣 MalwareBazaar</text>
+    <text x="890" y="333" text-anchor="middle" font-size="9" fill="#374151">IOC Types: File Hash only</text>
+    <text x="890" y="348" text-anchor="middle" font-size="9" fill="#374151">Source: File hash database</text>
+    <text x="890" y="363" text-anchor="middle" font-size="9" fill="#374151">Auth: API key</text>
+    <text x="890" y="377" text-anchor="middle" font-size="9" fill="#374151">Formats: MD5/SHA256</text>
+
+    <!-- IPQS -->
+    <rect x="790" y="398" width="200" height="88" rx="10" fill="#f0f9ff" stroke="#0ea5e9" stroke-width="2"/>
+    <text x="890" y="420" text-anchor="middle" font-size="12" font-weight="700" fill="#0369a1">🔷 IPQS</text>
+    <text x="890" y="437" text-anchor="middle" font-size="9" fill="#374151">IOC Types: IP · Domain · URL</text>
+    <text x="890" y="452" text-anchor="middle" font-size="9" fill="#374151">Fraud Score: 0–100</text>
+    <text x="890" y="467" text-anchor="middle" font-size="9" fill="#374151">Auth: API key in URL</text>
+    <text x="890" y="481" text-anchor="middle" font-size="9" fill="#374151">Weight: ×10 in risk score</text>
+
+    <!-- Lines: orchestrator → each API -->
+    <!-- Left side -->
+    <line x1="380" y1="96" x2="130" y2="190" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#a)"/>
+    <line x1="380" y1="96" x2="130" y2="294" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#a)"/>
+    <line x1="380" y1="96" x2="130" y2="398" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#a)"/>
+    <!-- Right side -->
+    <line x1="640" y1="96" x2="890" y2="190" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#a)"/>
+    <line x1="640" y1="96" x2="890" y2="294" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#a)"/>
+    <line x1="640" y1="96" x2="890" y2="398" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#a)"/>
+
+    <!-- Response normaliser -->
+    <rect x="355" y="530" width="300" height="60" rx="10" fill="#f0f9ff" stroke="#0ea5e9" stroke-width="2"/>
+    <text x="505" y="555" text-anchor="middle" font-size="12" font-weight="700" fill="#0369a1">📐 Response Normaliser</text>
+    <text x="505" y="573" text-anchor="middle" font-size="9" fill="#374151">Maps each source response → unified standard schema</text>
+
+    <!-- Lines: APIs → normaliser -->
+    <line x1="130" y1="278" x2="355" y2="555" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#a)"/>
+    <line x1="130" y1="382" x2="355" y2="555" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#a)"/>
+    <line x1="130" y1="486" x2="355" y2="555" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#a)"/>
+    <line x1="890" y1="278" x2="655" y2="555" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#a)"/>
+    <line x1="890" y1="382" x2="655" y2="555" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#a)"/>
+    <line x1="890" y1="486" x2="655" y2="555" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#a)"/>
+
+    <!-- Arrow down to risk engine -->
+    <line x1="505" y1="590" x2="505" y2="638" stroke="#64748b" stroke-width="1.5" marker-end="url(#a)"/>
+
+    <!-- Risk Score Engine -->
+    <rect x="355" y="640" width="300" height="70" rx="10" fill="#fff7ed" stroke="#f97316" stroke-width="2"/>
+    <text x="505" y="662" text-anchor="middle" font-size="12" font-weight="700" fill="#c2410c">⚖️ Risk Score Engine</text>
+    <text x="505" y="679" text-anchor="middle" font-size="9" fill="#374151">VT×40 + GN×20 + IPQS×10 + TF×10 + VT_sus×20</text>
+    <text x="505" y="694" text-anchor="middle" font-size="9" fill="#374151">Score 0–100 → Level: Low / Medium / High / Critical</text>
+
+    <!-- Arrow to cache -->
+    <line x1="655" y1="675" x2="760" y2="675" stroke="#f97316" stroke-width="1.5" marker-end="url(#ao)"/>
+    <rect x="762" y="650" width="190" height="50" rx="8" fill="#fefce8" stroke="#f59e0b" stroke-width="1.8"/>
+    <text x="857" y="671" text-anchor="middle" font-size="11" font-weight="700" fill="#a16207">💾 MongoDB Cache</text>
+    <text x="857" y="688" text-anchor="middle" font-size="9" fill="#374151">IocCache · TTL 1hr · Avg 8ms</text>
+  </svg>
+</div>
+</body>
+</html>

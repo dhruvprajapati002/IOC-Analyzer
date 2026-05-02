@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ThreatLens – Database Schema Diagram (ERD)</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #f8fafc; display: flex; justify-content: center; padding: 40px 20px; }
+.page { background: #fff; width: 1060px; border: 1px solid #e2e8f0; border-radius: 16px; padding: 40px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+h1 { text-align: center; font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
+.subtitle { text-align: center; font-size: 12px; color: #64748b; margin-bottom: 32px; }
+.schema-wrap { display: flex; gap: 40px; justify-content: center; align-items: flex-start; }
+.collection { border: 2px solid #22c55e; border-radius: 14px; overflow: hidden; flex: 1; max-width: 450px; }
+.col-header { background: #15803d; padding: 12px 16px; display: flex; align-items: center; gap: 8px; }
+.col-header span { font-size: 14px; font-weight: 700; color: #fff; letter-spacing: .4px; }
+.col-header sub { font-size: 10px; color: #bbf7d0; display: block; margin-top: 2px; }
+.field-row { display: flex; align-items: baseline; padding: 7px 16px; border-bottom: 1px solid #dcfce7; gap: 8px; background: #fff; }
+.field-row:last-child { border-bottom: none; }
+.field-name { font-size: 11px; font-weight: 700; color: #1e293b; min-width: 130px; }
+.field-type { font-size: 10px; color: #64748b; background: #f1f5f9; padding: 1px 6px; border-radius: 4px; white-space: nowrap; }
+.field-note { font-size: 9px; color: #94a3b8; margin-left: auto; }
+.field-req { font-size: 9px; color: #dc2626; font-weight: 700; }
+.nested { padding-left: 20px; background: #f8fafc; }
+.nested .field-name { color: #475569; }
+.idx-section { background: #f0fdf4; border-top: 2px solid #86efac; padding: 10px 16px; }
+.idx-title { font-size: 10px; font-weight: 700; color: #15803d; margin-bottom: 6px; }
+.idx-item { display: flex; align-items: center; gap: 8px; font-size: 10px; color: #374151; margin-bottom: 4px; }
+.perf-section { background: #fefce8; border-top: 2px solid #fde047; padding: 10px 16px; }
+.perf-title { font-size: 10px; font-weight: 700; color: #a16207; margin-bottom: 6px; }
+.perf-item { font-size: 10px; color: #374151; margin-bottom: 3px; }
+.connector { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding-top: 120px; }
+.rel-line { width: 3px; height: 80px; background: linear-gradient(#22c55e, #3b82f6); border-radius: 2px; }
+.rel-label { font-size: 10px; color: #64748b; text-align: center; white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>ThreatLens — MongoDB Database Schema (ERD)</h1>
+  <p class="subtitle">2 Collections · Compound indexes · TTL auto-expiry · Performance metrics · MongoDB green theme</p>
+
+  <div class="schema-wrap">
+    <!-- Collection 1: IocCache -->
+    <div class="collection">
+      <div class="col-header">
+        <span>🗄️ IocCache<sub>Primary analysis cache · TTL-based auto-expiry</sub></span>
+      </div>
+
+      <div class="field-row">
+        <span class="field-name">_id</span>
+        <span class="field-type">ObjectId</span>
+        <span class="field-note">Auto-generated primary key</span>
+      </div>
+      <div class="field-row">
+        <span class="field-name">value</span>
+        <span class="field-type">String</span>
+        <span class="field-req">required</span>
+        <span class="field-note">Raw IOC value</span>
+      </div>
+      <div class="field-row">
+        <span class="field-name">type</span>
+        <span class="field-type">Enum</span>
+        <span class="field-note">ip | domain | url | hash</span>
+      </div>
+      <div class="field-row">
+        <span class="field-name">analysis</span>
+        <span class="field-type">Object</span>
+        <span class="field-note">Nested source data</span>
+      </div>
+      <div class="field-row nested">
+        <span class="field-name">↳ virustotal</span>
+        <span class="field-type">Object</span>
+        <span class="field-note">Malicious count, total, stats</span>
+      </div>
+      <div class="field-row nested">
+        <span class="field-name">↳ greynoise</span>
+        <span class="field-type">Object</span>
+        <span class="field-note">Noise, riot, classification</span>
+      </div>
+      <div class="field-row nested">
+        <span class="field-name">↳ threatfox</span>
+        <span class="field-type">Object</span>
+        <span class="field-note">Malware family, confidence</span>
+      </div>
+      <div class="field-row nested">
+        <span class="field-name">↳ urlhaus</span>
+        <span class="field-type">Object</span>
+        <span class="field-note">URL status, tags</span>
+      </div>
+      <div class="field-row nested">
+        <span class="field-name">↳ malwarebazaar</span>
+        <span class="field-type">Object</span>
+        <span class="field-note">File type, signature</span>
+      </div>
+      <div class="field-row nested">
+        <span class="field-name">↳ ipqs</span>
+        <span class="field-type">Object</span>
+        <span class="field-note">Fraud score, proxy, VPN flags</span>
+      </div>
+      <div class="field-row">
+        <span class="field-name">risk_score</span>
+        <span class="field-type">Number</span>
+        <span class="field-note">0 – 100 weighted score</span>
+      </div>
+      <div class="field-row">
+        <span class="field-name">risk_level</span>
+        <span class="field-type">Enum</span>
+        <span class="field-note">Low | Medium | High | Critical</span>
+      </div>
+      <div class="field-row">
+        <span class="field-name">cached_at</span>
+        <span class="field-type">Date</span>
+        <span class="field-note">Created timestamp</span>
+      </div>
+      <div class="field-row">
+        <span class="field-name">expires_at</span>
+        <span class="field-type">Date</span>
+        <span class="field-req">TTL index</span>
+        <span class="field-note">+1 hour from cached_at</span>
+      </div>
+
+      <div class="idx-section">
+        <div class="idx-title">⚡ Indexes</div>
+        <div class="idx-item">⚡ Compound <code>{ value: 1, type: 1 }</code> — unique</div>
+        <div class="idx-item">⚡ TTL on <code>expires_at</code> — expireAfterSeconds: 0</div>
+      </div>
+      <div class="perf-section">
+        <div class="perf-title">📊 Performance</div>
+        <div class="perf-item">Cache lookup avg: <strong>~8ms</strong></div>
+        <div class="perf-item">Write avg: ~12ms · Auto-expire: every 60s</div>
+      </div>
+    </div>
+
+    <!-- Connector -->
+    <div class="connector">
+      <span class="rel-label">userId links<br>history to user</span>
+      <div class="rel-line"></div>
+      <span style="font-size:20px;">🔗</span>
+      <div class="rel-line"></div>
+      <span class="rel-label">1 User →<br>Many History rows</span>
+    </div>
+
+    <!-- Collection 2: IocUserHistory -->
+    <div class="collection" style="border-color:#3b82f6;">
+      <div class="col-header" style="background:#1d4ed8;">
+        <span>📜 IocUserHistory<sub>Per-user IOC search history · Paginated</sub></span>
+      </div>
+
+      <div class="field-row">
+        <span class="field-name">_id</span>
+        <span class="field-type">ObjectId</span>
+        <span class="field-note">Auto-generated primary key</span>
+      </div>
+      <div class="field-row">
+        <span class="field-name">userId</span>
+        <span class="field-type">String</span>
+        <span class="field-req">required</span>
+        <span class="field-note">Registered user or SYSTEM_USER_ID</span>
+      </div>
+      <div class="field-row">
+        <span class="field-name">value</span>
+        <span class="field-type">String</span>
+        <span class="field-req">required</span>
+        <span class="field-note">IOC value searched</span>
+      </div>
+      <div class="field-row">
+        <span class="field-name">type</span>
+        <span class="field-type">Enum</span>
+        <span class="field-note">ip | domain | url | hash</span>
+      </div>
+      <div class="field-row">
+        <span class="field-name">risk_score</span>
+        <span class="field-type">Number</span>
+        <span class="field-note">0 – 100 at time of search</span>
+      </div>
+      <div class="field-row">
+        <span class="field-name">risk_level</span>
+        <span class="field-type">Enum</span>
+        <span class="field-note">Low | Medium | High | Critical</span>
+      </div>
+      <div class="field-row">
+        <span class="field-name">source</span>
+        <span class="field-type">String</span>
+        <span class="field-note">API entry point used</span>
+      </div>
+      <div class="field-row">
+        <span class="field-name">searched_at</span>
+        <span class="field-type">Date</span>
+        <span class="field-note">Timestamp of search</span>
+      </div>
+
+      <div class="idx-section" style="border-color:#bfdbfe;background:#eff6ff;">
+        <div class="idx-title" style="color:#1d4ed8;">⚡ Indexes</div>
+        <div class="idx-item">⚡ Compound <code>{ userId: 1, searched_at: -1 }</code></div>
+        <div class="idx-item">⚡ Text index on <code>value</code> field (full-text search)</div>
+      </div>
+      <div class="perf-section" style="border-color:#fde047;background:#fefce8;">
+        <div class="perf-title">📊 Performance</div>
+        <div class="perf-item">History query avg: <strong>~85ms</strong> (paginated)</div>
+        <div class="perf-item">Export query avg: ~200ms · Text search: ~40ms</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div style="margin-top:28px; padding: 16px; background:#f8fafc; border-radius:10px; border:1px solid #e2e8f0;">
+    <div style="font-size:11px;font-weight:700;color:#1e293b;margin-bottom:8px;">Legend &amp; Notes</div>
+    <div style="display:flex;flex-wrap:wrap;gap:20px;font-size:10px;color:#374151;">
+      <span>⚡ Lightning = Index field (fast lookup)</span>
+      <span style="color:#dc2626;font-weight:700;">required</span><span>= Mongoose validation enforced</span>
+      <span>🔗 userId = FK-style reference to user entity</span>
+      <span>TTL = MongoDB auto-expires document after 1 hour</span>
+      <span>Compound index on IocCache ensures unique {value, type} pairs</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>
