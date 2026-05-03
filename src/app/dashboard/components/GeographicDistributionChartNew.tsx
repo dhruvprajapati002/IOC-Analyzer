@@ -10,9 +10,10 @@ import type { GeoDistributionItem } from './dashboard.types';
 
 interface GeographicDistributionChartProps {
   data: GeoDistributionItem[];
+  onBarClick?: (country: string) => void;
 }
 
-export function GeographicDistributionChart({ data }: GeographicDistributionChartProps) {
+export function GeographicDistributionChart({ data, onBarClick }: GeographicDistributionChartProps) {
   const rows = data.slice(0, 8);
 
   return (
@@ -33,7 +34,14 @@ export function GeographicDistributionChart({ data }: GeographicDistributionChar
           <>
             <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={rows} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
+                <BarChart data={rows} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
+                  style={{ cursor: onBarClick ? 'pointer' : 'default' }}
+                  onClick={(state: any) => {
+                    if (onBarClick && state?.activePayload?.[0]?.payload?.countryName) {
+                      onBarClick(String(state.activePayload[0].payload.countryName));
+                    }
+                  }}
+                >
                   <CartesianGrid strokeDasharray="3 3" stroke={APP_COLORS.borderSoft} vertical={false} />
                   <XAxis
                     dataKey="country"

@@ -22,6 +22,7 @@ import { FileAnalysisGraph } from './components/FileAnalysisGraphCompact';
 import { DetectionEnginePerformanceChart } from './components/DetectionEnginePerformanceChartNew';
 import { RiskScoreTrend } from './components/RiskScoreTrend';
 import { RealTimeThreatFeed } from './components/RealTimeThreatFeed';
+import { GraphDetailPanel } from './components/GraphDetailPanel';
 
 import type {
   DashboardPayload,
@@ -119,6 +120,21 @@ export default function DashboardPageView() {
   const [retryCount, setRetryCount] = useState(0);
   const hasData = useMemo(() => Boolean(payload), [payload]);
   const hasDataRef = useRef(false);
+
+  // Graph detail panel state
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [panelGraphType, setPanelGraphType] = useState<string | null>(null);
+  const [panelGraphLabel, setPanelGraphLabel] = useState<string | null>(null);
+
+  const handleGraphClick = useCallback((graphType: string, label: string) => {
+    setPanelGraphType(graphType);
+    setPanelGraphLabel(label);
+    setPanelOpen(true);
+  }, []);
+
+  const handlePanelClose = useCallback(() => {
+    setPanelOpen(false);
+  }, []);
 
   useEffect(() => {
     hasDataRef.current = hasData;
@@ -238,34 +254,43 @@ export default function DashboardPageView() {
               <div className="space-y-3">
               {error ? <ErrorState message={error} onRetry={handleRetry} /> : null}
 
-              <ThreatTrendChart data={dailyTrends} />
+              <ThreatTrendChart data={dailyTrends} onBarClick={(date) => handleGraphClick('malicious', `Threats on ${date}`)} />
 
               <div className="grid grid-cols-1 gap-3 xl:grid-cols-3">
-                <ThreatTypePieChart data={threatTypes} />
-                <IOCTypeDistributionChart data={iocTypeDistribution} />
-                <ThreatSeverityChart data={threatIntelligence} />
+                <ThreatTypePieChart data={threatTypes} onSliceClick={(type) => handleGraphClick(type.toLowerCase(), type)} />
+                <IOCTypeDistributionChart data={iocTypeDistribution} onBarClick={(rawType) => handleGraphClick(rawType, rawType.charAt(0).toUpperCase() + rawType.slice(1) + ' IOCs')} />
+                <ThreatSeverityChart data={threatIntelligence} onBarClick={(severity) => handleGraphClick(`malicious`, `${severity} Severity Threats`)} />
               </div>
 
               <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
-                <GeographicDistributionChart data={geoDistribution} />
-                <MalwareFamiliesChart data={malwareFamilies} />
+                <GeographicDistributionChart data={geoDistribution} onBarClick={(country) => handleGraphClick('malicious_ips', `IPs from ${country}`)} />
+                <MalwareFamiliesChart data={malwareFamilies} onBarClick={(name) => handleGraphClick('malicious', `Malware: ${name}`)} />
               </div>
 
               <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
-                <TopThreatsGraph data={threatVectors} />
-                <FileAnalysisGraph data={fileAnalysis} />
+                <TopThreatsGraph data={threatVectors} onBarClick={(name) => handleGraphClick(name, `Threat Vector: ${name}`)} />
+                <FileAnalysisGraph data={fileAnalysis} onBarClick={(type) => handleGraphClick('malicious_hashes', `File Type: ${type}`)} />
               </div>
 
               <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
-                <RiskScoreTrend data={dailyTrends} />
+                <RiskScoreTrend data={dailyTrends} onBarClick={(date) => handleGraphClick('malicious', `Risk on ${date}`)} />
                 <RealTimeThreatFeed items={threatFeed} />
               </div>
 
-              <DetectionEnginePerformanceChart data={detectionEngines} />
+              <DetectionEnginePerformanceChart data={detectionEngines} onBarClick={(engine) => handleGraphClick('malicious', `Engine: ${engine}`)} />
             </div>
           ) : null}
         </div>
       </div>
+
+      {/* Graph Detail Side Panel */}
+      <GraphDetailPanel
+        isOpen={panelOpen}
+        graphType={panelGraphType}
+        graphLabel={panelGraphLabel}
+        timeRange={globalTimeRange}
+        onClose={handlePanelClose}
+      />
     </ProtectedPage>
   );
 }

@@ -48,7 +48,7 @@ export function DetectionNamesCard({ detections }: DetectionNamesCardProps) {
                       {index + 1}.
                     </span>
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold" style={{ color: APP_COLORS.textPrimary }}>
+                      <p className="truncate text-sm font-semibold" style={{ color: APP_COLORS.dangerDark }}>
                         {detection.result}
                       </p>
                       <p className="text-xs" style={{ color: APP_COLORS.textMuted }}>

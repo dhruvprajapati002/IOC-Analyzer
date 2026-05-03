@@ -10,6 +10,7 @@ import type { ThreatIntelligenceSummary } from './dashboard.types';
 
 interface ThreatSeverityChartProps {
   data: ThreatIntelligenceSummary | null;
+  onBarClick?: (severity: string) => void;
 }
 
 const SEVERITY_COLORS: Record<string, string> = {
@@ -19,7 +20,7 @@ const SEVERITY_COLORS: Record<string, string> = {
   low: RISK_COLORS.low.primary,
 };
 
-export function ThreatSeverityChart({ data }: ThreatSeverityChartProps) {
+export function ThreatSeverityChart({ data, onBarClick }: ThreatSeverityChartProps) {
   const rows = data?.bySeverity ?? [];
   const total = rows.reduce((sum, item) => sum + item.count, 0);
 
@@ -66,7 +67,10 @@ export function ThreatSeverityChart({ data }: ThreatSeverityChartProps) {
                     itemStyle={{ color: APP_COLORS.textPrimary }}
                     cursor={{ fill: APP_COLORS.borderSoft }}
                   />
-                  <Bar dataKey="count" radius={[6, 6, 0, 0]}>
+                  <Bar dataKey="count" radius={[6, 6, 0, 0]}
+                    style={{ cursor: onBarClick ? 'pointer' : 'default' }}
+                    onClick={(d: any) => onBarClick && (d as any)?.severity && onBarClick(String(d.severity))}
+                  >
                     {rows.map((entry) => (
                       <Cell key={entry.severity} fill={SEVERITY_COLORS[entry.severity]} />
                     ))}

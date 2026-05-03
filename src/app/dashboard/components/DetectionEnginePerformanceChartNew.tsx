@@ -10,9 +10,10 @@ import type { DetectionEngineItem } from './dashboard.types';
 
 interface DetectionEnginePerformanceChartProps {
   data: DetectionEngineItem[];
+  onBarClick?: (engine: string) => void;
 }
 
-export function DetectionEnginePerformanceChart({ data }: DetectionEnginePerformanceChartProps) {
+export function DetectionEnginePerformanceChart({ data, onBarClick }: DetectionEnginePerformanceChartProps) {
   const rows = Array.isArray(data) ? data : [];
 
   return (
@@ -36,7 +37,14 @@ export function DetectionEnginePerformanceChart({ data }: DetectionEnginePerform
           <>
             <div className="h-52">
               <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart data={rows} margin={{ top: 8, right: 8, left: 0, bottom: 8 }}>
+                <ComposedChart data={rows} margin={{ top: 8, right: 8, left: 0, bottom: 8 }}
+                  style={{ cursor: onBarClick ? 'pointer' : 'default' }}
+                  onClick={(state: any) => {
+                    if (onBarClick && state?.activePayload?.[0]?.payload?.engine) {
+                      onBarClick(String(state.activePayload[0].payload.engine));
+                    }
+                  }}
+                >
                   <CartesianGrid strokeDasharray="3 3" stroke={APP_COLORS.borderSoft} vertical={false} />
                   <XAxis
                     dataKey="engine"

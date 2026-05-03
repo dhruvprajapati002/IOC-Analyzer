@@ -60,7 +60,6 @@ export function FileInformationCard({ fileInfo }: FileInformationCardProps) {
       title="File Information"
       icon={<FileText className="h-4 w-4" />}
       iconColor={APP_COLORS.accentBlue}
-      sectionLabel="Artifact & Sandbox Insights"
     >
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
         <InfoTile

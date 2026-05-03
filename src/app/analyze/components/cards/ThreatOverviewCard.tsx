@@ -94,7 +94,6 @@ export function ThreatOverviewCard({
           {totalAnalyzed} IOCs analyzed · {formatDateTime(timestamp)}
         </span>
       }
-      sectionLabel="Executive Threat Snapshot"
     >
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.3fr_1fr]">
         <CinematicPieChart

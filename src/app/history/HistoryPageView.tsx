@@ -71,8 +71,8 @@ function HistoryPageContent() {
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-hidden">
-        <div className="mx-auto h-full w-full max-w-[1920px] px-4 py-4 sm:px-6 lg:px-8">
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="mx-auto w-full max-w-[1920px] px-4 py-4 sm:px-6 lg:px-8">
           {showDetailMode && query.selectedIOC ? (
             <IOCDetailPanel
               ioc={query.selectedIOC}
@@ -83,7 +83,7 @@ function HistoryPageContent() {
             loading ? (
               <HistorySkeleton />
             ) : (
-            <div className="flex h-full min-h-0 flex-col gap-4 overflow-auto">
+            <div className="flex flex-col gap-4">
               <HistoryCommandBar
                 search={query.search}
                 typeFilter={query.typeFilter}

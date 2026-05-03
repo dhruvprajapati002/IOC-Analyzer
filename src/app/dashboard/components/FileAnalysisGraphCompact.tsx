@@ -10,6 +10,7 @@ import type { FileAnalysisSummary } from './dashboard.types';
 
 interface FileAnalysisGraphProps {
   data: FileAnalysisSummary | null;
+  onBarClick?: (type: string) => void;
 }
 
 function formatBytes(value: number): string {
@@ -19,7 +20,7 @@ function formatBytes(value: number): string {
   return `${value} B`;
 }
 
-export function FileAnalysisGraph({ data }: FileAnalysisGraphProps) {
+export function FileAnalysisGraph({ data, onBarClick }: FileAnalysisGraphProps) {
   const topTypes = data?.topFileTypes ?? [];
   const totalFiles = data?.totalFiles ?? 0;
 
@@ -72,7 +73,14 @@ export function FileAnalysisGraph({ data }: FileAnalysisGraphProps) {
             {topTypes.length > 0 ? (
               <div className="mt-3 h-48">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={topTypes} layout="vertical" margin={{ top: 8, right: 10, left: 5, bottom: 5 }}>
+                  <BarChart data={topTypes} layout="vertical" margin={{ top: 8, right: 10, left: 5, bottom: 5 }}
+                    style={{ cursor: onBarClick ? 'pointer' : 'default' }}
+                    onClick={(state: any) => {
+                      if (onBarClick && state?.activePayload?.[0]?.payload?.type) {
+                        onBarClick(String(state.activePayload[0].payload.type));
+                      }
+                    }}
+                  >
                     <CartesianGrid strokeDasharray="3 3" stroke={APP_COLORS.borderSoft} vertical={false} />
                     <XAxis
                       type="number"

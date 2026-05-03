@@ -9,6 +9,7 @@ import type { DailyTrendPoint } from './dashboard.types';
 
 interface ThreatTrendChartProps {
   data: DailyTrendPoint[];
+  onBarClick?: (date: string) => void;
 }
 
 type LooseDailyTrendPoint = DailyTrendPoint & {
@@ -23,7 +24,7 @@ function toNumber(value: unknown): number {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-export function ThreatTrendChart({ data }: ThreatTrendChartProps) {
+export function ThreatTrendChart({ data, onBarClick }: ThreatTrendChartProps) {
   const rows = Array.isArray(data)
     ? data
         .map((rawItem) => {
@@ -63,7 +64,13 @@ export function ThreatTrendChart({ data }: ThreatTrendChartProps) {
         ) : (
           <div className="h-52">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={rows}>
+              <AreaChart data={rows} style={{ cursor: onBarClick ? 'pointer' : 'default' }}
+                onClick={(state: any) => {
+                  if (onBarClick && state?.activePayload?.[0]?.payload?.displayDate) {
+                    onBarClick(String(state.activePayload[0].payload.displayDate));
+                  }
+                }}
+              >
                 <CartesianGrid strokeDasharray="3 3" stroke={APP_COLORS.borderSoft} vertical={false} />
                 <XAxis
                   dataKey="displayDate"

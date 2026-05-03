@@ -54,7 +54,6 @@ export function MultiSourceDataCard({ multiSourceData }: MultiSourceDataCardProp
       title="Cyber Intelligence Analysis"
       icon={<Database className="h-4 w-4" />}
       iconColor={APP_COLORS.accentIndigo}
-      sectionLabel="Cross-Source Correlation"
     >
       {sources.length === 0 ? (
         <NoDataAvailable message="No cross-source intelligence available" />
@@ -99,16 +98,26 @@ export function MultiSourceDataCard({ multiSourceData }: MultiSourceDataCardProp
                       No source metrics available
                     </p>
                   ) : (
-                    stats.map((entry) => (
-                      <div key={entry.label} className="rounded-lg border px-2.5 py-2" style={{ borderColor: APP_COLORS.border }}>
-                        <p className="text-xs uppercase" style={{ color: APP_COLORS.textMuted }}>
-                          {entry.label}
-                        </p>
-                        <p className="text-sm font-bold" style={{ color: APP_COLORS.textPrimary }}>
-                          {entry.value}
-                        </p>
-                      </div>
-                    ))
+                    stats.map((entry) => {
+                      let valueColor = APP_COLORS.textPrimary;
+                      if (entry.label === 'Verdict') {
+                        const valStr = String(entry.value).toLowerCase();
+                        if (valStr === 'malicious') valueColor = APP_COLORS.danger;
+                        else if (valStr === 'suspicious') valueColor = APP_COLORS.warning;
+                        else if (valStr === 'clean' || valStr === 'benign') valueColor = APP_COLORS.success;
+                      }
+
+                      return (
+                        <div key={entry.label} className="rounded-lg border px-2.5 py-2" style={{ borderColor: APP_COLORS.border }}>
+                          <p className="text-xs uppercase" style={{ color: APP_COLORS.textMuted }}>
+                            {entry.label}
+                          </p>
+                          <p className="text-sm font-bold" style={{ color: valueColor }}>
+                            {entry.value}
+                          </p>
+                        </div>
+                      );
+                    })
                   )}
                 </div>
               </div>

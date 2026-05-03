@@ -10,9 +10,10 @@ import type { ThreatVectorItem } from './dashboard.types';
 
 interface TopThreatsGraphProps {
   data: ThreatVectorItem[];
+  onBarClick?: (name: string) => void;
 }
 
-export function TopThreatsGraph({ data }: TopThreatsGraphProps) {
+export function TopThreatsGraph({ data, onBarClick }: TopThreatsGraphProps) {
   const rows = data.slice(0, 8);
 
   return (
@@ -33,7 +34,14 @@ export function TopThreatsGraph({ data }: TopThreatsGraphProps) {
           <>
             <div className="h-52">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={rows} layout="vertical" margin={{ top: 8, right: 12, left: 8, bottom: 8 }}>
+                <BarChart data={rows} layout="vertical" margin={{ top: 8, right: 12, left: 8, bottom: 8 }}
+                  style={{ cursor: onBarClick ? 'pointer' : 'default' }}
+                  onClick={(state: any) => {
+                    if (onBarClick && state?.activePayload?.[0]?.payload?.name) {
+                      onBarClick(String(state.activePayload[0].payload.name));
+                    }
+                  }}
+                >
                   <CartesianGrid strokeDasharray="3 3" stroke={APP_COLORS.borderSoft} vertical={false} />
                   <XAxis
                     type="number"

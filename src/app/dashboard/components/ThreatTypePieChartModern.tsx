@@ -10,6 +10,7 @@ import type { ThreatTypeItem } from './dashboard.types';
 
 interface ThreatTypePieChartProps {
   data: ThreatTypeItem[];
+  onSliceClick?: (type: string) => void;
 }
 
 type LooseThreatTypeRow = ThreatTypeItem & {
@@ -46,7 +47,7 @@ function normalizeVerdictLabel(value: string): string {
   return normalized.charAt(0).toUpperCase() + normalized.slice(1);
 }
 
-export function ThreatTypePieChart({ data }: ThreatTypePieChartProps) {
+export function ThreatTypePieChart({ data, onSliceClick }: ThreatTypePieChartProps) {
   const rows = (Array.isArray(data) ? data : []).map((rawItem) => {
     const item = rawItem as LooseThreatTypeRow;
     const rawType = String(item.type ?? item.name ?? '').toLowerCase().trim();
@@ -55,6 +56,7 @@ export function ThreatTypePieChart({ data }: ThreatTypePieChartProps) {
     return {
       ...item,
       type: normalizeVerdictLabel(String(item.type ?? item.name ?? 'Unknown')),
+      rawType,
       count,
       fill,
     };
@@ -81,7 +83,10 @@ export function ThreatTypePieChart({ data }: ThreatTypePieChartProps) {
             <div className="h-48 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={rows} dataKey="count" nameKey="type" innerRadius={48} outerRadius={78}>
+                  <Pie data={rows} dataKey="count" nameKey="type" innerRadius={48} outerRadius={78}
+                    style={{ cursor: onSliceClick ? 'pointer' : 'default' }}
+                    onClick={(d: any) => onSliceClick && (d as any)?.rawType && onSliceClick(String(d.rawType))}
+                  >
                     {rows.map((item) => (
                       <Cell key={item.type} fill={item.fill} />
                     ))}

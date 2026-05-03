@@ -10,6 +10,7 @@ import type { IocTypeDistributionItem } from './dashboard.types';
 
 interface IOCTypeDistributionChartProps {
   data: IocTypeDistributionItem[];
+  onBarClick?: (rawType: string) => void;
 }
 
 type LooseIocTypeRow = IocTypeDistributionItem & {
@@ -44,7 +45,7 @@ function toNumber(value: unknown): number {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-export function IOCTypeDistributionChart({ data }: IOCTypeDistributionChartProps) {
+export function IOCTypeDistributionChart({ data, onBarClick }: IOCTypeDistributionChartProps) {
   const rows = (Array.isArray(data) ? data : []).map((rawItem) => {
     const item = rawItem as LooseIocTypeRow;
     const rawType = toRawType(item);
@@ -80,7 +81,10 @@ export function IOCTypeDistributionChart({ data }: IOCTypeDistributionChartProps
             <div className="h-48 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={rows} dataKey="count" nameKey="type" innerRadius={45} outerRadius={75}>
+                  <Pie data={rows} dataKey="count" nameKey="type" innerRadius={45} outerRadius={75}
+                    style={{ cursor: onBarClick ? 'pointer' : 'default' }}
+                    onClick={(d: any) => onBarClick && (d as any)?.rawType && onBarClick(String(d.rawType))}
+                  >
                     {rows.map((item) => (
                       <Cell key={`${item.type}-${item.rawType}`} fill={item.fill} />
                     ))}

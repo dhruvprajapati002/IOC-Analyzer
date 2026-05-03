@@ -1448,13 +1448,13 @@ function AnalyzePageContent() {
                         Executive Threat Snapshot
                       </h2>
                     </div>
-                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 items-stretch">
                       {pieChartData.length > 0 && (
                         <div
                           className={
-                            vtIntelligence?.popular_threat_label
-                              ? "xl:col-span-2"
-                              : "xl:col-span-3"
+                            popularThreatLabel
+                              ? "xl:col-span-2 flex flex-col"
+                              : "xl:col-span-3 flex flex-col"
                           }
                         >
                           <ThreatOverviewCard
@@ -1479,7 +1479,7 @@ function AnalyzePageContent() {
                       )}
 
                       {popularThreatLabel && (
-                        <div className="xl:col-span-1">
+                        <div className="xl:col-span-1 flex flex-col">
                           <PopularThreatLabel
                             label={popularThreatLabel}
                             suggestedLabel={suggestedThreatLabel}

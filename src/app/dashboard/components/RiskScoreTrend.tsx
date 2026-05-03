@@ -10,9 +10,10 @@ import type { DailyTrendPoint } from './dashboard.types';
 
 interface RiskScoreTrendProps {
   data: DailyTrendPoint[];
+  onBarClick?: (date: string) => void;
 }
 
-export function RiskScoreTrend({ data }: RiskScoreTrendProps) {
+export function RiskScoreTrend({ data, onBarClick }: RiskScoreTrendProps) {
   const rows = data.map((item) => ({
     date: item.displayDate,
     score: item.total > 0 ? Number(((item.threats / item.total) * 100).toFixed(1)) : 0,
@@ -39,7 +40,14 @@ export function RiskScoreTrend({ data }: RiskScoreTrendProps) {
         ) : (
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={rows}>
+              <ComposedChart data={rows}
+                style={{ cursor: onBarClick ? 'pointer' : 'default' }}
+                onClick={(state: any) => {
+                  if (onBarClick && state?.activePayload?.[0]?.payload?.date) {
+                    onBarClick(String(state.activePayload[0].payload.date));
+                  }
+                }}
+              >
                 <CartesianGrid strokeDasharray="3 3" stroke={APP_COLORS.borderSoft} vertical={false} />
                 <XAxis
                   dataKey="date"

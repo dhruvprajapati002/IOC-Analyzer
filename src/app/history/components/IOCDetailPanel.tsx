@@ -1,11 +1,9 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { RefreshCw } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiFetch } from '@/lib/apiFetch';
 import { APP_COLORS } from '@/lib/colors';
-import { ScrollArea } from '@/components/ui/ScrollArea';
 import { EmptyState } from './EmptyState';
 import { DetailHeader } from './detail/DetailHeader';
 import { DetectionBreakdown } from './detail/DetectionBreakdown';
@@ -16,6 +14,7 @@ import { MultiSourcePanel } from './detail/MultiSourcePanel';
 import { SandboxSection } from './detail/SandboxSection';
 import { ThreatIntelSection } from './detail/ThreatIntelSection';
 import { VerdictBanner } from './detail/VerdictBanner';
+import { DomainIntelSection } from './detail/DomainIntelSection';
 import type { IOCDetailData } from './detail/types';
 import { toSafeStats } from './detail/types';
 import { DetailPanelSkeleton } from '@/components/skeletons';
@@ -80,14 +79,13 @@ export function IOCDetailPanel({ ioc, iocType, onClose }: IOCDetailPanelProps) {
   }
 
   return (
-    <div className="h-full min-h-0">
+    <div className="w-full">
       {loading && !details ? (
         <DetailPanelSkeleton />
       ) : null}
 
       {details ? (
-        <ScrollArea className="h-full max-h-full" variant="thin">
-          <div className="space-y-4 pb-6">
+        <div className="space-y-4 pb-6">
             <DetailHeader
               ioc={details.ioc || ioc}
               iocType={iocType || details.type}
@@ -117,11 +115,14 @@ export function IOCDetailPanel({ ioc, iocType, onClose }: IOCDetailPanelProps) {
 
             <GeoReputationSection geolocation={details.geolocation} abuseIPDB={details.abuseIPDB} />
 
+            {(iocType === 'domain' || details.type === 'domain') && (
+              <DomainIntelSection domain={details.ioc || ioc} />
+            )}
+
             <MitreAttackSection mitreAttack={details.mitreAttack} />
 
             <SandboxSection sandboxAnalysis={details.sandboxAnalysis} />
-          </div>
-        </ScrollArea>
+        </div>
       ) : null}
     </div>
   );
