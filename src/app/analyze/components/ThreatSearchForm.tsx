@@ -27,7 +27,7 @@ export function ThreatSearchForm({
   currentIOC,
 }: ThreatSearchFormProps) {
   const [value, setValue] = useState('');
-  const inputRef = useRef<HTMLTextAreaElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -48,6 +48,16 @@ export function ThreatSearchForm({
     await onAnalyze(query);
   };
 
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const text = event.target.value;
+    if (text.includes('\\n') || text.includes(',')) {
+      const firstVal = text.split(/[\\n,]/)[0].trim();
+      setValue(firstVal);
+    } else {
+      setValue(text);
+    }
+  };
+
   return (
     <div
       style={{
@@ -64,7 +74,7 @@ export function ThreatSearchForm({
             Search IOCs for Intelligence Enrichment
           </h2>
           <p className="mt-1 text-sm" style={{ color: APP_COLORS.textMuted }}>
-            Supports IP, domain, URL, and hash indicators in a single query
+            Search a single IP, domain, URL, or hash
           </p>
         </div>
 
@@ -89,14 +99,14 @@ export function ThreatSearchForm({
               className="pointer-events-none absolute left-3 top-3.5 h-4 w-4"
               style={{ color: APP_COLORS.textMuted }}
             />
-            <textarea
+            <input
+              type="text"
               ref={inputRef}
-              rows={2}
               value={value}
-              onChange={(event) => setValue(event.target.value)}
-              placeholder="Enter one or multiple IOCs (newline supported)"
+              onChange={handleInputChange}
+              placeholder="Enter an IP, domain, URL, or hash and press Enter…"
               disabled={isLoading || disabled}
-              className="w-full resize-none rounded-xl border pl-9 pr-3 py-3 text-sm outline-none transition"
+              className="w-full rounded-xl border pl-9 pr-3 py-3 text-sm outline-none transition"
               style={{
                 borderColor: APP_COLORS.border,
                 backgroundColor: APP_COLORS.surface,
@@ -108,12 +118,12 @@ export function ThreatSearchForm({
           <button
             type="submit"
             disabled={isLoading || disabled}
-            className="rounded-xl px-5 py-3 text-sm font-bold"
+            className="rounded-xl px-4 py-3 text-sm font-semibold border"
             style={{
-              backgroundColor:
-                isLoading || disabled ? APP_COLORS.surfaceMuted : APP_COLORS.primary,
-              color: APP_COLORS.textOffWhite,
-              minWidth: 120,
+              backgroundColor: APP_COLORS.surface,
+              borderColor: APP_COLORS.border,
+              color: APP_COLORS.textSecondary,
+              minWidth: 100,
               opacity: disabled ? 0.7 : 1,
             }}
           >

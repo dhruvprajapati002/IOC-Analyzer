@@ -1,4 +1,4 @@
-import { ArrowLeft, CalendarClock, Check, Copy, Search } from 'lucide-react';
+import { ArrowLeft, CalendarClock, Check, Copy, Search, Download } from 'lucide-react';
 import { APP_COLORS, BUTTON_STYLES } from '@/lib/colors';
 import { formatAbsoluteDate } from '../../utils/historyFormatters';
 
@@ -10,6 +10,7 @@ interface DetailHeaderProps {
   copied: boolean;
   onCopy: () => void;
   onClose: () => void;
+  onDownloadReport?: () => void;
 }
 
 function sourceLabel(source?: string | null): string {
@@ -29,6 +30,7 @@ export function DetailHeader({
   copied,
   onCopy,
   onClose,
+  onDownloadReport,
 }: DetailHeaderProps) {
   return (
     <header className="rounded-2xl border p-4 md:p-5" style={{ background: APP_COLORS.surface, borderColor: APP_COLORS.border }}>
@@ -43,13 +45,26 @@ export function DetailHeader({
           Back to History
         </button>
 
-        <span className="rounded-full px-3 py-1 text-xs font-black uppercase" style={{
-          background: `${APP_COLORS.primary}15`,
-          color: APP_COLORS.primary,
-          border: `1px solid ${APP_COLORS.primary}40`,
-        }}>
-          {iocType || 'ioc'}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="rounded-full px-3 py-1 text-xs font-black uppercase" style={{
+            background: `${APP_COLORS.primary}15`,
+            color: APP_COLORS.primary,
+            border: `1px solid ${APP_COLORS.primary}40`,
+          }}>
+            {iocType || 'ioc'}
+          </span>
+          {onDownloadReport && (
+            <button
+              type="button"
+              onClick={onDownloadReport}
+              className={`${BUTTON_STYLES.secondary} inline-flex items-center gap-1.5`}
+              style={{ fontSize: 13, padding: '4px 10px', height: 'auto', minHeight: 0 }}
+            >
+              <Download className="h-3.5 w-3.5" />
+              Report
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-2 md:gap-3">

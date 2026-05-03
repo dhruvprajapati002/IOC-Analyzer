@@ -43,36 +43,8 @@ function HistoryPageContent() {
   const showDetailMode = Boolean(query.selectedIOC);
 
   return (
-    <div className="flex h-[calc(100vh-3rem)] flex-col" style={{ background: APP_COLORS.background }}>
-      <div className="flex-shrink-0 border-b" style={{ borderColor: APP_COLORS.border }}>
-        <div className="mx-auto flex w-full max-w-[1920px] items-center justify-between gap-3 px-4 py-4 sm:px-6 lg:px-8">
-          
-
-          {!showDetailMode ? (
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                className={BUTTON_STYLES.secondary}
-                onClick={exportCSV}
-              >
-                <Download className="mr-1 inline h-4 w-4" />
-                CSV
-              </button>
-              <button
-                type="button"
-                className={BUTTON_STYLES.secondary}
-                onClick={exportJSON}
-              >
-                <FileJson className="mr-1 inline h-4 w-4" />
-                JSON
-              </button>
-            </div>
-          ) : null}
-        </div>
-      </div>
-
-      <div className="min-h-0 flex-1 overflow-y-auto">
-        <div className="mx-auto w-full max-w-[1920px] px-4 py-4 sm:px-6 lg:px-8">
+    <div style={{ background: APP_COLORS.background }}>
+      <div className="mx-auto w-full max-w-[1920px] px-4 py-4 sm:px-6 lg:px-8">
           {showDetailMode && query.selectedIOC ? (
             <IOCDetailPanel
               ioc={query.selectedIOC}
@@ -100,11 +72,43 @@ function HistoryPageContent() {
                 onClearFilters={query.clearFilters}
               />
 
-              <HistoryKPIStrip
-                stats={kpiStats}
-                activeVerdict={query.verdict}
-                onVerdictSelect={(value) => query.setVerdict(value)}
-              />
+              <div className="flex items-center justify-between gap-4">
+                <HistoryKPIStrip
+                  stats={kpiStats}
+                  activeVerdict={query.verdict}
+                  onVerdictSelect={(value) => query.setVerdict(value)}
+                />
+                
+                <div className="relative group">
+                  <button
+                    type="button"
+                    className={BUTTON_STYLES.secondary}
+                  >
+                    <Download className="mr-1 inline h-4 w-4" />
+                    Download Report
+                  </button>
+                  <div className="absolute right-0 mt-2 hidden w-48 flex-col rounded-md border bg-white p-1 shadow-lg group-hover:flex z-10" style={{ backgroundColor: APP_COLORS.surface, borderColor: APP_COLORS.border }}>
+                    <button
+                      type="button"
+                      onClick={exportCSV}
+                      className="flex items-center gap-2 rounded px-3 py-2 text-sm hover:bg-black/10"
+                      style={{ color: APP_COLORS.textPrimary }}
+                    >
+                      <Download className="h-4 w-4" />
+                      Export as CSV
+                    </button>
+                    <button
+                      type="button"
+                      onClick={exportJSON}
+                      className="flex items-center gap-2 rounded px-3 py-2 text-sm hover:bg-black/10"
+                      style={{ color: APP_COLORS.textPrimary }}
+                    >
+                      <FileJson className="h-4 w-4" />
+                      Export as JSON
+                    </button>
+                  </div>
+                </div>
+              </div>
 
               {error ? (
                 <EmptyState variant="error" message={error} onRetry={refetch} />
@@ -126,7 +130,6 @@ function HistoryPageContent() {
             )
           )}
         </div>
-      </div>
     </div>
   );
 }

@@ -15,6 +15,7 @@ import { SandboxSection } from './detail/SandboxSection';
 import { ThreatIntelSection } from './detail/ThreatIntelSection';
 import { VerdictBanner } from './detail/VerdictBanner';
 import { DomainIntelSection } from './detail/DomainIntelSection';
+import { generateAndDownloadReport } from '../utils/generateHTMLReport';
 import type { IOCDetailData } from './detail/types';
 import { toSafeStats } from './detail/types';
 import { DetailPanelSkeleton } from '@/components/skeletons';
@@ -94,6 +95,7 @@ export function IOCDetailPanel({ ioc, iocType, onClose }: IOCDetailPanelProps) {
               copied={copied}
               onCopy={copyIOC}
               onClose={onClose}
+              onDownloadReport={() => generateAndDownloadReport(details)}
             />
 
             <VerdictBanner

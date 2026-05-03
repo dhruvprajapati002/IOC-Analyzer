@@ -36,6 +36,7 @@ import { NoDataAvailable } from "@/app/analyze/components/NoDataAvailable";
 import { RateLimitIndicator } from "@/app/analyze/components/RateLimitIndicator";
 import { RecentSearchChips } from "@/app/analyze/components/RecentSearchChips";
 import { DomainSidePanel } from "@/app/analyze/components/domain/DomainSidePanel";
+import { VerdictActionGuide } from "@/app/analyze/components/VerdictActionGuide";
 import { useDomainPanel } from "@/app/analyze/hooks/useDomainPanel";
 import { APP_COLORS, CHART_COLORS } from "@/lib/colors";
 import { apiFetch } from "@/lib/apiFetch";
@@ -212,6 +213,7 @@ function AnalyzePageContent() {
   const [loading] = useState(false);
   const [threatOverview, setThreatOverview] =
     useState<ThreatOverviewResult | null>(null);
+  const [showActionGuide, setShowActionGuide] = useState(false);
   const [vtIntelligence, setVtIntelligence] = useState<any>(null);
   const [fileInformation, setFileInformation] = useState<any>(null);
   const [sandboxData, setSandboxData] = useState<any>(null);
@@ -849,10 +851,12 @@ function AnalyzePageContent() {
       const unifiedVerdict =
         firstResult.vtData?.normalized?.verdict ||
         firstResult.vtData?.verdict ||
-        firstResult.reputation?.verdict;
+        firstResult.reputation?.verdict ||
+        firstResult.verdict ||
+        (totalMaliciousDetections > 0 ? 'malicious' : totalSuspiciousDetections > 0 ? 'suspicious' : 'unknown');
 
       const threatResult: ThreatOverviewResult = {
-        query: `${iocList.length} IOCs analyzed`,
+        query: iocList[0],
         timestamp: new Date(),
         totalAnalyzed: results.length,
         malicious: iocMalicious,
@@ -898,6 +902,7 @@ function AnalyzePageContent() {
       };
 
       setThreatOverview(threatResult);
+      setShowActionGuide(true);
       toast.success(
         `Analysis complete: ${iocList.length} IOC(s) processed`
       );
@@ -1566,6 +1571,13 @@ function AnalyzePageContent() {
         domain={domainPanelDomain}
         data={domainPanelData}
         onClose={closeDomainPanel}
+      />
+
+      <VerdictActionGuide
+        verdict={threatOverview?.verdict}
+        ioc={threatOverview?.query || currentIOC}
+        visible={showActionGuide}
+        onDismiss={() => setShowActionGuide(false)}
       />
     </div>
   );

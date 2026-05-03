@@ -1,4 +1,4 @@
-﻿import type { Metadata, Viewport } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Hanken_Grotesk, Roboto_Mono } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/sonner';
@@ -37,7 +37,7 @@ const robotoMono = Roboto_Mono({
 // ============================================================================
 
 export const metadata: Metadata = {
-  title: 'VigilanceX — Cyber Threat Intelligence',
+  title: 'ThreatLens — Cyber Threat Intelligence',
   description:
     'Real-time multi-source threat intelligence platform. Analyze IPs, domains, URLs, and file hashes with unified verdicts.',
   icons: {
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     apple: '/logo.png',
   },
   openGraph: {
-    title: 'VigilanceX',
+    title: 'ThreatLens',
     description: 'Cyber Threat Intelligence Platform',
     images: ['/logo.png'],
   },
