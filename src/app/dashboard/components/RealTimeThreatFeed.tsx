@@ -49,7 +49,7 @@ export function RealTimeThreatFeed({ items }: RealTimeThreatFeedProps) {
         {!rows || rows.length === 0 ? (
           <NoGraphData title="No live events" subtitle="No recent IOC events to display" />
         ) : (
-          <ScrollArea className="h-60 pr-2" variant="thin">
+          <ScrollArea className="h-48 pr-2" variant="thin">
             <div className="space-y-2">
               {rows.slice(0, 20).map((item) => (
                 <div key={`${item.ioc}-${item.timestamp}`} className="rounded-lg border border-[#dad9d4] p-2">

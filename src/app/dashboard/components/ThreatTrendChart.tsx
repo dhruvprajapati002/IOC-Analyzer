@@ -61,7 +61,7 @@ export function ThreatTrendChart({ data }: ThreatTrendChartProps) {
         {!rows || rows.length === 0 ? (
           <NoGraphData title="No trend data" subtitle="No IOC activity found for this time range" />
         ) : (
-          <div className="h-80">
+          <div className="h-52">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={rows}>
                 <CartesianGrid strokeDasharray="3 3" stroke={APP_COLORS.borderSoft} vertical={false} />

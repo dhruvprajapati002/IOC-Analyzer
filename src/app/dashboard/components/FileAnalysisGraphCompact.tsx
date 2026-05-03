@@ -70,7 +70,7 @@ export function FileAnalysisGraph({ data }: FileAnalysisGraphProps) {
             </div>
 
             {topTypes.length > 0 ? (
-              <div className="mt-3 h-45">
+              <div className="mt-3 h-48">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={topTypes} layout="vertical" margin={{ top: 8, right: 10, left: 5, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke={APP_COLORS.borderSoft} vertical={false} />

@@ -235,28 +235,28 @@ export default function DashboardPageView() {
           {!showCharts && error ? <ErrorState message={error} onRetry={handleRetry} /> : null}
 
           {showCharts ? (
-            <div className="space-y-6">
+              <div className="space-y-3">
               {error ? <ErrorState message={error} onRetry={handleRetry} /> : null}
 
               <ThreatTrendChart data={dailyTrends} />
 
-              <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-3 xl:grid-cols-3">
                 <ThreatTypePieChart data={threatTypes} />
                 <IOCTypeDistributionChart data={iocTypeDistribution} />
                 <ThreatSeverityChart data={threatIntelligence} />
               </div>
 
-              <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+              <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
                 <GeographicDistributionChart data={geoDistribution} />
                 <MalwareFamiliesChart data={malwareFamilies} />
               </div>
 
-              <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+              <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
                 <TopThreatsGraph data={threatVectors} />
                 <FileAnalysisGraph data={fileAnalysis} />
               </div>
 
-              <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+              <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
                 <RiskScoreTrend data={dailyTrends} />
                 <RealTimeThreatFeed items={threatFeed} />
               </div>

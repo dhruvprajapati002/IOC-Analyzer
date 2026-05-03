@@ -77,7 +77,7 @@ export function IOCTypeDistributionChart({ data }: IOCTypeDistributionChartProps
           <NoGraphData title="No IOC type data" subtitle="No IOC records in this range" />
         ) : (
           <>
-            <div className="h-56 w-full">
+            <div className="h-48 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie data={rows} dataKey="count" nameKey="type" innerRadius={45} outerRadius={75}>

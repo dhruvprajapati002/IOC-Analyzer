@@ -78,7 +78,7 @@ export function ThreatTypePieChart({ data }: ThreatTypePieChartProps) {
           <NoGraphData title="No verdict data" subtitle="No classified IOC verdicts for this range" />
         ) : (
           <>
-            <div className="h-56 w-full">
+            <div className="h-48 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie data={rows} dataKey="count" nameKey="type" innerRadius={48} outerRadius={78}>

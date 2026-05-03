@@ -31,7 +31,7 @@ export function GeographicDistributionChart({ data }: GeographicDistributionChar
           <NoGraphData title="No geolocation data" subtitle="No IP geolocation entries in this range" />
         ) : (
           <>
-            <div className="h-60">
+            <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={rows} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke={APP_COLORS.borderSoft} vertical={false} />

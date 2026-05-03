@@ -37,7 +37,7 @@ export function RiskScoreTrend({ data }: RiskScoreTrendProps) {
         {!rows || rows.length === 0 ? (
           <NoGraphData title="No risk trend data" subtitle="No daily trend records available" />
         ) : (
-          <div className="h-60">
+          <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={rows}>
                 <CartesianGrid strokeDasharray="3 3" stroke={APP_COLORS.borderSoft} vertical={false} />

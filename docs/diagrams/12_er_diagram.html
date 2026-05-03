@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ThreatLens – Entity Relationship Diagram (ERD)</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #f8fafc; display: flex; justify-content: center; padding: 40px 20px; }
+.page { background: #fff; width: 1000px; border: 1px solid #e2e8f0; border-radius: 16px; padding: 40px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+h1 { text-align: center; font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
+.subtitle { text-align: center; font-size: 12px; color: #64748b; margin-bottom: 32px; }
+svg text { font-family: 'Segoe UI', Arial, sans-serif; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>ThreatLens — Entity Relationship Diagram</h1>
+  <p class="subtitle">Core Data Models · Relationships · Primary/Foreign Keys</p>
+
+  <svg width="920" height="600" viewBox="0 0 920 600">
+    <!-- User Entity -->
+    <rect x="50" y="200" width="220" height="150" rx="4" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+    <rect x="50" y="200" width="220" height="30" rx="4" fill="#3b82f6" stroke="#3b82f6" stroke-width="2"/>
+    <text x="160" y="220" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">User</text>
+    
+    <text x="60" y="250" font-size="11" font-weight="700" fill="#1e293b">PK _id (ObjectId)</text>
+    <text x="60" y="270" font-size="11" fill="#374151">name (String)</text>
+    <text x="60" y="290" font-size="11" fill="#374151">email (String, Unique)</text>
+    <text x="60" y="310" font-size="11" fill="#374151">passwordHash (String)</text>
+    <text x="60" y="330" font-size="11" fill="#374151">createdAt (Date)</text>
+
+    <!-- History Entity -->
+    <rect x="380" y="200" width="220" height="210" rx="4" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+    <rect x="380" y="200" width="220" height="30" rx="4" fill="#16a34a" stroke="#16a34a" stroke-width="2"/>
+    <text x="490" y="220" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">IocUserHistory</text>
+    
+    <text x="390" y="250" font-size="11" font-weight="700" fill="#1e293b">PK _id (ObjectId)</text>
+    <text x="390" y="270" font-size="11" font-weight="700" fill="#15803d">FK userId (String/Ref)</text>
+    <text x="390" y="290" font-size="11" fill="#374151">value (String)</text>
+    <text x="390" y="310" font-size="11" fill="#374151">type (Enum)</text>
+    <text x="390" y="330" font-size="11" fill="#374151">risk_score (Number)</text>
+    <text x="390" y="350" font-size="11" fill="#374151">risk_level (String)</text>
+    <text x="390" y="370" font-size="11" fill="#374151">source (String)</text>
+    <text x="390" y="390" font-size="11" fill="#374151">searched_at (Date)</text>
+
+    <!-- Cache Entity -->
+    <rect x="680" y="200" width="220" height="190" rx="4" fill="#fff7ed" stroke="#f97316" stroke-width="2"/>
+    <rect x="680" y="200" width="220" height="30" rx="4" fill="#f97316" stroke="#f97316" stroke-width="2"/>
+    <text x="790" y="220" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">IocCache</text>
+    
+    <text x="690" y="250" font-size="11" font-weight="700" fill="#1e293b">PK _id (ObjectId)</text>
+    <text x="690" y="270" font-size="11" fill="#374151">value (String) [IDX]</text>
+    <text x="690" y="290" font-size="11" fill="#374151">type (Enum) [IDX]</text>
+    <text x="690" y="310" font-size="11" fill="#374151">analysis (Object/JSON)</text>
+    <text x="690" y="330" font-size="11" fill="#374151">risk_score (Number)</text>
+    <text x="690" y="350" font-size="11" fill="#374151">cached_at (Date)</text>
+    <text x="690" y="370" font-size="11" fill="#374151">expires_at (Date) [TTL]</text>
+
+    <!-- Crow's Foot Relationship 1: User to History (1 to Many) -->
+    <!-- Line -->
+    <line x1="270" y1="265" x2="380" y2="265" stroke="#475569" stroke-width="2"/>
+    <!-- 1 side (User) -->
+    <line x1="280" y1="255" x2="280" y2="275" stroke="#475569" stroke-width="2"/>
+    <line x1="285" y1="255" x2="285" y2="275" stroke="#475569" stroke-width="2"/>
+    <!-- Many side (History) -->
+    <circle cx="370" cy="265" r="3" fill="#fff" stroke="#475569" stroke-width="1.5"/>
+    <line x1="375" y1="255" x2="380" y2="265" stroke="#475569" stroke-width="2"/>
+    <line x1="375" y1="275" x2="380" y2="265" stroke="#475569" stroke-width="2"/>
+    <!-- Label -->
+    <text x="325" y="255" text-anchor="middle" font-size="10" fill="#64748b">1 : N</text>
+
+    <!-- Crow's Foot Relationship 2: History to Cache (Many to 1 - conceptual link on value/type) -->
+    <!-- Line -->
+    <line x1="600" y1="280" x2="680" y2="280" stroke="#475569" stroke-width="2" stroke-dasharray="4,2"/>
+    <!-- Label -->
+    <text x="640" y="270" text-anchor="middle" font-size="10" fill="#64748b">Resolved via {value, type}</text>
+
+    <text x="460" y="500" text-anchor="middle" font-size="12" fill="#475569" font-style="italic">
+      * Note: IocCache operates independently, mapped to History during Dashboard aggregations.
+    </text>
+  </svg>
+</div>
+</body>
+</html>

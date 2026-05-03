@@ -34,7 +34,7 @@ export function DetectionEnginePerformanceChart({ data }: DetectionEnginePerform
           <NoGraphData title="No engine data" subtitle="No detection-engine telemetry found" />
         ) : (
           <>
-            <div className="h-60">
+            <div className="h-52">
               <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart data={rows} margin={{ top: 8, right: 8, left: 0, bottom: 8 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke={APP_COLORS.borderSoft} vertical={false} />

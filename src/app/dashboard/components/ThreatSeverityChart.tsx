@@ -42,7 +42,7 @@ export function ThreatSeverityChart({ data }: ThreatSeverityChartProps) {
           <NoGraphData title="No severity data" subtitle="No cached severity results for this range" />
         ) : (
           <>
-            <div className="h-60">
+            <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={rows}>
                   <CartesianGrid strokeDasharray="3 3" stroke={APP_COLORS.borderSoft} vertical={false} />

@@ -31,7 +31,7 @@ export function TopThreatsGraph({ data }: TopThreatsGraphProps) {
           <NoGraphData title="No threat vectors" subtitle="No threat-intel vectors in this range" />
         ) : (
           <>
-            <div className="h-70">
+            <div className="h-52">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={rows} layout="vertical" margin={{ top: 8, right: 12, left: 8, bottom: 8 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke={APP_COLORS.borderSoft} vertical={false} />
