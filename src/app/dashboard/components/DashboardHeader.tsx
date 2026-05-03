@@ -122,7 +122,7 @@ export function DashboardHeader({
         </div>
       ) : null}
 
-      <div className="mt-4 grid grid-cols-2 gap-3 bg-[#faf9f5] md:grid-cols-3 xl:grid-cols-7">
+      <div className="mt-4 grid grid-cols-2 gap-3 bg-[#faf9f5] md:grid-cols-4 xl:grid-cols-7">
         {metricCards.map((metric) => (
           <div key={metric.label} className="rounded-2xl border border-[#dad9d4] bg-white p-4">
             <p className={`${TYPOGRAPHY.caption.xs} text-t-textMuted`}>{metric.label}</p>

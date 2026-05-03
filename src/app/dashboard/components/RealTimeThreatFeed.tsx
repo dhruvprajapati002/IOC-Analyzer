@@ -54,7 +54,7 @@ export function RealTimeThreatFeed({ items }: RealTimeThreatFeedProps) {
               {rows.slice(0, 20).map((item) => (
                 <div key={`${item.ioc}-${item.timestamp}`} className="rounded-lg border border-[#dad9d4] p-2">
                   <div className="flex items-center justify-between gap-2">
-                    <span className={`${TYPOGRAPHY.caption.sm} ${TYPOGRAPHY.fontWeight.bold} text-t-textPrimary`}>
+                    <span className={`${TYPOGRAPHY.caption.sm} ${TYPOGRAPHY.fontWeight.bold} text-t-textPrimary truncate flex-1 min-w-0`}>
                       {item.ioc}
                     </span>
                     <span className={`${TYPOGRAPHY.caption.xs} text-t-textMuted`}>

@@ -129,6 +129,7 @@ export function FileInformationCard({ fileInfo }: FileInformationCardProps) {
                   aria-label={`Copy ${label}`}
                   title={`Copy ${label}`}
                   style={{ color: APP_COLORS.textMuted }}
+                  className="p-2"
                 >
                   <Copy className="h-3.5 w-3.5" />
                 </button>

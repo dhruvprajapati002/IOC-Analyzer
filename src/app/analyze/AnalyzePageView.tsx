@@ -1041,7 +1041,7 @@ function AnalyzePageContent() {
       />
 
       <div
-        className="w-full px-4 sm:px-6 lg:px-8 py-6 max-w-480 mx-auto"
+        className="w-full px-3 py-3 sm:px-6 lg:px-8 sm:py-6 max-w-[1920px] mx-auto"
         style={{ color: APP_COLORS.textPrimary }}
       >
         <div className="space-y-6">
@@ -1082,7 +1082,7 @@ function AnalyzePageContent() {
 
                     <div>
                       <h1
-                        className="text-2xl sm:text-3xl font-black leading-tight tracking-tight"
+                        className="text-xl sm:text-3xl font-black leading-tight tracking-tight"
                         style={{ color: APP_COLORS.textPrimary }}
                       >
                         IOC Intelligence Console
@@ -1300,7 +1300,7 @@ function AnalyzePageContent() {
                     </div>
                     <div className="space-y-2">
                       <h2
-                        className="text-xl sm:text-2xl font-black"
+                        className="text-lg sm:text-2xl font-black"
                         style={{ color: APP_COLORS.textPrimary }}
                       >
                         Start an IOC Investigation

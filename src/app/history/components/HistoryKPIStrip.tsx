@@ -33,7 +33,7 @@ export function HistoryKPIStrip({ stats, activeVerdict, onVerdictSelect }: Histo
   ] as const;
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
+    <div className="flex items-center gap-3 overflow-x-auto flex-nowrap pb-2 w-full no-scrollbar">
       {items.map((item) => {
         const Icon = item.icon;
         const active = activeVerdict === item.key;
@@ -42,7 +42,7 @@ export function HistoryKPIStrip({ stats, activeVerdict, onVerdictSelect }: Histo
             type="button"
             key={item.key}
             onClick={() => onVerdictSelect(item.key as any)}
-            className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-left"
+            className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-left shrink-0"
             style={{
               background: APP_COLORS.surface,
               border: `1px solid ${active ? APP_COLORS.primary : APP_COLORS.border}`,

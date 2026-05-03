@@ -7,6 +7,7 @@ import { isAdminRoute, normalizeRoute } from '@/lib/routes';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { ScrollArea } from '@/components/ui/ScrollArea';
+import { SidebarProvider } from '@/contexts/SidebarContext';
 
 function LoadingScreen() {
   return (
@@ -36,23 +37,25 @@ export function MainLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden  text-t-textPrimary">
-      <Sidebar />
-      
-      {/* Main Content Area - Push right by sidebar width */}
-      <div className="flex w-full flex-col ">
-        <Header />
+    <SidebarProvider>
+      <div className="flex h-screen overflow-hidden text-t-textPrimary relative">
+        <Sidebar />
         
-        <ScrollArea
-          asChild
-          className="relative h-full w-full flex-1  p-4 sm:p-6 md:p-8"
-          variant="thin"
-        >
-          <main>
-            {children}
-          </main>
-        </ScrollArea>
+        {/* Main Content Area */}
+        <div className="flex w-full flex-col min-w-0">
+          <Header />
+          
+          <ScrollArea
+            asChild
+            className="relative h-full w-full flex-1 p-3 sm:p-6 md:p-8"
+            variant="thin"
+          >
+            <main>
+              {children}
+            </main>
+          </ScrollArea>
+        </div>
       </div>
-    </div>
+    </SidebarProvider>
   );
 }

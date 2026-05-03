@@ -80,7 +80,7 @@ export function IOCDetailPanel({ ioc, iocType, onClose }: IOCDetailPanelProps) {
   }
 
   return (
-    <div className="w-full">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-[#faf9f5] px-4 py-4 md:static md:z-auto md:w-full md:overflow-visible md:bg-transparent md:px-0 md:py-0">
       {loading && !details ? (
         <DetailPanelSkeleton />
       ) : null}

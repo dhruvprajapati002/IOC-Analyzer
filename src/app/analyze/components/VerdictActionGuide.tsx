@@ -80,14 +80,14 @@ export function VerdictActionGuide({ verdict, ioc, visible, onDismiss }: Verdict
 
   return (
     <div
-      className="fixed bottom-6 right-6 z-50 w-80 shadow-2xl transition-all duration-300 ease-in-out"
+      className="fixed bottom-0 left-0 right-0 md:bottom-6 md:left-auto md:right-6 z-50 w-full md:w-80 shadow-2xl transition-all duration-300 ease-in-out"
       style={{
         transform: 'translateY(0)',
         opacity: 1,
       }}
     >
       <div 
-        className="rounded-lg overflow-hidden flex flex-col"
+        className="rounded-t-xl md:rounded-lg overflow-hidden flex flex-col border-x-0 border-b-0 md:border-x md:border-b"
         style={{
           backgroundColor: APP_COLORS.surface,
           border: `1px solid ${color}`,

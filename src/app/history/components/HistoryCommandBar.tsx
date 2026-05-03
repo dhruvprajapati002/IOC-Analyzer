@@ -90,8 +90,8 @@ export function HistoryCommandBar({
         border: `1px solid ${APP_COLORS.border}`,
       }}
     >
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="relative w-full md:w-auto md:min-w-[320px]">
+      <div className="flex flex-col md:flex-row flex-wrap items-center gap-3">
+        <div className="relative w-full md:w-auto md:flex-1 md:min-w-[320px]">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" style={{ color: APP_COLORS.textMuted }} />
           <input
             value={localSearch}
@@ -116,6 +116,7 @@ export function HistoryCommandBar({
         <select
           aria-label="Filter by IOC type"
           title="Filter by IOC type"
+          className="w-full md:w-auto"
           value={typeFilter}
           onChange={(event) => onTypeFilterChange(event.target.value as any)}
           style={getPillStyle(typeFilter !== 'all')}
@@ -130,6 +131,7 @@ export function HistoryCommandBar({
         <select
           aria-label="Filter by verdict"
           title="Filter by verdict"
+          className="w-full md:w-auto"
           value={verdict}
           onChange={(event) => onVerdictFilterChange(event.target.value as any)}
           style={getPillStyle(verdict !== 'all')}
@@ -144,6 +146,7 @@ export function HistoryCommandBar({
         <select
           aria-label="Filter by source"
           title="Filter by source"
+          className="w-full md:w-auto"
           value={source}
           onChange={(event) => onSourceFilterChange(event.target.value as any)}
           style={getPillStyle(source !== 'all')}
@@ -159,6 +162,7 @@ export function HistoryCommandBar({
         <select
           aria-label="Sort results"
           title="Sort results"
+          className="w-full md:w-auto"
           value={sortBy}
           onChange={(event) => onSortByChange(event.target.value as any)}
           style={getPillStyle(sortBy !== 'newest')}
@@ -169,7 +173,7 @@ export function HistoryCommandBar({
           <option value="most_detections">Most Detections</option>
         </select>
 
-        <div className="ml-auto flex items-center gap-1 rounded-full border px-1 py-1" style={{ borderColor: APP_COLORS.border, background: APP_COLORS.backgroundSoft }}>
+        <div className="md:ml-auto w-full md:w-auto flex items-center justify-center gap-1 rounded-full border px-1 py-1" style={{ borderColor: APP_COLORS.border, background: APP_COLORS.backgroundSoft }}>
           {[10, 25, 50].map((size) => {
             const active = pageSize === size;
             return (
@@ -194,7 +198,7 @@ export function HistoryCommandBar({
           <button
             type="button"
             onClick={onClearFilters}
-            className={BUTTON_STYLES.ghost}
+            className={`${BUTTON_STYLES.ghost} w-full md:w-auto`}
             style={{ borderRadius: 12, border: `1px solid ${APP_COLORS.border}` }}
           >
             <X className="mr-1 inline h-4 w-4" />

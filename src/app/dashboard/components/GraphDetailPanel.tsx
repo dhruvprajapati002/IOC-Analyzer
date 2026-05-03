@@ -162,17 +162,23 @@ export function GraphDetailPanel({
         role="dialog"
         aria-modal="true"
         aria-label={`IOC detail for ${graphLabel ?? graphType}`}
-        className="fixed right-0 top-0 z-50 flex h-full flex-col shadow-2xl transition-transform duration-300"
+        className={`fixed z-50 flex flex-col shadow-2xl transition-transform duration-300
+          bottom-0 left-0 right-0 h-[60vh] rounded-t-xl border-t
+          lg:top-0 lg:bottom-auto lg:left-auto lg:right-0 lg:h-full lg:w-[420px] lg:rounded-none lg:border-t-0 lg:border-l
+          ${isOpen ? 'translate-y-0 lg:translate-x-0 lg:translate-y-0' : 'translate-y-full lg:translate-y-0 lg:translate-x-full'}
+        `}
         style={{
-          width: 'min(420px, 100vw)',
           background: APP_COLORS.surface,
-          borderLeft: `1px solid ${APP_COLORS.border}`,
-          transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
+          borderColor: APP_COLORS.border,
         }}
       >
+        {/* Mobile Drag Handle Indicator */}
+        <div className="flex w-full items-center justify-center pt-3 pb-1 lg:hidden">
+          <div className="h-1.5 w-12 rounded-full" style={{ background: APP_COLORS.border }} />
+        </div>
         {/* Header */}
         <div
-          className="flex shrink-0 items-center justify-between gap-3 border-b px-5 py-4"
+          className="flex shrink-0 items-center justify-between gap-3 border-b px-5 py-3 lg:py-4"
           style={{ borderColor: APP_COLORS.border }}
         >
           <div className="flex min-w-0 flex-col gap-0.5">
@@ -244,7 +250,7 @@ export function GraphDetailPanel({
                   key={ioc.id}
                   type="button"
                   onClick={() => navigateToIOC(ioc)}
-                  className="group w-full rounded-xl border px-3 py-3 text-left transition-all"
+                  className="group w-full rounded-xl border px-3 py-3 text-left transition-all min-h-[48px] flex flex-col justify-center"
                   style={{
                     borderColor: APP_COLORS.border,
                     background: APP_COLORS.backgroundSoft,
