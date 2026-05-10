@@ -30,6 +30,7 @@ const GITHUB_URL = 'https://github.com/dhruvprajapati002';
 const LINKEDIN_URL = 'https://linkedin.com/in/Dhruv';
 const EMAIL = 'dhruvprajapati0023@gmail.com';
 const YOUR_NAME = 'Dhruv';
+const FULL_NAME = 'Dhruv Prajapati';
 
 const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -140,6 +141,15 @@ const STATS: StatItem[] = [
   { value: 100, suffix: '%', label: 'Open to Use' },
 ];
 
+const SKILL_BARS = [
+  { label: 'Next.js', pct: 90, color: APP_COLORS.textPrimary },
+  { label: 'Cybersecurity', pct: 85, color: APP_COLORS.primary },
+  { label: 'API Integration', pct: 88, color: APP_COLORS.accentCyan },
+  { label: 'MongoDB', pct: 80, color: APP_COLORS.success },
+  { label: 'Data Visualization', pct: 82, color: APP_COLORS.accentPurple },
+  { label: 'TypeScript', pct: 78, color: APP_COLORS.accentBlue },
+];
+
 function AnimatedCounter({
   value,
   suffix = '',
@@ -185,8 +195,94 @@ function AnimatedCounter({
   );
 }
 
+function Typewriter() {
+  const phrases = [
+    'threat intel platforms...',
+    'security dashboards...',
+    'full-stack apps...',
+    'open-source tools...',
+  ];
+  const [phraseIndex, setPhraseIndex] = useState(0);
+  const [charIndex, setCharIndex] = useState(0);
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    const current = phrases[phraseIndex];
+    const delay = deleting ? 40 : 80;
+    const timer = window.setTimeout(() => {
+      if (!deleting && charIndex < current.length) {
+        setCharIndex((prev) => prev + 1);
+      } else if (!deleting && charIndex === current.length) {
+        window.setTimeout(() => setDeleting(true), 1400);
+      } else if (deleting && charIndex > 0) {
+        setCharIndex((prev) => prev - 1);
+      } else {
+        setDeleting(false);
+        setPhraseIndex((prev) => (prev + 1) % phrases.length);
+      }
+    }, delay);
+    return () => window.clearTimeout(timer);
+  }, [charIndex, deleting, phraseIndex, phrases]);
+
+  return (
+    <p className="mt-3 text-sm font-mono" style={{ color: APP_COLORS.textSecondary }}>
+      <span style={{ color: APP_COLORS.primary }}>{'>'}</span>
+      {' Currently building: '}
+      <span style={{ color: APP_COLORS.accentCyan }}>
+        {phrases[phraseIndex].slice(0, charIndex)}
+      </span>
+      <span className="typewriter-cursor">|</span>
+    </p>
+  );
+}
+
+function FooterLink({
+  icon: Icon,
+  label,
+  href,
+  hoverColor,
+}: {
+  icon: typeof Globe;
+  label: string;
+  href: string;
+  hoverColor: string;
+}) {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        color: hovered ? hoverColor : APP_COLORS.textSecondary,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10,
+        fontSize: 14,
+        textDecoration: 'none',
+        transition: 'color 0.2s ease',
+      }}
+    >
+      <Icon
+        style={{
+          width: 16,
+          height: 16,
+          color: hovered ? hoverColor : APP_COLORS.textMuted,
+          transition: 'color 0.2s ease',
+          flexShrink: 0,
+        }}
+      />
+      {label}
+    </a>
+  );
+}
+
 export default function AboutPageView() {
-  const { scrollY } = useScroll();
+  const { scrollY, scrollYProgress } = useScroll();
+  const progressScale = useTransform(scrollYProgress, [0, 1], [0, 1]);
   const blob1Y = useTransform(scrollY, [0, 500], [0, -80]);
   const blob2Y = useTransform(scrollY, [0, 500], [0, 60]);
   const blob3Y = useTransform(scrollY, [0, 500], [0, 40]);
@@ -196,6 +292,9 @@ export default function AboutPageView() {
 
   const aboutRef = useRef<HTMLDivElement | null>(null);
   const aboutInView = useInView(aboutRef, { once: true, margin: '-120px' });
+
+  const skillsRef = useRef<HTMLDivElement | null>(null);
+  const skillsInView = useInView(skillsRef, { once: true, margin: '-120px' });
 
   const [showScrollHint, setShowScrollHint] = useState(true);
   const containerClass = 'mx-auto w-full max-w-[1100px] px-6';
@@ -219,14 +318,14 @@ export default function AboutPageView() {
       icon: Globe,
       title: 'Portfolio',
       handle: 'Dhruv.dev',
-      color: APP_COLORS.primary,
+      color: APP_COLORS.accentBlue,
       action: () => window.open(PORTFOLIO_URL, '_blank', 'noopener,noreferrer'),
     },
     {
       icon: Github,
       title: 'GitHub',
       handle: '@Dhruv-dev',
-      color: APP_COLORS.textPrimary,
+      color: APP_COLORS.accentBlue,
       action: () => window.open(GITHUB_URL, '_blank', 'noopener,noreferrer'),
     },
     {
@@ -240,18 +339,35 @@ export default function AboutPageView() {
       icon: Mail,
       title: 'Email',
       handle: EMAIL,
-      color: APP_COLORS.primary,
+      color: APP_COLORS.danger,
       action: () => {
         window.location.href = `mailto:${EMAIL}`;
       },
     },
   ];
+  
+  const CONNECT_LINKS = [
+    { icon: Globe, label: 'Portfolio', href: PORTFOLIO_URL, hoverColor: APP_COLORS.primary },
+    { icon: Github, label: 'GitHub', href: GITHUB_URL, hoverColor: '#181717' },
+    { icon: Linkedin, label: 'LinkedIn', href: LINKEDIN_URL, hoverColor: '#0A66C2' },
+    { icon: Mail, label: 'Email', href: `mailto:${EMAIL}`, hoverColor: '#EA4335' },
+  ];
+
+
 
   return (
     <main
       className="min-h-screen overflow-x-hidden"
       style={{ backgroundColor: APP_COLORS.background, color: APP_COLORS.textPrimary }}
     >
+      <motion.div
+        className="fixed left-0 top-0 z-50 h-[2px] w-full origin-left"
+        style={{
+          scaleX: progressScale,
+          backgroundColor: APP_COLORS.primary,
+          boxShadow: `0 0 8px ${APP_COLORS.primary}`,
+        }}
+      />
       <section className="relative min-h-screen overflow-hidden">
         <div className="pointer-events-none absolute inset-0">
           <motion.div
@@ -317,6 +433,24 @@ export default function AboutPageView() {
               }}
             />
             CYBER THREAT INTELLIGENCE PLATFORM
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: -16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.18 }}
+            className="relative mt-3 inline-flex items-center gap-2 overflow-hidden rounded-full border px-4 py-1.5"
+            style={{
+              borderColor: '#F59E0B40',
+              backgroundColor: '#F59E0B10',
+              color: '#F59E0B',
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: '0.08em',
+            }}
+          >
+            🎓 B.TECH FINAL YEAR PROJECT · SAFFRON INSTITUTE OF TECHNOLOGY · 2025–26
+            <span className="college-badge-shimmer" />
           </motion.div>
 
           <motion.div
@@ -582,77 +716,150 @@ export default function AboutPageView() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-80px' }}
             transition={{ duration: 0.7, ease: EASE_OUT }}
-            className={`relative mx-auto mt-10 flex max-w-[780px] flex-col gap-8 overflow-hidden rounded-[24px] border p-8 sm:flex-row sm:p-10 ${SHADOWS.glow}`}
-            style={{ backgroundColor: APP_COLORS.surface, borderColor: APP_COLORS.border }}
+            className="relative mx-auto mt-10 w-full max-w-[900px]"
           >
-            <div
-              className="absolute right-[-80px] top-[-80px] h-[300px] w-[300px] rounded-full"
-              style={{ backgroundColor: `${APP_COLORS.primary}0A` }}
-            />
-            <div
-              className="absolute bottom-[-60px] left-[-60px] h-[200px] w-[200px] rounded-full"
-              style={{ backgroundColor: `${APP_COLORS.accentPurple}0A` }}
-            />
-
-            <div className="relative z-10 flex flex-col items-center text-center sm:items-start sm:text-left">
+            <div className="relative rounded-[28px] p-[1px]">
+              <div className="builder-border-spin" />
               <div
-                className="flex h-24 w-24 items-center justify-center rounded-full"
+                className="relative overflow-hidden rounded-[27px] border builder-dotgrid scanlines"
                 style={{
-                  background: `linear-gradient(135deg, ${APP_COLORS.primary}, ${APP_COLORS.accentOrange})`,
-                  border: `3px solid ${APP_COLORS.primary}30`,
+                  backgroundColor: `${APP_COLORS.surface}E6`,
+                  borderColor: APP_COLORS.border,
+                  backdropFilter: 'blur(20px)',
                 }}
               >
-                <span className="text-4xl font-black" style={{ color: APP_COLORS.textOffWhite }}>
-                  D
-                </span>
-              </div>
-              <h3 className="mt-4 text-xl font-black" style={{ color: APP_COLORS.textPrimary }}>
-                {YOUR_NAME}
-              </h3>
-              <p className="text-sm font-semibold" style={{ color: APP_COLORS.primary }}>
-                Full-Stack Developer
-              </p>
-              <span
-                className="mt-3 rounded-full px-3 py-1 text-xs"
-                style={{
-                  backgroundColor: APP_COLORS.backgroundSoft,
-                  color: APP_COLORS.textMuted,
-                }}
-              >
-                📍 India
-              </span>
-            </div>
+                <div className="grid gap-8 p-6 sm:p-8 lg:grid-cols-[240px_1fr]">
+                  <div className="flex flex-col items-center text-center">
+                    <div className="relative h-[120px] w-[120px]">
+                      <div
+                        className="absolute inset-[-8px] hex-clip"
+                        style={{
+                          backgroundColor: `${APP_COLORS.primary}30`,
+                          filter: 'blur(12px)',
+                        }}
+                      />
+                      <div
+                        className="hex-clip flex h-[120px] w-[120px] items-center justify-center"
+                        style={{
+                          background: `linear-gradient(135deg, ${APP_COLORS.primary}, ${APP_COLORS.accentOrange})`,
+                        }}
+                      >
+                        <span className="text-[52px] font-black" style={{ color: APP_COLORS.textOffWhite }}>
+                          D
+                        </span>
+                      </div>
+                    </div>
+                    <h3 className="mt-5 text-xl font-black" style={{ color: APP_COLORS.textPrimary }}>
+                      {FULL_NAME}
+                    </h3>
+                    <p
+                      className="mt-2 max-w-[180px] text-xs font-semibold"
+                      style={{ color: APP_COLORS.primary }}
+                    >
+                      Full-Stack Developer &amp; Security Researcher
+                    </p>
+                    <span
+                      className="mt-3 rounded-full px-3 py-1 text-xs"
+                      style={{
+                        backgroundColor: APP_COLORS.backgroundSoft,
+                        color: APP_COLORS.textMuted,
+                      }}
+                    >
+                      📍 Gujarat, India
+                    </span>
+                    <span
+                      className="mt-2 rounded-full border px-3 py-1 text-xs font-semibold"
+                      style={{
+                        backgroundColor: '#F59E0B10',
+                        color: '#F59E0B',
+                        borderColor: '#F59E0B30',
+                      }}
+                    >
+                      🎓 Saffron Institute of Technology
+                    </span>
+                  </div>
 
-            <div className="relative z-10 flex-1">
-              <p className="text-lg font-bold" style={{ color: APP_COLORS.textPrimary }}>
-                Hey there 👋
-              </p>
-              <p className="mt-3 text-sm" style={{ color: APP_COLORS.textSecondary, lineHeight: 1.8 }}>
-                I'm {YOUR_NAME} — a full-stack developer with a passion for cybersecurity tooling,
-                data visualization, and building platforms that make complex intelligence data
-                accessible and actionable.
-              </p>
-              <p className="mt-3 text-sm" style={{ color: APP_COLORS.textSecondary, lineHeight: 1.8 }}>
-                This platform started as a personal project to learn threat intelligence APIs and
-                ended up becoming a full production platform — multi-source IOC analysis, live
-                dashboards, file analysis with MITRE ATT&CK mapping, and domain intelligence. Every
-                feature came from a real security problem I wanted to solve.
-              </p>
+                  <div className="flex flex-col">
+                    <div className="overflow-hidden rounded-lg border" style={{ borderColor: APP_COLORS.border }}>
+                      <div
+                        className="flex items-center gap-1.5 rounded-t-lg px-4 py-2.5"
+                        style={{ backgroundColor: APP_COLORS.background }}
+                      >
+                        <span className="h-3 w-3 rounded-full" style={{ backgroundColor: '#FF5F57' }} />
+                        <span className="h-3 w-3 rounded-full" style={{ backgroundColor: '#FFBD2E' }} />
+                        <span className="h-3 w-3 rounded-full" style={{ backgroundColor: '#28CA42' }} />
+                        <span className="ml-3 text-xs font-mono" style={{ color: APP_COLORS.textMuted }}>
+                          dhruv@Threatlense ~ about.tsx
+                        </span>
+                      </div>
+                      <div
+                        className="rounded-b-lg px-5 py-4"
+                        style={{ backgroundColor: APP_COLORS.backgroundSoft }}
+                      >
+                        <p className="font-mono text-xs" style={{ color: APP_COLORS.textMuted }}>
+                          // Full-stack developer passionate about cybersecurity tooling
+                        </p>
+                        <p
+                          className="mt-3 text-sm"
+                          style={{ color: APP_COLORS.textSecondary, lineHeight: 1.8 }}
+                        >
+                          I'm {YOUR_NAME} — a full-stack developer with a passion for cybersecurity tooling,
+                          data visualization, and building platforms that make complex intelligence data
+                          accessible and actionable.
+                        </p>
+                        <p
+                          className="mt-3 text-sm"
+                          style={{ color: APP_COLORS.textSecondary, lineHeight: 1.8 }}
+                        >
+                          This platform started as a personal project to learn threat intelligence APIs and
+                          ended up becoming a full production platform — multi-source IOC analysis, live
+                          dashboards, file analysis with MITRE ATT&CK mapping, and domain intelligence. Every
+                          feature came from a real security problem I wanted to solve.
+                        </p>
+                      </div>
+                    </div>
 
-              <div className="mt-4 flex flex-wrap gap-2">
-                {SKILLS.map((skill) => (
-                  <span
-                    key={skill}
-                    className="rounded-md border px-3 py-1 text-xs font-semibold"
-                    style={{
-                      backgroundColor: APP_COLORS.backgroundSoft,
-                      borderColor: APP_COLORS.border,
-                      color: APP_COLORS.textSecondary,
-                    }}
-                  >
-                    {skill}
-                  </span>
-                ))}
+                    <Typewriter />
+
+                    <div ref={skillsRef} className="mt-5 grid gap-x-8 gap-y-3 sm:grid-cols-2">
+                      {SKILL_BARS.map((skill) => (
+                        <div key={skill.label}>
+                          <div
+                            className="mb-1 flex justify-between text-xs font-semibold"
+                            style={{ color: APP_COLORS.textSecondary }}
+                          >
+                            <span>{skill.label}</span>
+                            <span style={{ color: skill.color }}>{skill.pct}%</span>
+                          </div>
+                          <div className="h-1.5 overflow-hidden rounded-full" style={{ backgroundColor: APP_COLORS.border }}>
+                            <motion.div
+                              className="h-full rounded-full"
+                              style={{ backgroundColor: skill.color }}
+                              initial={{ width: 0 }}
+                              animate={{ width: skillsInView ? `${skill.pct}%` : 0 }}
+                              transition={{ duration: 1, delay: 0.2, ease: EASE_OUT }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="mt-5 flex flex-wrap items-center gap-3">
+                      {contactCards.map((card) => (
+                        <motion.button
+                          key={card.title}
+                          type="button"
+                          whileHover={{ scale: 1.1, borderColor: APP_COLORS.primary }}
+                          className="rounded-xl border p-2.5"
+                          style={{ borderColor: APP_COLORS.border, backgroundColor: APP_COLORS.surface }}
+                          onClick={card.action}
+                        >
+                          <card.icon className="h-4 w-4" style={{ color: card.color }} />
+                        </motion.button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </motion.div>
@@ -754,20 +961,106 @@ export default function AboutPageView() {
         </div>
       </section>
 
-      <section
-        className="border-t py-5"
-        style={{ backgroundColor: APP_COLORS.surface, borderColor: APP_COLORS.border }}
+      <footer
+        className="border-t"
+        // style={{ backgroundColor: APP_COLORS.surface, borderColor: APP_COLORS.border }}
       >
-        <div className={containerClass}>
-          <p className="text-center text-xs" style={{ color: APP_COLORS.textMuted }}>
-            Built with ❤️ and way too much caffeine
-          </p>
-          <div className="mt-2 flex flex-wrap items-center justify-center gap-2 text-xs" style={{ color: APP_COLORS.textMuted }}>
-            <VigilanceLogo variant="compact" size="xs" theme="light" />
-            <span>· © 2026 · Made by {YOUR_NAME}</span>
+        <div
+          style={{
+            height: 1,
+            background: `linear-gradient(90deg, transparent, ${APP_COLORS.primary}60, transparent)`,
+          }}
+        />
+
+        <div className={`${containerClass} grid gap-10 py-14 md:grid-cols-3`}>
+          <div>
+            <VigilanceLogo variant="full" size="sm" theme="light" />
+            <p className="mt-3 text-sm" style={{ color: APP_COLORS.textMuted, lineHeight: 1.7 }}>
+              Multi-source cyber threat intelligence platform for security analysts,
+              SOC teams, and independent researchers.
+            </p>
+            <div
+              className="mt-4 rounded-lg border p-3"
+              style={{ borderColor: '#F59E0B30', backgroundColor: '#F59E0B08' }}
+            >
+              <p className="text-xs font-bold" style={{ color: '#F59E0B' }}>
+                🎓 Final Year Project
+              </p>
+              <p className="mt-0.5 text-xs" style={{ color: APP_COLORS.textMuted }}>
+                {FULL_NAME} · B.E Computer Engineering
+              </p>
+              <p className="text-xs" style={{ color: APP_COLORS.textMuted }}>
+                Saffrony Institute of Technology · 2025–26
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <p
+              className="text-xs font-bold uppercase tracking-widest"
+              style={{ color: APP_COLORS.textMuted }}
+            >
+              Platform
+            </p>
+            <div className="mt-4 flex flex-col gap-2.5">
+              {[
+                { label: 'Analyze Threats', href: '/analyze' },
+                { label: 'Dashboard', href: '/dashboard' },
+                { label: 'Search History', href: '/history' },
+                { label: 'About', href: '/about' },
+              ].map((link) => (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  className="footer-link-group group flex items-center gap-2 text-sm transition-colors"
+                  style={{ color: APP_COLORS.textSecondary }}
+                >
+                  <ArrowRight
+                    className="h-3 w-3 transition-transform group-hover:translate-x-1"
+                    style={{ color: APP_COLORS.primary }}
+                  />
+                  <span>{link.label}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <p
+              className="text-xs font-bold uppercase tracking-widest"
+              style={{ color: APP_COLORS.textMuted }}
+            >
+              Connect
+            </p>
+            <div className="mt-4 flex flex-col gap-2.5">
+              {CONNECT_LINKS.map((item) => (
+                <FooterLink key={item.label} {...item} />
+              ))}
+            </div>
           </div>
         </div>
-      </section>
+
+        <div >
+          <div className={`${containerClass} flex flex-wrap items-center justify-between gap-3 py-4`}>
+            <div className="flex flex-wrap items-center gap-2 text-xs" style={{ color: APP_COLORS.textMuted }}>
+              <span className="inline-flex items-center gap-1.5">
+                <span
+                  className="h-1.5 w-1.5 rounded-full bg-green-500"
+                  style={{ animation: 'pulseDot 2s ease-in-out infinite' }}
+                />
+                All systems operational
+              </span>
+              <span>·</span>
+              <span>© 2026 ThreatLense</span>
+              <span>·</span>
+              <span>Built with ❤️ and way too much caffeine</span>
+            </div>
+            <p className="text-xs" style={{ color: APP_COLORS.textMuted }}>
+              Powered by VirusTotal · GreyNoise · ThreatFox · URLhaus
+            </p>
+          </div>
+        </div>
+      </footer>
 
       <style jsx global>{`
         @keyframes float1 {
@@ -805,6 +1098,31 @@ export default function AboutPageView() {
             transform: scale(1);
           }
         }
+        @keyframes shimmer {
+          0% {
+            background-position: -200% center;
+          }
+          100% {
+            background-position: 200% center;
+          }
+        }
+        @keyframes rotateBorder {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+        @keyframes blink {
+          0%,
+          100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0;
+          }
+        }
         .about-blob {
           position: absolute;
           border-radius: 9999px;
@@ -813,6 +1131,63 @@ export default function AboutPageView() {
         }
         .about-pulse-dot {
           animation: pulseDot 2s ease-in-out infinite;
+        }
+        .college-badge-shimmer {
+          background: linear-gradient(
+            90deg,
+            transparent 0%,
+            #F59E0B30 50%,
+            transparent 100%
+          );
+          background-size: 200% auto;
+          animation: shimmer 3s linear infinite;
+          position: absolute;
+          inset: 0;
+          border-radius: 9999px;
+          pointer-events: none;
+        }
+        .builder-border-spin {
+          position: absolute;
+          inset: -2px;
+          border-radius: 30px;
+          background: conic-gradient(
+            from 0deg,
+            transparent 0deg,
+            ${APP_COLORS.primary} 60deg,
+            transparent 120deg
+          );
+          animation: rotateBorder 4s linear infinite;
+          z-index: 0;
+        }
+        .builder-dotgrid {
+          background-image: radial-gradient(circle, #ffffff08 1px, transparent 1px);
+          background-size: 24px 24px;
+        }
+        .scanlines::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(0, 0, 0, 0.03) 2px,
+            rgba(0, 0, 0, 0.03) 4px
+          );
+          pointer-events: none;
+          border-radius: inherit;
+        }
+        .hex-clip {
+          clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+        }
+        .typewriter-cursor {
+          animation: blink 1s step-end infinite;
+        }
+        .footer-link-group:hover {
+          color: ${APP_COLORS.primary};
+        }
+        .footer-link-group:hover svg {
+          color: ${APP_COLORS.primary};
         }
       `}</style>
     </main>

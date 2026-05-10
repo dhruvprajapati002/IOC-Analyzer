@@ -282,7 +282,7 @@ export function generateAndDownloadReport(data: IOCDetailData) {
 
     <div class="footer">
       CONFIDENTIAL & PROPRIETARY. DO NOT DISTRIBUTE.<br/>
-      Vigilance Platform • Generated ${generatedAt}
+      ThreatLense Platform • Generated ${generatedAt}
     </div>
   </div>
 </body>
